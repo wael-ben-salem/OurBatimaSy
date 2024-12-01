@@ -2,13 +2,14 @@
 
 namespace App\Controller;
 
-use App\Entity\User;
-use Doctrine\ORM\EntityManagerInterface;
+use Lexik\Bundle\JWTAuthenticationBundle\Services\JWTTokenManagerInterface;
 use Symfony\Bundle\FrameworkBundle\Controller\AbstractController;
-use Symfony\Component\HttpFoundation\Request;
 use Symfony\Component\HttpFoundation\JsonResponse;
-use Symfony\Component\Routing\Annotation\Route;
+use Symfony\Component\HttpFoundation\Request;
 use Symfony\Component\PasswordHasher\Hasher\UserPasswordHasherInterface;
+use Symfony\Component\Routing\Annotation\Route;
+use Doctrine\ORM\EntityManagerInterface;
+use App\Entity\User;
 
 class LoginController extends AbstractController
 {
@@ -16,7 +17,8 @@ class LoginController extends AbstractController
     public function login(
         Request $request,
         EntityManagerInterface $entityManager,
-        UserPasswordHasherInterface $passwordHasher
+        UserPasswordHasherInterface $passwordHasher,
+        JWTTokenManagerInterface $jwtManager
     ): JsonResponse {
         $data = json_decode($request->getContent(), true);
 
@@ -27,16 +29,14 @@ class LoginController extends AbstractController
 
         // Find user by email
         $user = $entityManager->getRepository(User::class)->findOneBy(['email' => $data['email']]);
-        if (!$user) {
-            return new JsonResponse(['error' => 'User not found'], JsonResponse::HTTP_UNAUTHORIZED);
-        }
-
-        // Verify password
-        if (!$passwordHasher->isPasswordValid($user, $data['password'])) {
+        if (!$user || !$passwordHasher->isPasswordValid($user, $data['password'])) {
             return new JsonResponse(['error' => 'Invalid credentials'], JsonResponse::HTTP_UNAUTHORIZED);
         }
 
-        // Successful login
-        return new JsonResponse(['message' => 'Login successful'], JsonResponse::HTTP_OK);
+        // Generate JWT token
+        $token = $jwtManager->create($user);
+
+        return new JsonResponse(['token' => $token], JsonResponse::HTTP_OK);
     }
 }
+
