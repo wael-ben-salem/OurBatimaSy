@@ -2,7 +2,7 @@ security:
     enable_authenticator_manager: true
 
     password_hashers:
-        Symfony\Component\Security\Core\User\PasswordAuthenticatedUserInterface: auto
+        App\Entity\User: auto
 
     providers:
         app_user_provider:
@@ -11,22 +11,22 @@ security:
                 property: email
 
     firewalls:
-        dev:
-            pattern: ^/(_(profiler|wdt)|css|images|js)/
-            security: false
-
         login:
             pattern: ^/login
             stateless: true
+            security: false
             json_login:
                 check_path: /login
                 username_path: email
                 password_path: password
+                success_handler: lexik_jwt_authentication.handler.authentication_success
+                failure_handler: lexik_jwt_authentication.handler.authentication_failure
 
         api:
-            pattern: ^/api
+            pattern: ^/(note|api)
             stateless: true
-            jwt: ~  # Use JWT for API authentication
+            jwt: ~
 
     access_control:
-        - { path: ^/api, roles: ROLE_USER }
+        - { path: ^/login, roles: PUBLIC_ACCESS }
+        - { path: ^/(note|api), roles: IS_AUTHENTICATED_FULLY }

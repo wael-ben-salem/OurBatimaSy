@@ -5,7 +5,7 @@ namespace App\Entity;
 use App\Repository\NoteRepository;
 use Doctrine\DBAL\Types\Types;
 use Doctrine\ORM\Mapping as ORM;
-use Symfony\Component\Serializer\Annotation\Groups;  // Add this
+use Symfony\Component\Serializer\Annotation\Groups;
 
 #[ORM\Entity(repositoryClass: NoteRepository::class)]
 class Note
@@ -13,26 +13,26 @@ class Note
     #[ORM\Id]
     #[ORM\GeneratedValue]
     #[ORM\Column]
-    #[Groups(['note:read'])]
+    #[Groups(['note:read', 'note:details'])]
     private ?int $id = null;
 
     #[ORM\Column(length: 255, nullable: true)]
-    #[Groups(['note:read'])]
+    #[Groups(['note:read', 'note:details'])]
     private ?string $title = null;
 
     #[ORM\Column(type: Types::TEXT, nullable: true)]
-    #[Groups(['note:read'])]
+    #[Groups(['note:read', 'note:details'])]
     private ?string $content = null;
 
     #[ORM\Column(nullable: true)]
-    #[Groups(['note:read'])]
+    #[Groups(['note:read', 'note:details'])]
     private ?\DateTimeImmutable $date = null;
 
-    #[ORM\ManyToOne(inversedBy: 'notes')]
-    #[Groups(['note:read'])]
+    #[ORM\ManyToOne(targetEntity: User::class, inversedBy: 'notes')]
+    #[ORM\JoinColumn(nullable: false)]
+    #[Groups(['note:details'])] // Include user in details
     private ?User $createdBy = null;
 
-    // Getter and Setter methods
     public function getId(): ?int
     {
         return $this->id;
@@ -46,7 +46,6 @@ class Note
     public function setTitle(?string $title): static
     {
         $this->title = $title;
-
         return $this;
     }
 
@@ -58,7 +57,6 @@ class Note
     public function setContent(?string $content): static
     {
         $this->content = $content;
-
         return $this;
     }
 
@@ -70,7 +68,6 @@ class Note
     public function setDate(?\DateTimeImmutable $date): static
     {
         $this->date = $date;
-
         return $this;
     }
 
@@ -82,7 +79,6 @@ class Note
     public function setCreatedBy(?User $createdBy): static
     {
         $this->createdBy = $createdBy;
-
         return $this;
     }
 }
