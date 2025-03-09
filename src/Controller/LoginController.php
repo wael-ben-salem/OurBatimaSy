@@ -36,7 +36,12 @@ class LoginController extends AbstractController
         // Generate JWT token
         $token = $jwtManager->create($user);
 
-        return new JsonResponse(['token' => $token], JsonResponse::HTTP_OK);
+        return new JsonResponse([
+            'token' => $token,
+            'user' => [ // Add user details
+                'id' => $user->getId(),
+                'email' => $user->getEmail()
+            ]
+        ], JsonResponse::HTTP_OK);
     }
 }
-
