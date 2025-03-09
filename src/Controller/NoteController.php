@@ -50,14 +50,14 @@ class NoteController extends AbstractController
     #[Route('/note/{id}', name: 'app_note_edit', methods: ['PUT'])]
     public function edit(Request $request, Note $note, EntityManagerInterface $em): Response
     {
-        $data = json_decode($request->getContent(), true);
+        $user = $this->getUser();
 
-        // Basic validation
-        if (!$note) {
-            return $this->json(['error' => 'Note not found'], Response::HTTP_NOT_FOUND);
+        // Authorization check
+        if ($note->getCreatedBy() !== $user) {
+            return $this->json(['error' => 'You can only edit your own notes'], Response::HTTP_FORBIDDEN);
         }
 
-        // Update fields
+        $data = json_decode($request->getContent(), true);
         $note->setTitle($data['title'] ?? $note->getTitle());
         $note->setContent($data['content'] ?? $note->getContent());
 
@@ -69,8 +69,11 @@ class NoteController extends AbstractController
     #[Route('/note/{id}', name: 'app_note_delete', methods: ['DELETE'])]
     public function delete(Note $note, EntityManagerInterface $em): Response
     {
-        if (!$note) {
-            return $this->json(['error' => 'Note not found'], Response::HTTP_NOT_FOUND);
+        $user = $this->getUser();
+
+        // Authorization check
+        if ($note->getCreatedBy() !== $user) {
+            return $this->json(['error' => 'You can only delete your own notes'], Response::HTTP_FORBIDDEN);
         }
 
         $em->remove($note);
