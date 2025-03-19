@@ -53,8 +53,8 @@ class NoteController extends AbstractController
         $user = $this->getUser();
 
         // Authorization check
-        if ($note->getCreatedBy() !== $user) {
-            return $this->json(['error' => 'You can only edit your own notes'], Response::HTTP_FORBIDDEN);
+        if (!in_array('ROLE_ADMIN', $user->getRoles()) && $note->getCreatedBy() !== $user) {
+            return $this->json(['error' => 'Access denied'], Response::HTTP_FORBIDDEN);
         }
 
         $data = json_decode($request->getContent(), true);
@@ -72,8 +72,8 @@ class NoteController extends AbstractController
         $user = $this->getUser();
 
         // Authorization check
-        if ($note->getCreatedBy() !== $user) {
-            return $this->json(['error' => 'You can only delete your own notes'], Response::HTTP_FORBIDDEN);
+        if (!in_array('ROLE_ADMIN', $user->getRoles()) && $note->getCreatedBy() !== $user) {
+            return $this->json(['error' => 'Access denied'], Response::HTTP_FORBIDDEN);
         }
 
         $em->remove($note);

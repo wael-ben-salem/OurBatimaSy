@@ -40,7 +40,8 @@ class LoginController extends AbstractController
             'token' => $token,
             'user' => [ // Add user details
                 'id' => $user->getId(),
-                'email' => $user->getEmail()
+                'email' => $user->getEmail(),
+                'roles' => $user->getRoles()
             ]
         ], JsonResponse::HTTP_OK);
     }
