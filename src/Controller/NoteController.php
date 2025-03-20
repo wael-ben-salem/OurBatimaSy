@@ -3,6 +3,7 @@
 namespace App\Controller;
 
 use App\Entity\Note;
+use App\Entity\User;
 use App\Repository\NoteRepository;
 use Doctrine\ORM\EntityManagerInterface;
 use Symfony\Bundle\FrameworkBundle\Controller\AbstractController;
@@ -35,6 +36,12 @@ class NoteController extends AbstractController
         }
 
         $note->setCreatedBy($user);
+
+        if (isset($data['assignedTo'])) {
+            $assignedUser = $em->getReference(User::class, $data['assignedTo']);
+            $note->setAssignedTo($assignedUser);
+        }
+
         $em->persist($note);
         $em->flush();
 
@@ -60,6 +67,13 @@ class NoteController extends AbstractController
         $data = json_decode($request->getContent(), true);
         $note->setTitle($data['title'] ?? $note->getTitle());
         $note->setContent($data['content'] ?? $note->getContent());
+
+        if (isset($data['assignedTo'])) {
+            $assignedUser = $em->getReference(User::class, $data['assignedTo']);
+            $note->setAssignedTo($assignedUser);
+        } else {
+            $note->setAssignedTo(null);
+        }
 
         $em->flush();
 

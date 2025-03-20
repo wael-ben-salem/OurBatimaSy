@@ -18,11 +18,11 @@ class User implements UserInterface, PasswordAuthenticatedUserInterface
     #[ORM\Id]
     #[ORM\GeneratedValue]
     #[ORM\Column]
-    #[Groups(['note:details'])] // Make ID visible in details
+    #[Groups(['note:details', 'user:list'])] // Add 'user:list' to ID
     private ?int $id = null;
 
     #[ORM\Column(length: 180)]
-    #[Groups(['note:details'])] // Add email serialization
+    #[Groups(['note:details', 'user:list'])] // Add 'user:list' to email
     private ?string $email = null;
 
     #[ORM\Column]

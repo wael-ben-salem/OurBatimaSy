@@ -33,6 +33,11 @@ class Note
     #[Groups(['note:details'])] // Include user in details
     private ?User $createdBy = null;
 
+    // src/Entity/Note.php
+    #[ORM\ManyToOne(targetEntity: User::class)]
+    #[Groups(['note:read', 'note:details'])]
+    private ?User $assignedTo = null;
+
     public function getId(): ?int
     {
         return $this->id;
@@ -79,6 +84,18 @@ class Note
     public function setCreatedBy(?User $createdBy): static
     {
         $this->createdBy = $createdBy;
+        return $this;
+    }
+
+    // Add getter and setter
+    public function getAssignedTo(): ?User
+    {
+        return $this->assignedTo;
+    }
+
+    public function setAssignedTo(?User $assignedTo): static
+    {
+        $this->assignedTo = $assignedTo;
         return $this;
     }
 }
