@@ -8,34 +8,34 @@ use Doctrine\ORM\Mapping as ORM;
 use Symfony\Component\Serializer\Annotation\Groups;
 
 #[ORM\Entity(repositoryClass: NoteRepository::class)]
+#[Groups(['planning:read'])] // Add this to the Note class annotation
 class Note
 {
     #[ORM\Id]
     #[ORM\GeneratedValue]
     #[ORM\Column]
-    #[Groups(['note:read', 'note:details'])]
+    #[Groups(['note:read', 'note:details', 'planning:read'])] // Add 'planning:read' to ID
     private ?int $id = null;
 
     #[ORM\Column(length: 255, nullable: true)]
-    #[Groups(['note:read', 'note:details'])]
+    #[Groups(['note:read', 'note:details', 'planning:read'])] // Add 'planning:read' to title
     private ?string $title = null;
 
     #[ORM\Column(type: Types::TEXT, nullable: true)]
-    #[Groups(['note:read', 'note:details'])]
+    #[Groups(['note:read', 'note:details', 'planning:read'])] // Add 'planning:read' to content
     private ?string $content = null;
 
     #[ORM\Column(nullable: true)]
-    #[Groups(['note:read', 'note:details'])]
+    #[Groups(['note:read', 'note:details'])] // No change needed
     private ?\DateTimeImmutable $date = null;
 
     #[ORM\ManyToOne(targetEntity: User::class, inversedBy: 'notes')]
     #[ORM\JoinColumn(nullable: false)]
-    #[Groups(['note:details'])] // Include user in details
+    #[Groups(['note:details'])] // No change needed
     private ?User $createdBy = null;
 
-    // src/Entity/Note.php
     #[ORM\ManyToOne(targetEntity: User::class)]
-    #[Groups(['note:read', 'note:details'])]
+    #[Groups(['note:read', 'note:details'])] // No change needed
     private ?User $assignedTo = null;
 
     public function getId(): ?int
@@ -87,7 +87,6 @@ class Note
         return $this;
     }
 
-    // Add getter and setter
     public function getAssignedTo(): ?User
     {
         return $this->assignedTo;
