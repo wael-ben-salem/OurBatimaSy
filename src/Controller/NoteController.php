@@ -20,6 +20,18 @@ class NoteController extends AbstractController
         return $this->json($notes, Response::HTTP_OK, [], ['groups' => ['note:read', 'note:details']]);
     }
 
+    #[Route('/my-notes', name: 'app_my_notes', methods: ['GET'])]
+    public function myNotes(NoteRepository $noteRepository): Response
+    {
+        $user = $this->getUser();
+        if (!$user) {
+            return $this->json(['error' => 'Unauthorized'], Response::HTTP_UNAUTHORIZED);
+        }
+
+        $notes = $noteRepository->findByUser($user);
+        return $this->json($notes, Response::HTTP_OK, [], ['groups' => ['note:read', 'note:details']]);
+    }
+
     #[Route('/note/new', name: 'app_note_new', methods: ['POST'])]
     public function new(Request $request, EntityManagerInterface $em): Response
     {
@@ -59,8 +71,11 @@ class NoteController extends AbstractController
     {
         $user = $this->getUser();
 
-        // Authorization check
-        if (!in_array('ROLE_ADMIN', $user->getRoles()) && $note->getCreatedBy() !== $user) {
+        // Updated authorization check
+        if (!$this->isGranted('ROLE_ADMIN')
+            && $note->getCreatedBy()->getId() !== $user->getId()
+            && $note->getAssignedTo()?->getId() !== $user->getId())
+        {
             return $this->json(['error' => 'Access denied'], Response::HTTP_FORBIDDEN);
         }
 
@@ -85,8 +100,11 @@ class NoteController extends AbstractController
     {
         $user = $this->getUser();
 
-        // Authorization check
-        if (!in_array('ROLE_ADMIN', $user->getRoles()) && $note->getCreatedBy() !== $user) {
+        // Updated authorization check
+        if (!$this->isGranted('ROLE_ADMIN')
+            && $note->getCreatedBy()->getId() !== $user->getId()
+            && $note->getAssignedTo()?->getId() !== $user->getId())
+        {
             return $this->json(['error' => 'Access denied'], Response::HTTP_FORBIDDEN);
         }
 

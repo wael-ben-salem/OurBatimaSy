@@ -22,6 +22,18 @@ class PlanningController extends AbstractController
         return $this->json($plannings, 200, [], ['groups' => ['planning:read']]);
     }
 
+    #[Route('/my-planification', name: 'planning_mine', methods: ['GET'])]
+    public function myPlanning(PlanningRepository $repo): Response
+    {
+        $user = $this->getUser();
+        if (!$user) {
+            return $this->json(['error' => 'Unauthorized'], Response::HTTP_UNAUTHORIZED);
+        }
+
+        $plannings = $repo->findByUser($user);
+        return $this->json($plannings, 200, [], ['groups' => ['planning:read']]);
+    }
+
     #[Route('/new', name: 'planning_new', methods: ['POST'])]
     public function new(Request $request, EntityManagerInterface $em): Response
     {
@@ -51,6 +63,17 @@ class PlanningController extends AbstractController
     #[Route('/{id}', name: 'planning_edit', methods: ['PUT'])]
     public function edit(Planning $planning, Request $request, EntityManagerInterface $em): Response
     {
+        $user = $this->getUser();
+        $note = $planning->getNote();
+
+        // Authorization check
+        if (!$this->isGranted('ROLE_ADMIN')
+            && $note->getCreatedBy()->getId() !== $user->getId()
+            && $note->getAssignedTo()?->getId() !== $user->getId())
+        {
+            return $this->json(['error' => 'Access denied'], Response::HTTP_FORBIDDEN);
+        }
+
         $data = json_decode($request->getContent(), true);
 
         if (isset($data['note_id'])) {
@@ -71,8 +94,20 @@ class PlanningController extends AbstractController
     #[Route('/{id}', name: 'planning_delete', methods: ['DELETE'])]
     public function delete(Planning $planning, EntityManagerInterface $em): Response
     {
+        $user = $this->getUser();
+        $note = $planning->getNote();
+
+        // Authorization check
+        if (!$this->isGranted('ROLE_ADMIN')
+            && $note->getCreatedBy()->getId() !== $user->getId()
+            && $note->getAssignedTo()?->getId() !== $user->getId())
+        {
+            return $this->json(['error' => 'Access denied'], Response::HTTP_FORBIDDEN);
+        }
+
         $em->remove($planning);
         $em->flush();
+
         return $this->json(['message' => 'Planning deleted successfully']);
     }
 }

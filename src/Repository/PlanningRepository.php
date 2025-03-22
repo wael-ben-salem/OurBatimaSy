@@ -5,6 +5,7 @@
 namespace App\Repository;
 
 use App\Entity\Planning;
+use App\Entity\User;
 use Doctrine\Bundle\DoctrineBundle\Repository\ServiceEntityRepository;
 use Doctrine\Persistence\ManagerRegistry;
 
@@ -23,4 +24,15 @@ class PlanningRepository extends ServiceEntityRepository
             ->getQuery()
             ->getResult();
     }
+
+    public function findByUser(User $user)
+    {
+        return $this->createQueryBuilder('p')
+            ->join('p.note', 'n')
+            ->where('n.createdBy = :user OR n.assignedTo = :user')
+            ->setParameter('user', $user)
+            ->getQuery()
+            ->getResult();
+    }
+
 }

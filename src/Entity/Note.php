@@ -31,11 +31,11 @@ class Note
 
     #[ORM\ManyToOne(targetEntity: User::class, inversedBy: 'notes')]
     #[ORM\JoinColumn(nullable: false)]
-    #[Groups(['note:details'])] // No change needed
+    #[Groups(['note:details', 'planning:read'])] // 'planning:read' here
     private ?User $createdBy = null;
 
     #[ORM\ManyToOne(targetEntity: User::class)]
-    #[Groups(['note:read', 'note:details'])] // No change needed
+    #[Groups(['note:read', 'note:details', 'planning:read'])] // 'planning:read' here
     private ?User $assignedTo = null;
 
     public function getId(): ?int
