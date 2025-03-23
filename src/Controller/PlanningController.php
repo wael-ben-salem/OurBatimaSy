@@ -11,6 +11,7 @@ use Symfony\Bundle\FrameworkBundle\Controller\AbstractController;
 use Symfony\Component\HttpFoundation\Request;
 use Symfony\Component\HttpFoundation\Response;
 use Symfony\Component\Routing\Annotation\Route;
+use App\Entity\Notification;
 
 #[Route('/planification')]
 class PlanningController extends AbstractController
@@ -50,6 +51,25 @@ class PlanningController extends AbstractController
 
         $em->persist($planning);
         $em->flush();
+
+        // Create notifications
+        $note = $planning->getNote();
+        $usersToNotify = array_filter([
+            $note->getCreatedBy(),
+            $note->getAssignedTo()
+        ]);
+
+        foreach ($usersToNotify as $user) {
+            $notification = new Notification();
+            $notification->setMessage(sprintf('New planification for note "%s"', $note->getTitle()))
+                ->setRecipient($user)
+                ->setPlanning($planning);
+
+            $em->persist($notification);
+        }
+
+        $em->flush();
+
 
         return $this->json($planning, 201, [], ['groups' => ['planning:read']]);
     }
@@ -103,6 +123,12 @@ class PlanningController extends AbstractController
             && $note->getAssignedTo()?->getId() !== $user->getId())
         {
             return $this->json(['error' => 'Access denied'], Response::HTTP_FORBIDDEN);
+        }
+
+        // Remove associated notifications first
+        $notifications = $em->getRepository(Notification::class)->findBy(['planning' => $planning]);
+        foreach ($notifications as $notification) {
+            $em->remove($notification);
         }
 
         $em->remove($planning);

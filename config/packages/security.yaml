@@ -24,10 +24,11 @@ security:
                 failure_handler: lexik_jwt_authentication.handler.authentication_failure
 
         api:
-            pattern: ^/(note|my-notes|planification)
+            pattern: ^/(note|my-notes|planification|notifications)
             stateless: true
             jwt: ~
 
     access_control:
         - { path: ^/login, roles: PUBLIC_ACCESS }
+        - { path: ^/notifications, roles: IS_AUTHENTICATED_FULLY }
         - { path: ^/(note|my-notes|planification), roles: IS_AUTHENTICATED_FULLY }

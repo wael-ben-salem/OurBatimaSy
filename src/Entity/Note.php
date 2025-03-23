@@ -35,7 +35,7 @@ class Note
     private ?User $createdBy = null;
 
     #[ORM\ManyToOne(targetEntity: User::class)]
-    #[Groups(['note:read', 'note:details', 'planning:read'])] // 'planning:read' here
+    #[Groups(['note:read', 'note:details', 'planning:read','notification:read'])] // 'planning:read' here
     private ?User $assignedTo = null;
 
     public function getId(): ?int
