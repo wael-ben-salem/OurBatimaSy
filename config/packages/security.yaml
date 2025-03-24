@@ -32,3 +32,4 @@ security:
         - { path: ^/login, roles: PUBLIC_ACCESS }
         - { path: ^/notifications, roles: IS_AUTHENTICATED_FULLY }
         - { path: ^/(note|my-notes|planification), roles: IS_AUTHENTICATED_FULLY }
+        - { path: ^/planification/my-saved-planification, roles: IS_AUTHENTICATED_FULLY }

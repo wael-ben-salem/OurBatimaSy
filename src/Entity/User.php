@@ -18,11 +18,11 @@ class User implements UserInterface, PasswordAuthenticatedUserInterface
     #[ORM\Id]
     #[ORM\GeneratedValue]
     #[ORM\Column]
-    #[Groups(['note:details', 'user:list'])] // Add 'user:list' to ID
+    #[Groups(['note:details', 'user:list'])]
     private ?int $id = null;
 
     #[ORM\Column(length: 180)]
-    #[Groups(['note:details', 'user:list', 'planning:read'])] // Add 'planning:read'
+    #[Groups(['note:details', 'user:list', 'planning:read'])]
     private ?string $email = null;
 
     #[ORM\Column]
@@ -32,12 +32,18 @@ class User implements UserInterface, PasswordAuthenticatedUserInterface
     private ?string $password = null;
 
     #[ORM\OneToMany(targetEntity: Note::class, mappedBy: 'createdBy')]
-    #[Ignore] // Prevent circular reference
+    #[Ignore]
     private Collection $notes;
+
+    #[ORM\ManyToMany(targetEntity: Planning::class)]
+    #[ORM\JoinTable(name: 'user_saved_plannings')]
+    #[Groups(['user:saved'])] // Changed from 'planning:read'
+    private Collection $savedPlannings;
 
     public function __construct()
     {
         $this->notes = new ArrayCollection();
+        $this->savedPlannings = new ArrayCollection();
     }
 
     public function getId(): ?int
@@ -90,6 +96,25 @@ class User implements UserInterface, PasswordAuthenticatedUserInterface
     public function getNotes(): Collection
     {
         return $this->notes;
+    }
+
+    public function getSavedPlannings(): Collection
+    {
+        return $this->savedPlannings;
+    }
+
+    public function addSavedPlanning(Planning $planning): self
+    {
+        if (!$this->savedPlannings->contains($planning)) {
+            $this->savedPlannings->add($planning);
+        }
+        return $this;
+    }
+
+    public function removeSavedPlanning(Planning $planning): self
+    {
+        $this->savedPlannings->removeElement($planning);
+        return $this;
     }
 
     public function __toString(): string

@@ -12,15 +12,30 @@ use Symfony\Component\HttpFoundation\Request;
 use Symfony\Component\HttpFoundation\Response;
 use Symfony\Component\Routing\Annotation\Route;
 use App\Entity\Notification;
+// src/Controller/PlanningController.php
+
+use Symfony\Component\Serializer\SerializerInterface;
 
 #[Route('/planification')]
 class PlanningController extends AbstractController
 {
     #[Route('/', name: 'planning_index', methods: ['GET'])]
-    public function index(PlanningRepository $repo): Response
+    public function index(PlanningRepository $repo, SerializerInterface $serializer): Response
     {
+        $user = $this->getUser();
         $plannings = $repo->findAll();
-        return $this->json($plannings, 200, [], ['groups' => ['planning:read']]);
+
+        // Serialize without modifying array keys
+        $data = json_decode($serializer->serialize($plannings, 'json', [
+            'groups' => ['planning:read']
+        ]), true);
+
+        // Map isSaved status correctly
+        foreach ($plannings as $key => $planning) {
+            $data[$key]['isSaved'] = $user && $user->getSavedPlannings()->contains($planning);
+        }
+
+        return $this->json($data);
     }
 
     #[Route('/my-planification', name: 'planning_mine', methods: ['GET'])]
@@ -34,6 +49,50 @@ class PlanningController extends AbstractController
         $plannings = $repo->findByUser($user);
         return $this->json($plannings, 200, [], ['groups' => ['planning:read']]);
     }
+
+
+
+
+
+    #[Route('/{id}/toggle-save', name: 'planning_toggle_save', methods: ['POST'])]
+    public function toggleSave(Planning $planning, EntityManagerInterface $em): Response
+    {
+        $user = $this->getUser();
+        if (!$user) {
+            return $this->json(['error' => 'Unauthorized'], Response::HTTP_UNAUTHORIZED);
+        }
+
+        if ($user->getSavedPlannings()->contains($planning)) {
+            $user->removeSavedPlanning($planning);
+            $message = 'Removed from saved';
+        } else {
+            $user->addSavedPlanning($planning);
+            $message = 'Added to saved';
+        }
+
+        $em->persist($user);
+        $em->flush();
+
+        return $this->json(['message' => $message]);
+    }
+
+// src/Controller/PlanningController.php
+    #[Route('/my-saved-planification', name: 'my_saved_plannings', methods: ['GET'])]
+    public function mySavedPlannings(SerializerInterface $serializer): Response
+    {
+        $user = $this->getUser();
+        if (!$user) {
+            return $this->json(['error' => 'Unauthorized'], Response::HTTP_UNAUTHORIZED);
+        }
+
+        $plannings = $user->getSavedPlannings();
+
+        return $this->json(
+            $serializer->normalize($plannings, null, ['groups' => ['planning:read']]),
+            Response::HTTP_OK
+        );
+    }
+
 
     #[Route('/new', name: 'planning_new', methods: ['POST'])]
     public function new(Request $request, EntityManagerInterface $em): Response
@@ -136,4 +195,8 @@ class PlanningController extends AbstractController
 
         return $this->json(['message' => 'Planning deleted successfully']);
     }
+
+
+
+
 }
