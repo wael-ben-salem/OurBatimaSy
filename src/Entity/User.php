@@ -40,6 +40,8 @@ class User implements UserInterface, PasswordAuthenticatedUserInterface
     #[Groups(['user:saved'])] // Changed from 'planning:read'
     private Collection $savedPlannings;
 
+
+
     public function __construct()
     {
         $this->notes = new ArrayCollection();
@@ -120,5 +122,20 @@ class User implements UserInterface, PasswordAuthenticatedUserInterface
     public function __toString(): string
     {
         return $this->email;
+    }
+
+
+    #[ORM\Column(type: 'integer')]
+    private int $completedPlannings = 0;
+
+    public function getCompletedPlannings(): int
+    {
+        return $this->completedPlannings;
+    }
+
+    public function incrementCompletedPlannings(): self
+    {
+        $this->completedPlannings++;
+        return $this;
     }
 }

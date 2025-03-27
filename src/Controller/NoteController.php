@@ -5,6 +5,7 @@ namespace App\Controller;
 use App\Entity\Note;
 use App\Entity\User;
 use App\Repository\NoteRepository;
+use App\Service\RecommendationService;
 use Doctrine\ORM\EntityManagerInterface;
 use Symfony\Bundle\FrameworkBundle\Controller\AbstractController;
 use Symfony\Component\HttpFoundation\Request;
@@ -33,8 +34,11 @@ class NoteController extends AbstractController
     }
 
     #[Route('/note/new', name: 'app_note_new', methods: ['POST'])]
-    public function new(Request $request, EntityManagerInterface $em): Response
-    {
+    public function new(
+        Request $request,
+        EntityManagerInterface $em,
+        RecommendationService $recommendationService
+    ): Response {
         $data = json_decode($request->getContent(), true);
 
         $note = new Note();
@@ -49,7 +53,12 @@ class NoteController extends AbstractController
 
         $note->setCreatedBy($user);
 
-        if (isset($data['assignedTo'])) {
+        if (!isset($data['assignedTo'])) {
+            $bestUser = $recommendationService->getBestPerformingUser();
+            if ($bestUser) {
+                $note->setAssignedTo($bestUser);
+            }
+        } else {
             $assignedUser = $em->getReference(User::class, $data['assignedTo']);
             $note->setAssignedTo($assignedUser);
         }
@@ -71,7 +80,6 @@ class NoteController extends AbstractController
     {
         $user = $this->getUser();
 
-        // Updated authorization check
         if (!$this->isGranted('ROLE_ADMIN')
             && $note->getCreatedBy()->getId() !== $user->getId()
             && $note->getAssignedTo()?->getId() !== $user->getId())
@@ -100,7 +108,6 @@ class NoteController extends AbstractController
     {
         $user = $this->getUser();
 
-        // Updated authorization check
         if (!$this->isGranted('ROLE_ADMIN')
             && $note->getCreatedBy()->getId() !== $user->getId()
             && $note->getAssignedTo()?->getId() !== $user->getId())

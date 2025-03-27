@@ -160,14 +160,25 @@ class PlanningController extends AbstractController
             $planning->setNote($note);
         }
 
+        $originalStatus = $planning->getStatut();
+        $newStatus = $data['statut'] ?? $originalStatus;
+
+        if ($originalStatus !== 'terminé' && $newStatus === 'terminé') {
+            $assignedUser = $planning->getNote()->getAssignedTo();
+            if ($assignedUser) {
+                $assignedUser->incrementCompletedPlannings();
+                $em->persist($assignedUser);
+            }
+        }
+
         $planning->setDatePlanifie(new \DateTime($data['date_planifie'] ?? $planning->getDatePlanifie()->format('Y-m-d')))
             ->setHeureDebut(new \DateTime($data['heure_debut'] ?? $planning->getHeureDebut()->format('H:i:s')))
             ->setHeureFin(new \DateTime($data['heure_fin'] ?? $planning->getHeureFin()->format('H:i:s')))
-            ->setStatut($data['statut'] ?? $planning->getStatut());
+            ->setStatut($newStatus);
 
         $em->flush();
 
-        return $this->json($planning, 200, [], ['groups' => ['planning:read']]);
+        return $this->json($planning, Response::HTTP_OK, [], ['groups' => ['planning:read']]);
     }
 
     #[Route('/{id}', name: 'planning_delete', methods: ['DELETE'])]

@@ -35,4 +35,19 @@ class PlanningRepository extends ServiceEntityRepository
             ->getResult();
     }
 
+    // src/Repository/PlanningRepository.php
+    public function findUsersByCompletedTasks(): array
+    {
+        return $this->createQueryBuilder('p')
+            ->select('u.id as user_id, COUNT(p.id) as completed')
+            ->join('p.note', 'n')
+            ->join('n.assignedTo', 'u')
+            ->where('p.statut = :status')
+            ->setParameter('status', 'terminé')
+            ->groupBy('u.id')
+            ->orderBy('completed', 'DESC')
+            ->getQuery()
+            ->getResult();
+    }
+
 }
