@@ -4,6 +4,8 @@
 namespace App\Entity;
 
 use App\Repository\PlanningRepository;
+use Doctrine\Common\Collections\ArrayCollection;
+use Doctrine\Common\Collections\Collection;
 use Doctrine\DBAL\Types\Types;
 use Doctrine\ORM\Mapping as ORM;
 use Symfony\Component\Serializer\Annotation\Groups;
@@ -38,6 +40,14 @@ class Planning
     #[Groups(['planning:read'])]
     private ?string $statut = 'planifié';
 
+    #[ORM\OneToMany(targetEntity: Message::class, mappedBy: 'planning')]
+    private Collection $messages;
+
+    public function __construct()
+    {
+        $this->messages = new ArrayCollection();
+    }
+
     // Getters and Setters
     public function getId(): ?int { return $this->id; }
     public function getNote(): ?Note { return $this->note; }
@@ -55,5 +65,9 @@ class Planning
         }
         $this->statut = $statut;
         return $this;
+    }
+    public function getMessages(): Collection
+    {
+        return $this->messages;
     }
 }

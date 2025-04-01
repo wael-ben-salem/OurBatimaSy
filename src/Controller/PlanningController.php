@@ -3,17 +3,18 @@
 // src/Controller/PlanningController.php
 namespace App\Controller;
 
+use App\Entity\Message;
 use App\Entity\Planning;
 use App\Entity\Note;
+use App\Repository\MessageRepository;
 use App\Repository\PlanningRepository;
 use Doctrine\ORM\EntityManagerInterface;
 use Symfony\Bundle\FrameworkBundle\Controller\AbstractController;
+use Symfony\Component\HttpFoundation\JsonResponse;
 use Symfony\Component\HttpFoundation\Request;
 use Symfony\Component\HttpFoundation\Response;
 use Symfony\Component\Routing\Annotation\Route;
 use App\Entity\Notification;
-// src/Controller/PlanningController.php
-
 use Symfony\Component\Serializer\SerializerInterface;
 
 #[Route('/planification')]
@@ -25,12 +26,10 @@ class PlanningController extends AbstractController
         $user = $this->getUser();
         $plannings = $repo->findAll();
 
-        // Serialize without modifying array keys
         $data = json_decode($serializer->serialize($plannings, 'json', [
             'groups' => ['planning:read']
         ]), true);
 
-        // Map isSaved status correctly
         foreach ($plannings as $key => $planning) {
             $data[$key]['isSaved'] = $user && $user->getSavedPlannings()->contains($planning);
         }
@@ -49,10 +48,6 @@ class PlanningController extends AbstractController
         $plannings = $repo->findByUser($user);
         return $this->json($plannings, 200, [], ['groups' => ['planning:read']]);
     }
-
-
-
-
 
     #[Route('/{id}/toggle-save', name: 'planning_toggle_save', methods: ['POST'])]
     public function toggleSave(Planning $planning, EntityManagerInterface $em): Response
@@ -76,7 +71,6 @@ class PlanningController extends AbstractController
         return $this->json(['message' => $message]);
     }
 
-// src/Controller/PlanningController.php
     #[Route('/my-saved-planification', name: 'my_saved_plannings', methods: ['GET'])]
     public function mySavedPlannings(SerializerInterface $serializer): Response
     {
@@ -92,7 +86,6 @@ class PlanningController extends AbstractController
             Response::HTTP_OK
         );
     }
-
 
     #[Route('/new', name: 'planning_new', methods: ['POST'])]
     public function new(Request $request, EntityManagerInterface $em): Response
@@ -129,10 +122,51 @@ class PlanningController extends AbstractController
 
         $em->flush();
 
-
         return $this->json($planning, 201, [], ['groups' => ['planning:read']]);
     }
 
+    // Message endpoints moved BEFORE show/edit/delete
+    #[Route('/{id}/messages', name: 'planning_messages', methods: ['GET'])]
+    public function getMessages(Planning $planning, MessageRepository $messageRepo): JsonResponse
+    {
+        $user = $this->getUser();
+        $note = $planning->getNote();
+
+        if (!$user || ($user !== $note->getCreatedBy() && $user !== $note->getAssignedTo())) {
+            return $this->json(['error' => 'Access denied'], Response::HTTP_FORBIDDEN);
+        }
+
+        $messages = $messageRepo->findBy(['planning' => $planning], ['createdAt' => 'ASC']);
+        return $this->json($messages, Response::HTTP_OK, [], ['groups' => ['message:read']]);
+    }
+
+    #[Route('/{id}/send-message', name: 'send_message', methods: ['POST'])]
+    public function sendMessage(Request $request, Planning $planning, EntityManagerInterface $em): JsonResponse
+    {
+        $user = $this->getUser();
+        $note = $planning->getNote();
+
+        if (!$user || ($user !== $note->getCreatedBy() && $user !== $note->getAssignedTo())) {
+            return $this->json(['error' => 'Access denied'], Response::HTTP_FORBIDDEN);
+        }
+
+        $data = json_decode($request->getContent(), true);
+        if (empty($data['content'])) {
+            return $this->json(['error' => 'Message content required'], Response::HTTP_BAD_REQUEST);
+        }
+
+        $message = new Message();
+        $message->setContent($data['content'])
+            ->setSender($user)
+            ->setPlanning($planning);
+
+        $em->persist($message);
+        $em->flush();
+
+        return $this->json($message, Response::HTTP_CREATED, [], ['groups' => ['message:read']]);
+    }
+
+    // Keep these routes LAST
     #[Route('/{id}', name: 'planning_show', methods: ['GET'])]
     public function show(Planning $planning): Response
     {
@@ -145,7 +179,6 @@ class PlanningController extends AbstractController
         $user = $this->getUser();
         $note = $planning->getNote();
 
-        // Authorization check
         if (!$this->isGranted('ROLE_ADMIN')
             && $note->getCreatedBy()->getId() !== $user->getId()
             && $note->getAssignedTo()?->getId() !== $user->getId())
@@ -187,7 +220,6 @@ class PlanningController extends AbstractController
         $user = $this->getUser();
         $note = $planning->getNote();
 
-        // Authorization check
         if (!$this->isGranted('ROLE_ADMIN')
             && $note->getCreatedBy()->getId() !== $user->getId()
             && $note->getAssignedTo()?->getId() !== $user->getId())
@@ -195,7 +227,6 @@ class PlanningController extends AbstractController
             return $this->json(['error' => 'Access denied'], Response::HTTP_FORBIDDEN);
         }
 
-        // Remove associated notifications first
         $notifications = $em->getRepository(Notification::class)->findBy(['planning' => $planning]);
         foreach ($notifications as $notification) {
             $em->remove($notification);
@@ -206,8 +237,4 @@ class PlanningController extends AbstractController
 
         return $this->json(['message' => 'Planning deleted successfully']);
     }
-
-
-
-
 }
