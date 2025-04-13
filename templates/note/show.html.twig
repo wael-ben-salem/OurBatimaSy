@@ -1,0 +1,25 @@
+{% extends 'base.html.twig' %}
+
+{% block title %}Note Details{% endblock %}
+
+{% block body %}
+    <div class="container mt-4">
+        <h1>{{ note.title }}</h1>
+        <div class="card">
+            <div class="card-body">
+                <p class="card-text">{{ note.content }}</p>
+                <div class="text-muted mb-3">
+                    <small>
+                        Created by: {{ note.createdBy.email }}<br>
+                        Assigned to: {{ note.assignedTo ? note.assignedTo.email : 'None' }}<br>
+                        Date: {{ note.date|date('Y-m-d H:i') }}
+                    </small>
+                </div>
+                <a href="{{ path('app_my_notes') }}" class="btn btn-secondary">Back to List</a>
+                {% if is_granted('edit', note) %}
+                    <a href="{{ path('app_note_edit', {'id': note.id}) }}" class="btn btn-primary">Edit</a>
+                {% endif %}
+            </div>
+        </div>
+    </div>
+{% endblock %}

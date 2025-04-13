@@ -1,5 +1,8 @@
+# config/packages/twig.yaml
 twig:
     file_name_pattern: '*.twig'
+    globals:
+        notification_repo: '@App\Repository\NotificationRepository'
 
 when@test:
     twig:

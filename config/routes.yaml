@@ -3,3 +3,20 @@ controllers:
         path: ../src/Controller/
         namespace: App\Controller
     type: attribute
+# config/routes.yaml
+app_register:
+    path: /register
+    controller: App\Controller\RegistrationController::register
+    methods: [GET, POST]
+
+app_login:
+    path: /login
+    controller: App\Controller\LoginController::index
+    methods: [GET, POST]
+
+app_logout:
+    path: /logout
+
+app_welcome:
+    path: /welcome
+    controller: App\Controller\WelcomeController::index

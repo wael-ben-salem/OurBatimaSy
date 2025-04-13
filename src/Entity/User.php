@@ -138,4 +138,9 @@ class User implements UserInterface, PasswordAuthenticatedUserInterface
         $this->completedPlannings++;
         return $this;
     }
+
+    public function hasRole(string $string): bool
+    {
+        return in_array($string, $this->getRoles());
+    }
 }

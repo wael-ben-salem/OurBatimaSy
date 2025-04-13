@@ -1,0 +1,83 @@
+{% extends 'base.html.twig' %}
+
+{% block title %}Edit Planning{% endblock %}
+
+{% block stylesheets %}
+    {{ parent() }}
+    <link rel="stylesheet" href="https://cdn.jsdelivr.net/npm/flatpickr/dist/flatpickr.min.css">
+{% endblock %}
+
+{% block body %}
+    <div class="container mt-4">
+        <h1>Edit Planning</h1>
+
+        {{ form_start(form, {'attr': {'novalidate': 'novalidate'}}) }}
+        <div class="row">
+            <div class="col-md-6">
+                {{ form_row(form.note, {
+                    'attr': {'class': 'form-select', 'disabled': 'disabled'}
+                }) }}
+
+                {{ form_row(form.date_planifie, {
+                    'attr': {'class': 'form-control flatpickr-date'}
+                }) }}
+            </div>
+
+            <div class="col-md-6">
+                <div class="mb-3">
+                    {{ form_label(form.heure_debut) }}
+                    {{ form_widget(form.heure_debut, {
+                        'attr': {
+                            'class': 'form-control flatpickr-time',
+                            'placeholder': 'Select start time'
+                        }
+                    }) }}
+                </div>
+
+                <div class="mb-3">
+                    {{ form_label(form.heure_fin) }}
+                    {{ form_widget(form.heure_fin, {
+                        'attr': {
+                            'class': 'form-control flatpickr-time',
+                            'placeholder': 'Select end time'
+                        }
+                    }) }}
+                </div>
+
+                {{ form_row(form.statut, {
+                    'attr': {'class': 'form-select'}
+                }) }}
+            </div>
+        </div>
+
+        <div class="mt-4">
+            <button type="submit" class="btn btn-primary">Update Planning</button>
+            <a href="{{ path('planning_index') }}" class="btn btn-secondary">Cancel</a>
+            <form method="post" action="{{ path('planning_delete', {'id': planning.id}) }}" class="d-inline">
+                <input type="hidden" name="_token" value="{{ csrf_token('delete' ~ planning.id) }}">
+                <button class="btn btn-danger">Delete</button>
+            </form>
+        </div>
+        {{ form_end(form) }}
+    </div>
+{% endblock %}
+
+{% block javascripts %}
+    {{ parent() }}
+    <script src="https://cdn.jsdelivr.net/npm/flatpickr"></script>
+    <script>
+        document.addEventListener('DOMContentLoaded', function() {
+            flatpickr('.flatpickr-date', {
+                dateFormat: "Y-m-d",
+                allowInput: true
+            });
+
+            flatpickr('.flatpickr-time', {
+                enableTime: true,
+                noCalendar: true,
+                dateFormat: "H:i",
+                time_24hr: true
+            });
+        });
+    </script>
+{% endblock %}

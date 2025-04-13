@@ -1,35 +1,36 @@
 # config/packages/security.yaml
 security:
     enable_authenticator_manager: true
-
     password_hashers:
         App\Entity\User: auto
-
     providers:
         app_user_provider:
             entity:
                 class: App\Entity\User
                 property: email
-
     firewalls:
-        login:
-            pattern: ^/login
-            stateless: true
-            security: false
-            json_login:
-                check_path: /login
-                username_path: email
-                password_path: password
-                success_handler: lexik_jwt_authentication.handler.authentication_success
-                failure_handler: lexik_jwt_authentication.handler.authentication_failure
-
-        api:
-            pattern: ^/(note|my-notes|planification|notifications)
-            stateless: true
-            jwt: ~
+        main:
+            lazy: true
+            provider: app_user_provider
+            form_login:
+                login_path: app_login
+                check_path: app_login
+                default_target_path: app_welcome
+                username_parameter: email
+                password_parameter: password
+            logout:
+                path: app_logout
+                target: app_login
 
     access_control:
+        - { path: ^/register, roles: PUBLIC_ACCESS }
         - { path: ^/login, roles: PUBLIC_ACCESS }
-        - { path: ^/notifications, roles: IS_AUTHENTICATED_FULLY }
-        - { path: ^/(note|my-notes|planification), roles: IS_AUTHENTICATED_FULLY }
-        - { path: ^/planification/my-saved-planification, roles: IS_AUTHENTICATED_FULLY }
+        - { path: ^/welcome, roles: ROLE_USER }
+        - { path: ^/notes, roles: ROLE_USER }
+        - { path: ^/my-notes, roles: ROLE_USER }
+        - { path: ^/note/new, roles: ROLE_USER }
+        - { path: ^/note/\d+/edit, roles: ROLE_USER }
+        - { path: ^/note/\d+/delete, roles: ROLE_USER }
+        - { path: ^/planification, roles: ROLE_USER }
+        - { path: ^/notifications, roles: ROLE_USER }
+        - { path: ^/note, roles: ROLE_USER }
