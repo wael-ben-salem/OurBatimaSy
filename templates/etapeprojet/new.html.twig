@@ -1,0 +1,11 @@
+{% extends 'base.html.twig' %}
+
+{% block title %}New Etapeprojet{% endblock %}
+
+{% block body %}
+    <h1>Créer une nouvelle Étape de projet</h1>
+
+    {{ include('etapeprojet/_form.html.twig') }}
+
+    <a href="{{ path('app_etapeprojet_index') }}">back to list</a>
+{% endblock %}

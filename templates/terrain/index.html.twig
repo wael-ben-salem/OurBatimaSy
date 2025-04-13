@@ -1,0 +1,41 @@
+{% extends 'base.html.twig' %}
+
+{% block title %}Terrain index{% endblock %}
+
+{% block body %}
+    <h1>Terrain index</h1>
+
+    <table class="table">
+        <thead>
+            <tr>
+                <th>IdTerrain</th>
+                <th>Emplacement</th>
+                <th>Caracteristiques</th>
+                <th>Superficie</th>
+                <th>Detailsgeo</th>
+                <th>actions</th>
+            </tr>
+        </thead>
+        <tbody>
+        {% for terrain in terrains %}
+            <tr>
+                <td>{{ terrain.idTerrain }}</td>
+                <td>{{ terrain.emplacement }}</td>
+                <td>{{ terrain.caracteristiques }}</td>
+                <td>{{ terrain.superficie }}</td>
+                <td>{{ terrain.detailsgeo }}</td>
+                <td>
+                    <a href="{{ path('app_terrain_show', {'idTerrain': terrain.idTerrain}) }}">show</a>
+                    <a href="{{ path('app_terrain_edit', {'idTerrain': terrain.idTerrain}) }}">edit</a>
+                </td>
+            </tr>
+        {% else %}
+            <tr>
+                <td colspan="6">no records found</td>
+            </tr>
+        {% endfor %}
+        </tbody>
+    </table>
+
+    <a href="{{ path('app_terrain_new') }}">Create new</a>
+{% endblock %}

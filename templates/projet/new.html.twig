@@ -1,0 +1,42 @@
+{% extends 'base.html.twig' %}
+
+{% block title %}Nouveau Projet{% endblock %}
+
+{% block body %}
+    <h1>Créer un nouveau Projet</h1>
+
+    {# ✅ Flash messages #}
+    {% for message in app.flashes('success') %}
+        <div class="alert alert-success">
+            {{ message }}
+        </div>
+    {% endfor %}
+
+    {{ form_start(form) }}
+
+        {{ form_row(form.nomprojet) }}
+        {{ form_row(form.type) }}
+        {{ form_row(form.stylearch) }}
+        {{ form_row(form.budget) }}
+        {{ form_row(form.etat) }}
+        {{ form_row(form.datecreation) }}
+
+        <div style="display: flex; align-items: center; gap: 10px;">
+            <div style="flex: 1;">
+                {{ form_row(form.idTerrain) }}
+            </div>
+            <div style="margin-top: 28px;">
+                <a href="{{ path('app_terrain_new') }}" class="btn btn-sm btn-primary">
+                    + Ajouter un terrain
+                </a>
+            </div>
+        </div>
+
+        {{ form_row(form.idEquipe) }}
+        {{ form_row(form.idClient) }}
+
+        <button class="btn btn-success mt-3">Enregistrer</button>
+    {{ form_end(form) }}
+
+    <a href="{{ path('app_projet_index') }}" class="btn btn-link mt-3">← back to list</a>
+{% endblock %}

@@ -1,0 +1,45 @@
+{% extends 'base.html.twig' %}
+
+{% block title %}Etapeprojet index{% endblock %}
+
+{% block body %}
+    <h1>Etapeprojet index</h1>
+
+    <table class="table">
+        <thead>
+            <tr>
+                <th>IdEtapeprojet</th>
+                <th>Nometape</th>
+                <th>Description</th>
+                <th>Datedebut</th>
+                <th>Datefin</th>
+                <th>Statut</th>
+                <th>Montant</th>
+                <th>actions</th>
+            </tr>
+        </thead>
+        <tbody>
+        {% for etapeprojet in etapeprojets %}
+            <tr>
+                <td>{{ etapeprojet.idEtapeprojet }}</td>
+                <td>{{ etapeprojet.nometape }}</td>
+                <td>{{ etapeprojet.description }}</td>
+                <td>{{ etapeprojet.datedebut ? etapeprojet.datedebut|date('Y-m-d') : '' }}</td>
+                <td>{{ etapeprojet.datefin ? etapeprojet.datefin|date('Y-m-d') : '' }}</td>
+                <td>{{ etapeprojet.statut }}</td>
+                <td>{{ etapeprojet.montant }}</td>
+                <td>
+                    <a href="{{ path('app_etapeprojet_show', {'idEtapeprojet': etapeprojet.idEtapeprojet}) }}">show</a>
+                    <a href="{{ path('app_etapeprojet_edit', {'idEtapeprojet': etapeprojet.idEtapeprojet}) }}">edit</a>
+                </td>
+            </tr>
+        {% else %}
+            <tr>
+                <td colspan="8">no records found</td>
+            </tr>
+        {% endfor %}
+        </tbody>
+    </table>
+
+    <a href="{{ path('app_etapeprojet_new') }}">Create new</a>
+{% endblock %}
