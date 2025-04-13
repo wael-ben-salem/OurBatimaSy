@@ -1,9 +1,8 @@
 <?php
 
-// src/Controller/RegistrationController.php
 namespace App\Controller;
 
-use App\Entity\User;
+use App\Entity\Utilisateur;
 use App\Form\RegistrationFormType;
 use Doctrine\ORM\EntityManagerInterface;
 use Symfony\Bundle\FrameworkBundle\Controller\AbstractController;
@@ -17,19 +16,22 @@ class RegistrationController extends AbstractController
     #[Route('/register', name: 'app_register')]
     public function register(Request $request, UserPasswordHasherInterface $passwordHasher, EntityManagerInterface $entityManager): Response
     {
-        $user = new User();
+        $user = new Utilisateur();
         $form = $this->createForm(RegistrationFormType::class, $user);
         $form->handleRequest($request);
 
         if ($form->isSubmitted() && $form->isValid()) {
-            // Encode the plain password
-            $user->setPassword(
-                $passwordHasher->hashPassword(
-                    $user,
-                    $form->get('plainPassword')->getData()
-                )
+            // Hasher le mot de passe à partir du champ `plainPassword`
+            $hashedPassword = $passwordHasher->hashPassword(
+                $user,
+                $form->get('plainPassword')->getData()
             );
-            $user->setRoles(['ROLE_USER']);
+            $user->setPassword($hashedPassword);
+
+            // Définir un rôle par défaut s’il n’a pas été défini dans le formulaire
+            if (!$user->getRole()) {
+                $user->setRole('Client');
+            }
 
             $entityManager->persist($user);
             $entityManager->flush();

@@ -1,50 +1,123 @@
 <?php
 
-// src/Entity/Message.php
 namespace App\Entity;
 
+use Doctrine\DBAL\Types\Types;
 use Doctrine\ORM\Mapping as ORM;
-use Symfony\Component\Serializer\Annotation\Groups;
 
-#[ORM\Entity(repositoryClass: App\Repository\MessageRepository::class)]
+/**
+ * Message
+ */
+#[ORM\Table(name: 'message')]
+#[ORM\Index(name: 'conversation_id', columns: ['conversation_id'])]
+#[ORM\Index(name: 'expediteur_id', columns: ['expediteur_id'])]
+#[ORM\Entity]
 class Message
 {
+    /**
+     * @var int
+     */
+    #[ORM\Column(name: 'id', type: 'integer', nullable: false)]
     #[ORM\Id]
-    #[ORM\GeneratedValue]
-    #[ORM\Column]
-    #[Groups(['message:read'])]
-    private ?int $id = null;
+    #[ORM\GeneratedValue(strategy: 'IDENTITY')]
+    private $id;
 
-    #[ORM\Column(type: 'text')]
-    #[Groups(['message:read'])]
-    private string $content;
+    /**
+     * @var string|null
+     */
+    #[ORM\Column(name: 'contenu', type: 'text', length: 65535, nullable: true)]
+    private $contenu;
 
-    #[ORM\Column(type: 'datetime_immutable')]
-    #[Groups(['message:read'])]
-    private \DateTimeImmutable $createdAt;
+    /**
+     * @var \DateTime|null
+     */
+    #[ORM\Column(name: 'date_envoi', type: 'datetime', nullable: true, options: ['default' => 'CURRENT_TIMESTAMP'])]
+    private $dateEnvoi = 'CURRENT_TIMESTAMP';
 
-    #[ORM\ManyToOne(targetEntity: User::class)]
-    #[ORM\JoinColumn(nullable: false)]
-    #[Groups(['message:read'])]
-    private User $sender;
+    /**
+     * @var bool|null
+     */
+    #[ORM\Column(name: 'lu', type: 'boolean', nullable: true)]
+    private $lu = '0';
 
-    #[ORM\ManyToOne(targetEntity: Planning::class, inversedBy: 'messages')]
-    #[ORM\JoinColumn(nullable: false)]
-    #[Groups(['message:read'])]
-    private Planning $planning;
+    /**
+     * @var \Conversation
+     */
+    #[ORM\JoinColumn(name: 'conversation_id', referencedColumnName: 'id')]
+    #[ORM\ManyToOne(targetEntity: \Conversation::class)]
+    private $conversation;
 
-    public function __construct()
+    /**
+     * @var \Utilisateur
+     */
+    #[ORM\JoinColumn(name: 'expediteur_id', referencedColumnName: 'id')]
+    #[ORM\ManyToOne(targetEntity: \Utilisateur::class)]
+    private $expediteur;
+
+    public function getId(): ?int
     {
-        $this->createdAt = new \DateTimeImmutable();
+        return $this->id;
     }
 
-    // Getters and Setters
-    public function getId(): ?int { return $this->id; }
-    public function getContent(): string { return $this->content; }
-    public function setContent(string $content): self { $this->content = $content; return $this; }
-    public function getCreatedAt(): \DateTimeImmutable { return $this->createdAt; }
-    public function getSender(): User { return $this->sender; }
-    public function setSender(User $sender): self { $this->sender = $sender; return $this; }
-    public function getPlanning(): Planning { return $this->planning; }
-    public function setPlanning(Planning $planning): self { $this->planning = $planning; return $this; }
+    public function getContenu(): ?string
+    {
+        return $this->contenu;
+    }
+
+    public function setContenu(?string $contenu): static
+    {
+        $this->contenu = $contenu;
+
+        return $this;
+    }
+
+    public function getDateEnvoi(): ?\DateTimeInterface
+    {
+        return $this->dateEnvoi;
+    }
+
+    public function setDateEnvoi(?\DateTimeInterface $dateEnvoi): static
+    {
+        $this->dateEnvoi = $dateEnvoi;
+
+        return $this;
+    }
+
+    public function isLu(): ?bool
+    {
+        return $this->lu;
+    }
+
+    public function setLu(?bool $lu): static
+    {
+        $this->lu = $lu;
+
+        return $this;
+    }
+
+    public function getConversation(): ?Conversation
+    {
+        return $this->conversation;
+    }
+
+    public function setConversation(?Conversation $conversation): static
+    {
+        $this->conversation = $conversation;
+
+        return $this;
+    }
+
+    public function getExpediteur(): ?Utilisateur
+    {
+        return $this->expediteur;
+    }
+
+    public function setExpediteur(?Utilisateur $expediteur): static
+    {
+        $this->expediteur = $expediteur;
+
+        return $this;
+    }
+
+
 }
