@@ -12,15 +12,12 @@
     <div class="container">
         <a class="navbar-brand" href="{{ path('app_welcome') }}">Planning App</a>
         <div class="d-flex align-items-center">
-            <a href="{{ path('notifications_index') }}" class="btn btn-light position-relative me-3">
-                Notifications
-                {% set unread = notification_repo.countUnreadByUser(app.user) %}
-                {% if unread > 0 %}
-                    <span class="position-absolute top-0 start-100 translate-middle badge rounded-pill bg-danger">
-                        {{ unread }}
-                    </span>
-                {% endif %}
-            </a>
+        
+    {% if app.user %}
+        
+    {% endif %}
+</a>
+
             <!-- Add other navigation items -->
         </div>
     </div>

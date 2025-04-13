@@ -1,14 +1,20 @@
-# config/packages/security.yaml
 security:
     enable_authenticator_manager: true
+
     password_hashers:
-        App\Entity\User: auto
+        App\Entity\Utilisateur: auto
+
     providers:
         app_user_provider:
             entity:
-                class: App\Entity\User
+                class: App\Entity\Utilisateur
                 property: email
+
     firewalls:
+        dev:
+            pattern: ^/(_(profiler|wdt)|css|images|js)/
+            security: false
+
         main:
             lazy: true
             provider: app_user_provider
@@ -25,12 +31,4 @@ security:
     access_control:
         - { path: ^/register, roles: PUBLIC_ACCESS }
         - { path: ^/login, roles: PUBLIC_ACCESS }
-        - { path: ^/welcome, roles: ROLE_USER }
-        - { path: ^/notes, roles: ROLE_USER }
-        - { path: ^/my-notes, roles: ROLE_USER }
-        - { path: ^/note/new, roles: ROLE_USER }
-        - { path: ^/note/\d+/edit, roles: ROLE_USER }
-        - { path: ^/note/\d+/delete, roles: ROLE_USER }
-        - { path: ^/planification, roles: ROLE_USER }
-        - { path: ^/notifications, roles: ROLE_USER }
-        - { path: ^/note, roles: ROLE_USER }
+        - { path: ^/welcome, roles: ROLE_CLIENT }  # Ou ROLE_ADMIN, etc. selon tes besoins
