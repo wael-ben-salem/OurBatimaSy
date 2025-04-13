@@ -31,4 +31,6 @@ security:
     access_control:
         - { path: ^/register, roles: PUBLIC_ACCESS }
         - { path: ^/login, roles: PUBLIC_ACCESS }
-        - { path: ^/welcome, roles: ROLE_CLIENT }  # Ou ROLE_ADMIN, etc. selon tes besoins
+        - { path: ^/welcome, roles: [ROLE_USER, ROLE_CLIENT] }
+        
+
