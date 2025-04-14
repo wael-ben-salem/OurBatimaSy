@@ -19,10 +19,6 @@ class TerrainType extends AbstractType
             ->add('caracteristiques')
             ->add('superficie')
             ->add('detailsgeo')
-            ->add('idVisite', EntityType::class, [
-                'class' => Visite::class,
-                'choice_label' => 'id',
-            ])
         ;
     }
 

@@ -24,9 +24,10 @@ class ProjetType extends AbstractType
             ->add('budget')
             ->add('etat', ChoiceType::class, [
                 'choices' => [
-                    'En attente' => 'en attente',
-                    'En cours' => 'en cours',
-                    'Fini' => 'fini',
+                    'En cours' => 'En cours',
+                    'En attente' => 'En attente',
+                    'Fini' => 'Fini',
+                    'Annulé' => 'Annulé'
                 ],
                 'placeholder' => 'Choisir un état',
             ])

@@ -1,13 +1,227 @@
 {% extends 'base.html.twig' %}
 
-{% block title %}Edit Projet{% endblock %}
+{% block title %}Modifier Projet{% endblock %}
+
+{% block stylesheets %}
+  {{ parent() }}
+  <style>
+    .card {
+      border-radius: 12px;
+      box-shadow: 0 4px 20px 0 rgba(0, 0, 0, 0.14), 
+                  0 7px 10px -5px rgba(0, 0, 0, 0.4);
+    }
+    .form-group {
+      margin-bottom: 1.5rem;
+    }
+    .form-control {
+      border-radius: 8px;
+      padding: 10px 15px;
+      border: 1px solid #d2d6da;
+      transition: all 0.3s;
+    }
+    .form-control:focus {
+      border-color: #4CAF50;
+      box-shadow: 0 0 0 2px rgba(76, 175, 80, 0.1);
+    }
+    .form-text {
+      font-size: 0.8rem;
+      color: #6c757d;
+      margin-top: 0.25rem;
+    }
+    .btn-action-group {
+      display: flex;
+      gap: 10px;
+      margin-top: 20px;
+    }
+    .input-group-text {
+      background-color: #f8f9fa;
+      border: 1px solid #d2d6da;
+    }
+    .bg-gradient-primary {
+      background: linear-gradient(195deg, #4CAF50 0%, #2E7D32 100%);
+    }
+    .btn-success {
+      background-color: #4CAF50;
+      border-color: #4CAF50;
+    }
+    .btn-success:hover {
+      background-color: #3d8b40;
+      border-color: #3d8b40;
+    }
+    .btn-primary {
+      background-color: #2E7D32;
+      border-color: #2E7D32;
+    }
+    .btn-primary:hover {
+      background-color: #1B5E20;
+      border-color: #1B5E20;
+    }
+  </style>
+{% endblock %}
 
 {% block body %}
-    <h1>Edit Projet</h1>
+<div class="container-fluid py-4">
+  <div class="row">
+    <div class="col-12">
+      <div class="card my-4">
+        <div class="card-header p-0 position-relative mt-n4 mx-3 z-index-2">
+          <div class="bg-gradient-primary shadow-primary border-radius-lg pt-4 pb-3">
+            <h6 class="text-white text-capitalize ps-3">
+              <i class="material-symbols-rounded me-2">edit</i>
+              Modifier le Projet
+            </h6>
+          </div>
+        </div>
+        <div class="card-body px-4 pb-2">
+          {# Flash messages #}
+          {% for message in app.flashes('success') %}
+            <div class="alert alert-success alert-dismissible fade show">
+              {{ message }}
+              <button type="button" class="btn-close" data-bs-dismiss="alert" aria-label="Close"></button>
+            </div>
+          {% endfor %}
 
-    {{ include('projet/_form.html.twig', {'button_label': 'Update'}) }}
+          {% for message in app.flashes('error') %}
+            <div class="alert alert-danger alert-dismissible fade show">
+              {{ message }}
+              <button type="button" class="btn-close" data-bs-dismiss="alert" aria-label="Close"></button>
+            </div>
+          {% endfor %}
 
-    <a href="{{ path('app_projet_index') }}">back to list</a>
+          {{ form_start(form, {'attr': {'class': 'form-horizontal'}}) }}
 
-    {{ include('projet/_delete_form.html.twig') }}
+            <div class="row">
+              <div class="col-md-6">
+                <div class="form-group">
+                  {{ form_label(form.nomprojet) }}
+                  {{ form_widget(form.nomprojet, {
+                    'attr': {
+                      'class': 'form-control',
+                      'placeholder': 'Ex: Villa moderne à Sousse'
+                    }
+                  }) }}
+                  <small class="form-text">Entrez un nom descriptif pour votre projet</small>
+                </div>
+              </div>
+              <div class="col-md-6">
+                <div class="form-group">
+                  {{ form_label(form.type) }}
+                  {{ form_widget(form.type, {
+                    'attr': {
+                      'class': 'form-control',
+                      'placeholder': 'Sélectionnez le type de projet'
+                    }
+                  }) }}
+                  <small class="form-text">Choisissez le type de construction</small>
+                </div>
+              </div>
+            </div>
+
+            <div class="row">
+              <div class="col-md-6">
+                <div class="form-group">
+                  {{ form_label(form.stylearch) }}
+                  {{ form_widget(form.stylearch, {
+                    'attr': {
+                      'class': 'form-control',
+                      'placeholder': 'Ex: Moderne, Classique, Méditerranéen'
+                    }
+                  }) }}
+                  <small class="form-text">Décrivez le style architectural</small>
+                </div>
+              </div>
+              <div class="col-md-6">
+                <div class="form-group">
+                  {{ form_label(form.budget) }}
+                  <div class="input-group">
+                    {{ form_widget(form.budget, {
+                      'attr': {
+                        'class': 'form-control',
+                        'placeholder': 'Ex: 250000'
+                      }
+                    }) }}
+                    <span class="input-group-text">TND</span>
+                  </div>
+                  <small class="form-text">Estimation du budget total</small>
+                </div>
+              </div>
+            </div>
+
+            <div class="form-group">
+              {{ form_label(form.etat) }}
+              {{ form_widget(form.etat, {
+                'attr': {
+                  'class': 'form-control',
+                  'placeholder': 'Sélectionnez l\'état du projet'
+                }
+              }) }}
+              <small class="form-text">État actuel du projet</small>
+            </div>
+
+            <div class="form-group">
+              <div class="d-flex align-items-center">
+                <div class="flex-grow-1">
+                  {{ form_label(form.idTerrain) }}
+                  {{ form_widget(form.idTerrain, {
+                    'attr': {
+                      'class': 'form-control',
+                      'placeholder': 'Sélectionnez un terrain'
+                    }
+                  }) }}
+                  <small class="form-text">Terrain associé à ce projet</small>
+                </div>
+                <div class="ms-3" style="margin-top: 28px;">
+                  <a href="{{ path('app_terrain_new') }}" class="btn btn-sm btn-primary">
+                    <i class="material-symbols-rounded me-1">add</i>
+                    Ajouter un terrain
+                  </a>
+                </div>
+              </div>
+            </div>
+
+            <div class="row">
+              <div class="col-md-6">
+                <div class="form-group">
+                  {{ form_label(form.idEquipe) }}
+                  {{ form_widget(form.idEquipe, {
+                    'attr': {
+                      'class': 'form-control',
+                      'placeholder': 'Sélectionnez une équipe'
+                    }
+                  }) }}
+                  <small class="form-text">Équipe en charge du projet</small>
+                </div>
+              </div>
+              <div class="col-md-6">
+                <div class="form-group">
+                  {{ form_label(form.nomClient) }}
+                  {{ form_widget(form.nomClient, {
+                    'attr': {
+                      'class': 'form-control',
+                      'placeholder': 'Nom du client principal'
+                    }
+                  }) }}
+                  <small class="form-text">Client associé à ce projet</small>
+                </div>
+              </div>
+            </div>
+
+            <div class="btn-action-group">
+              <button type="submit" class="btn btn-success">
+                <i class="material-symbols-rounded me-1">save</i>
+                Mettre à jour
+              </button>
+              <a href="{{ path('app_projet_index') }}" class="btn btn-outline-secondary">
+                <i class="material-symbols-rounded me-1">arrow_back</i>
+                Retour à la liste
+              </a>
+              {{ include('projet/_delete_form.html.twig') }}
+            </div>
+
+          {{ form_end(form) }}
+        </div>
+      </div>
+    </div>
+  </div>
+</div>
 {% endblock %}

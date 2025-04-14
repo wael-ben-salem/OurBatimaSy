@@ -19,6 +19,16 @@
       align-items: center;
       justify-content: center;
     }
+
+    .bg-gradient-success { background: linear-gradient(45deg,rgb(39, 223, 82), #20c997); }
+    .bg-gradient-info { background: linear-gradient(45deg, #17a2b8, #0dcaf0); }
+    .bg-gradient-secondary { background: linear-gradient(45deg, #6c757d, #adb5bd); }
+    .bg-gradient-danger { background: linear-gradient(45deg, #dc3545, #fd7e14); }
+
+    .badge-sm {
+      font-size: 0.65rem;
+      padding: 0.35em 0.65em;
+    }
   </style>
 {% endblock %}
 
@@ -51,6 +61,14 @@
               </thead>
               <tbody>
                 {% for projet in projets %}
+                  {% set etatRaw = projet.etat|default('En cours') %}
+                  {% set etat = etatRaw|trim|lower %}
+                  {% set color = 
+                    etat == 'fini' ? 'success' :
+                    (etat == 'en cours' ? 'info' :
+                    (etat == 'en attente' ? 'secondary' :
+                    (etat == 'annulé' ? 'danger' : 'info')))
+                  %}
                 <tr>
                   <td>
                     <div class="d-flex px-2">
@@ -79,13 +97,8 @@
                     <p class="text-sm font-weight-bold mb-0">TND {{ projet.budget|number_format(2, '.', ',') }}</p>
                   </td>
                   <td class="text-center align-middle">
-                    <span class="badge badge-sm bg-gradient-{{ 
-                      projet.etat == 'Terminé' ? 'success' : 
-                      (projet.etat == 'En cours' ? 'info' : 
-                      (projet.etat == 'En attente' ? 'secondary' : 
-                      (projet.etat == 'Annulé' ? 'danger' : 'info'))) 
-                    }}">
-                      {{ projet.etat ?? 'In progress' }}
+                    <span class="badge badge-sm bg-gradient-{{ color }}">
+                      {{ etatRaw }}
                     </span>
                   </td>
                   <td class="text-center align-middle">
@@ -117,7 +130,6 @@
 {% block javascripts %}
   {{ parent() }}
   <script>
-    // Initialize tooltips if needed
     $(function () {
       $('[data-toggle="tooltip"]').tooltip();
     });

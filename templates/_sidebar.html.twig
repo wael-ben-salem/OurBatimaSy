@@ -9,16 +9,30 @@
   <hr class="horizontal dark mt-0 mb-2">
   <div class="collapse navbar-collapse w-auto" id="sidenav-collapse-main">
     <ul class="navbar-nav">
+      {% set current_route = app.request.attributes.get('_route') %}
+      
       <li class="nav-item">
-        <a class="nav-link text-dark" href="#">
+        <a class="nav-link {{ current_route == 'app_home' ? 'active bg-gradient-dark text-white' : 'text-dark' }}" href="{{ path('app_home') }}">
           <i class="material-symbols-rounded opacity-5">dashboard</i>
           <span class="nav-link-text ms-1">Dashboard</span>
         </a>
       </li>
       <li class="nav-item">
-        <a class="nav-link active bg-gradient-dark text-white" href="{{ path('app_projet_index') }}">
+        <a class="nav-link {{ current_route starts with 'app_projet_' ? 'active bg-gradient-dark text-white' : 'text-dark' }}" href="{{ path('app_projet_index') }}">
           <i class="material-symbols-rounded opacity-5">table_view</i>
-          <span class="nav-link-text ms-1">Projects</span>
+          <span class="nav-link-text ms-1">Projets</span>
+        </a>
+      </li>
+      <li class="nav-item">
+        <a class="nav-link {{ current_route starts with 'app_terrain_' ? 'active bg-gradient-dark text-white' : 'text-dark' }}" href="{{ path('app_terrain_index') }}">
+          <i class="material-symbols-rounded opacity-5">landscape</i>
+          <span class="nav-link-text ms-1">Terrains</span>
+        </a>
+      </li>
+      <li class="nav-item">
+        <a class="nav-link {{ current_route starts with 'app_etapeprojet_' ? 'active bg-gradient-dark text-white' : 'text-dark' }}" href="{{ path('app_etapeprojet_index') }}">
+          <i class="material-symbols-rounded opacity-5">list_alt</i>
+          <span class="nav-link-text ms-1">Étapes des projets</span>
         </a>
       </li>
       <!-- Add other menu items as needed -->

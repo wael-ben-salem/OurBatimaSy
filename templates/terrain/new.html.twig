@@ -1,11 +1,165 @@
 {% extends 'base.html.twig' %}
 
-{% block title %}New Terrain{% endblock %}
+{% block title %}Nouveau Terrain{% endblock %}
+
+{% block stylesheets %}
+  {{ parent() }}
+  <style>
+    .card {
+      border-radius: 12px;
+      box-shadow: 0 4px 20px 0 rgba(0, 0, 0, 0.14), 
+                  0 7px 10px -5px rgba(0, 0, 0, 0.4);
+    }
+    .form-group {
+      margin-bottom: 1.5rem;
+    }
+    .form-control {
+      border-radius: 8px;
+      padding: 10px 15px;
+      border: 1px solid #d2d6da;
+      transition: all 0.3s;
+    }
+    .form-control:focus {
+      border-color: #A78B6D; /* Light brown focus color */
+      box-shadow: 0 0 0 2px rgba(167, 139, 109, 0.1); /* Light brown shadow */
+    }
+    .form-text {
+      font-size: 0.8rem;
+      color: #6c757d;
+      margin-top: 0.25rem;
+    }
+    .btn-action-group {
+      display: flex;
+      gap: 10px;
+      margin-top: 20px;
+    }
+    .input-group-text {
+      background-color: #f8f9fa;
+      border: 1px solid #d2d6da;
+    }
+    /* Custom light brown gradient */
+    .bg-gradient-brown {
+      background: linear-gradient(195deg, #A78B6D 0%, #8B7355 100%);
+    }
+    .shadow-brown {
+      box-shadow: 0 4px 20px 0 rgba(167, 139, 109, 0.14), 
+                  0 7px 10px -5px rgba(167, 139, 109, 0.4);
+    }
+    .btn-brown {
+      background-color: #A78B6D;
+      color: white;
+      border: none;
+    }
+    .btn-brown:hover {
+      background-color: #8B7355;
+      color: white;
+    }
+  </style>
+{% endblock %}
 
 {% block body %}
-    <h1>Créer un nouveau Terrain</h1>
+<div class="container-fluid py-4">
+  <div class="row">
+    <div class="col-12">
+      <div class="card my-4">
+        <div class="card-header p-0 position-relative mt-n4 mx-3 z-index-2">
+          <div class="bg-gradient-brown shadow-brown border-radius-lg pt-4 pb-3">  <!-- Changed to brown classes -->
+            <h6 class="text-white text-capitalize ps-3">
+              <i class="material-symbols-rounded me-2">add_circle</i>
+              Créer un nouveau Terrain
+            </h6>
+          </div>
+        </div>
+        <div class="card-body px-4 pb-2">
+          {# Flash messages #}
+          {% for message in app.flashes('success') %}
+            <div class="alert alert-success alert-dismissible fade show">
+              {{ message }}
+              <button type="button" class="btn-close" data-bs-dismiss="alert" aria-label="Close"></button>
+            </div>
+          {% endfor %}
 
-    {{ include('terrain/_form.html.twig') }}
+          {% for message in app.flashes('error') %}
+            <div class="alert alert-danger alert-dismissible fade show">
+              {{ message }}
+              <button type="button" class="btn-close" data-bs-dismiss="alert" aria-label="Close"></button>
+            </div>
+          {% endfor %}
 
-    <a href="{{ path('app_terrain_index') }}">back to list</a>
+          {{ form_start(form, {'attr': {'class': 'form-horizontal'}}) }}
+
+            <div class="row">
+              <div class="col-md-6">
+                <div class="form-group">
+                  {{ form_label(form.emplacement) }}
+                  {{ form_widget(form.emplacement, {
+                    'attr': {
+                      'class': 'form-control',
+                      'placeholder': 'Ex: Quartier résidentiel, Sousse'
+                    }
+                  }) }}
+                  <small class="form-text">Localisation précise du terrain</small>
+                </div>
+              </div>
+              <div class="col-md-6">
+                <div class="form-group">
+                  {{ form_label(form.superficie) }}
+                  <div class="input-group">
+                    {{ form_widget(form.superficie, {
+                      'attr': {
+                        'class': 'form-control',
+                        'placeholder': 'Ex: 500'
+                      }
+                    }) }}
+                    <span class="input-group-text">m²</span>
+                  </div>
+                  <small class="form-text">Superficie totale en mètres carrés</small>
+                </div>
+              </div>
+            </div>
+
+            <div class="row">
+              <div class="col-md-6">
+                <div class="form-group">
+                  {{ form_label(form.caracteristiques) }}
+                  {{ form_widget(form.caracteristiques, {
+                    'attr': {
+                      'class': 'form-control',
+                      'placeholder': 'Ex: Terrain plat avec vue mer'
+                    }
+                  }) }}
+                  <small class="form-text">Description des caractéristiques principales</small>
+                </div>
+              </div>
+              <div class="col-md-6">
+                <div class="form-group">
+                  {{ form_label(form.detailsgeo) }}
+                  {{ form_widget(form.detailsgeo, {
+                    'attr': {
+                      'class': 'form-control',
+                      'placeholder': 'Ex: Coordonnées GPS, pente, orientation'
+                    }
+                  }) }}
+                  <small class="form-text">Détails géographiques et techniques</small>
+                </div>
+              </div>
+            </div>
+
+            <div class="btn-action-group">
+              <button type="submit" class="btn btn-brown">  <!-- Changed to custom brown button -->
+                <i class="material-symbols-rounded me-1">save</i>
+                Enregistrer
+              </button>
+              <a href="{{ path('app_terrain_index') }}" class="btn btn-outline-secondary">
+                <i class="material-symbols-rounded me-1">arrow_back</i>
+                Retour à la liste
+              </a>
+            </div>
+
+          {{ form_end(form) }}
+        </div>
+      </div>
+    </div>
+  </div>
+</div>
 {% endblock %}
