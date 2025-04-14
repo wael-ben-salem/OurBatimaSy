@@ -4,6 +4,24 @@
 
 {% block breadcrumb %}Projects{% endblock %}
 
+{% block stylesheets %}
+  {{ parent() }}
+  <style>
+    .card {
+      border-radius: 12px;
+      box-shadow: 0 4px 20px 0 rgba(0, 0, 0, 0.14), 
+                  0 7px 10px -5px rgba(0, 0, 0, 0.4);
+    }
+    .avatar-sm {
+      width: 36px;
+      height: 36px;
+      display: flex;
+      align-items: center;
+      justify-content: center;
+    }
+  </style>
+{% endblock %}
+
 {% block body %}
   <div class="row">
     <div class="col-12">
@@ -22,12 +40,13 @@
             <table class="table align-items-center justify-content-center mb-0">
               <thead>
                 <tr>
-                  <th class="text-uppercase text-secondary text-xxs font-weight-bolder opacity-7">Project</th>
-                  <th class="text-uppercase text-secondary text-xxs font-weight-bolder opacity-7 ps-2">Type</th>
-                  <th class="text-uppercase text-secondary text-xxs font-weight-bolder opacity-7 ps-2">Budget</th>
-                  <th class="text-uppercase text-secondary text-xxs font-weight-bolder opacity-7 ps-2">Status</th>
-                  <th class="text-uppercase text-secondary text-xxs font-weight-bolder opacity-7">Creation Date</th>
-                  <th class="text-uppercase text-secondary text-xxs font-weight-bolder opacity-7">Actions</th>
+                  <th class="text-uppercase text-secondary text-xxs font-weight-bolder opacity-7">Projet</th>
+                  <th class="text-uppercase text-secondary text-xxs font-weight-bolder opacity-7 text-center">Client</th>
+                  <th class="text-uppercase text-secondary text-xxs font-weight-bolder opacity-7 text-center">Type</th>
+                  <th class="text-uppercase text-secondary text-xxs font-weight-bolder opacity-7 text-center">Budget</th>
+                  <th class="text-uppercase text-secondary text-xxs font-weight-bolder opacity-7 text-center">État</th>
+                  <th class="text-uppercase text-secondary text-xxs font-weight-bolder opacity-7 text-center">Date de création</th>
+                  <th class="text-uppercase text-secondary text-xxs font-weight-bolder opacity-7 text-center">Actions</th>
                 </tr>
               </thead>
               <tbody>
@@ -37,36 +56,42 @@
                     <div class="d-flex px-2">
                       <div>
                         <div class="avatar avatar-sm rounded-circle bg-gradient-dark me-2">
-                          <i class="material-symbols-rounded">work</i>
+                          <i class="material-symbols-rounded text-white">work</i>
                         </div>
                       </div>
                       <div class="my-auto">
                         <h6 class="mb-0 text-sm">{{ projet.nomprojet }}</h6>
                         <p class="text-xs text-secondary mb-0">
-                          {% if projet.stylearch %}
-                            {{ projet.stylearch }}
-                          {% else %}
-                            No style specified
-                          {% endif %}
+                          {{ projet.stylearch ?? 'No style specified' }}
                         </p>
                       </div>
                     </div>
                   </td>
-                  <td>
+                  <td class="text-center align-middle">
+                    <p class="text-sm font-weight-bold mb-0">
+                      {{ projet.idClient and projet.idClient.client ? projet.idClient.client.email : 'Pas de client' }}
+                    </p>
+                  </td>
+                  <td class="text-center align-middle">
                     <p class="text-sm font-weight-bold mb-0">{{ projet.type }}</p>
                   </td>
-                  <td>
-                    <p class="text-sm font-weight-bold mb-0">${{ projet.budget|number_format(2, '.', ',') }}</p>
+                  <td class="text-center align-middle">
+                    <p class="text-sm font-weight-bold mb-0">TND {{ projet.budget|number_format(2, '.', ',') }}</p>
                   </td>
-                  <td>
-                    <span class="badge badge-sm bg-gradient-{{ projet.etat == 'Terminé' ? 'success' : (projet.etat == 'Annulé' ? 'danger' : 'info') }}">
+                  <td class="text-center align-middle">
+                    <span class="badge badge-sm bg-gradient-{{ 
+                      projet.etat == 'Terminé' ? 'success' : 
+                      (projet.etat == 'En cours' ? 'info' : 
+                      (projet.etat == 'En attente' ? 'secondary' : 
+                      (projet.etat == 'Annulé' ? 'danger' : 'info'))) 
+                    }}">
                       {{ projet.etat ?? 'In progress' }}
                     </span>
                   </td>
-                  <td>
+                  <td class="text-center align-middle">
                     <p class="text-sm font-weight-bold mb-0">{{ projet.datecreation|date('Y-m-d') }}</p>
                   </td>
-                  <td class="align-middle">
+                  <td class="text-center align-middle">
                     <a href="{{ path('app_projet_show', {'idProjet': projet.idProjet}) }}" class="text-secondary font-weight-bold text-xs" data-toggle="tooltip" title="View">
                       <i class="material-symbols-rounded">visibility</i>
                     </a>
@@ -77,7 +102,7 @@
                 </tr>
                 {% else %}
                 <tr>
-                  <td colspan="6" class="text-center">No projects found</td>
+                  <td colspan="7" class="text-center">No projects found</td>
                 </tr>
                 {% endfor %}
               </tbody>
@@ -87,4 +112,14 @@
       </div>
     </div>
   </div>
+{% endblock %}
+
+{% block javascripts %}
+  {{ parent() }}
+  <script>
+    // Initialize tooltips if needed
+    $(function () {
+      $('[data-toggle="tooltip"]').tooltip();
+    });
+  </script>
 {% endblock %}
