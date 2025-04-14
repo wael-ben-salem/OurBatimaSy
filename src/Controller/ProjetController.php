@@ -4,6 +4,8 @@ namespace App\Controller;
 
 use App\Entity\Projet;
 use App\Form\ProjetType;
+use App\Entity\Client;
+use App\Entity\Utilisateur;
 use Doctrine\ORM\EntityManagerInterface;
 use Symfony\Bundle\FrameworkBundle\Controller\AbstractController;
 use Symfony\Component\HttpFoundation\Request;
@@ -24,7 +26,6 @@ final class ProjetController extends AbstractController
             'projets' => $projets,
         ]);
     }
-
     #[Route('/new', name: 'app_projet_new', methods: ['GET', 'POST'])]
     public function new(Request $request, EntityManagerInterface $entityManager): Response
     {
@@ -32,30 +33,49 @@ final class ProjetController extends AbstractController
         $form = $this->createForm(ProjetType::class, $projet);
         $form->handleRequest($request);
     
-        if ($form->isSubmitted() && $form->isValid()) {
-            // Manually resolve emplacement to a Terrain
-            $emplacement = $form->get('emplacement')->getData();
-            $terrain = $entityManager->getRepository(\App\Entity\Terrain::class)
-                ->findOneBy(['emplacement' => $emplacement]);
+        if ($form->isSubmitted()) {
+            if ($form->isValid()) {
+                $projet->setDatecreation(new \DateTime());
     
-            if (!$terrain) {
-                $this->addFlash('error', 'No terrain found with the given emplacement.');
-                return $this->redirectToRoute('app_projet_new');
+                $emailClient = $form->get('nomClient')->getData();
+    
+                // Only try to set a client if an email was provided
+                if (!empty($emailClient)) {
+                    $client = $entityManager->getRepository(Client::class)
+                        ->createQueryBuilder('c')
+                        ->join('c.client', 'u')
+                        ->where('u.email = :email')
+                        ->setParameter('email', $emailClient)
+                        ->getQuery()
+                        ->getOneOrNullResult();
+    
+                    if ($client) {
+                        $projet->setIdClient($client);
+                    } else {
+                        $this->addFlash('error', 'Client with this email not found.');
+                        return $this->redirectToRoute('app_projet_new');
+                    }
+                }
+    
+                $entityManager->persist($projet);
+                $entityManager->flush();
+    
+                $this->addFlash('success', 'Project successfully created.');
+    
+                return $this->redirectToRoute('app_projet_index', [], Response::HTTP_SEE_OTHER);
+            } else {
+                $this->addFlash('error', 'Please correct the errors in the form.');
             }
-    
-            $projet->setIdTerrain($terrain); // Set manually
-    
-            $entityManager->persist($projet);
-            $entityManager->flush();
-    
-            return $this->redirectToRoute('app_projet_index', [], Response::HTTP_SEE_OTHER);
         }
     
         return $this->render('projet/new.html.twig', [
             'projet' => $projet,
-            'form' => $form,
+            'form' => $form->createView(),
         ]);
     }
+    
+ 
+    
 
     #[Route('/{idProjet}', name: 'app_projet_show', methods: ['GET'])]
     public function show(Projet $projet): Response

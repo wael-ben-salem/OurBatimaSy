@@ -5,9 +5,15 @@
 {% block body %}
     <h1>Créer un nouveau Projet</h1>
 
-    {# ✅ Flash messages #}
+    {# ✅ Flash messages - Success and Error #}
     {% for message in app.flashes('success') %}
         <div class="alert alert-success">
+            {{ message }}
+        </div>
+    {% endfor %}
+
+    {% for message in app.flashes('error') %}
+        <div class="alert alert-danger">
             {{ message }}
         </div>
     {% endfor %}
@@ -19,7 +25,6 @@
         {{ form_row(form.stylearch) }}
         {{ form_row(form.budget) }}
         {{ form_row(form.etat) }}
-        {{ form_row(form.datecreation) }}
 
         <div style="display: flex; align-items: center; gap: 10px;">
             <div style="flex: 1;">
@@ -33,9 +38,10 @@
         </div>
 
         {{ form_row(form.idEquipe) }}
-        {{ form_row(form.idClient) }}
+        {{ form_row(form.nomClient) }}
 
         <button class="btn btn-success mt-3">Enregistrer</button>
+
     {{ form_end(form) }}
 
     <a href="{{ path('app_projet_index') }}" class="btn btn-link mt-3">← back to list</a>

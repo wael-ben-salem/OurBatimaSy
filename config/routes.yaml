@@ -20,3 +20,7 @@ app_logout:
 app_welcome:
     path: /welcome
     controller: App\Controller\WelcomeController::index
+    
+app_home:
+    path: /
+    controller: App\Controller\HomeController::index

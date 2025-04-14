@@ -2,7 +2,6 @@
 
 namespace App\Form;
 
-use App\Entity\Client;
 use App\Entity\Equipe;
 use App\Entity\Projet;
 use App\Entity\Terrain;
@@ -12,14 +11,14 @@ use Symfony\Component\Form\FormBuilderInterface;
 use Symfony\Component\OptionsResolver\OptionsResolver;
 use Symfony\Component\Form\Extension\Core\Type\ChoiceType;
 use Symfony\Component\Form\Extension\Core\Type\TextType;
-
-
+use Symfony\Component\Validator\Constraints\Email; // ✅ Required for the constraint
 
 class ProjetType extends AbstractType
 {
     public function buildForm(FormBuilderInterface $builder, array $options): void
     {
         $builder
+            ->add('nomprojet')
             ->add('type')
             ->add('stylearch')
             ->add('budget')
@@ -31,10 +30,6 @@ class ProjetType extends AbstractType
                 ],
                 'placeholder' => 'Choisir un état',
             ])
-            ->add('datecreation', null, [
-                'widget' => 'single_text',
-            ])
-            ->add('nomprojet')
             ->add('idTerrain', EntityType::class, [
                 'class' => Terrain::class,
                 'choice_label' => 'emplacement',
@@ -44,12 +39,20 @@ class ProjetType extends AbstractType
             ->add('idEquipe', EntityType::class, [
                 'class' => Equipe::class,
                 'choice_label' => 'nomEquipe',
+                'required' => false,
+                'placeholder' => 'Pas d\'équipe',
+                'label' => 'Équipe responsable',
             ])
-            ->add('idClient', EntityType::class, [
-                'class' => Client::class,
-                'choice_label' => 'nomClient',
-            ])
-        ;
+            ->add('nomClient', TextType::class, [
+                'label' => 'Email du client',
+                'mapped' => false,
+                'required' => false, // ✅ make the field optional
+                'constraints' => [
+                    new Email([
+                        'message' => 'Veuillez fournir une adresse email valide.',
+                    ]),
+                ],
+            ]);
     }
 
     public function configureOptions(OptionsResolver $resolver): void

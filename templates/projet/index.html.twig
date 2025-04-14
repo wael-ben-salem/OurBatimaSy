@@ -1,45 +1,90 @@
 {% extends 'base.html.twig' %}
 
-{% block title %}Projet index{% endblock %}
+{% block title %}Projects{% endblock %}
+
+{% block breadcrumb %}Projects{% endblock %}
 
 {% block body %}
-    <h1>Projet index</h1>
-
-    <table class="table">
-        <thead>
-            <tr>
-                <th>IdProjet</th>
-                <th>Type</th>
-                <th>Stylearch</th>
-                <th>Budget</th>
-                <th>Etat</th>
-                <th>Datecreation</th>
-                <th>Nomprojet</th>
-                <th>actions</th>
-            </tr>
-        </thead>
-        <tbody>
-        {% for projet in projets %}
-            <tr>
-                <td>{{ projet.idProjet }}</td>
-                <td>{{ projet.type }}</td>
-                <td>{{ projet.stylearch }}</td>
-                <td>{{ projet.budget }}</td>
-                <td>{{ projet.etat }}</td>
-                <td>{{ projet.datecreation ? projet.datecreation|date('Y-m-d H:i:s') : '' }}</td>
-                <td>{{ projet.nomprojet }}</td>
-                <td>
-                    <a href="{{ path('app_projet_show', {'idProjet': projet.idProjet}) }}">show</a>
-                    <a href="{{ path('app_projet_edit', {'idProjet': projet.idProjet}) }}">edit</a>
-                </td>
-            </tr>
-        {% else %}
-            <tr>
-                <td colspan="8">no records found</td>
-            </tr>
-        {% endfor %}
-        </tbody>
-    </table>
-
-    <a href="{{ path('app_projet_new') }}">Create new</a>
+  <div class="row">
+    <div class="col-12">
+      <div class="card my-4">
+        <div class="card-header p-0 position-relative mt-n4 mx-3 z-index-2">
+          <div class="bg-gradient-dark shadow-dark border-radius-lg pt-4 pb-3 d-flex justify-content-between align-items-center">
+            <h6 class="text-white text-capitalize ps-3">Projects table</h6>
+            <a href="{{ path('app_projet_new') }}" class="btn btn-sm btn-light me-3">
+              <i class="material-symbols-rounded me-1">add</i>
+              New Project
+            </a>
+          </div>
+        </div>
+        <div class="card-body px-0 pb-2">
+          <div class="table-responsive p-0">
+            <table class="table align-items-center justify-content-center mb-0">
+              <thead>
+                <tr>
+                  <th class="text-uppercase text-secondary text-xxs font-weight-bolder opacity-7">Project</th>
+                  <th class="text-uppercase text-secondary text-xxs font-weight-bolder opacity-7 ps-2">Type</th>
+                  <th class="text-uppercase text-secondary text-xxs font-weight-bolder opacity-7 ps-2">Budget</th>
+                  <th class="text-uppercase text-secondary text-xxs font-weight-bolder opacity-7 ps-2">Status</th>
+                  <th class="text-uppercase text-secondary text-xxs font-weight-bolder opacity-7">Creation Date</th>
+                  <th class="text-uppercase text-secondary text-xxs font-weight-bolder opacity-7">Actions</th>
+                </tr>
+              </thead>
+              <tbody>
+                {% for projet in projets %}
+                <tr>
+                  <td>
+                    <div class="d-flex px-2">
+                      <div>
+                        <div class="avatar avatar-sm rounded-circle bg-gradient-dark me-2">
+                          <i class="material-symbols-rounded">work</i>
+                        </div>
+                      </div>
+                      <div class="my-auto">
+                        <h6 class="mb-0 text-sm">{{ projet.nomprojet }}</h6>
+                        <p class="text-xs text-secondary mb-0">
+                          {% if projet.stylearch %}
+                            {{ projet.stylearch }}
+                          {% else %}
+                            No style specified
+                          {% endif %}
+                        </p>
+                      </div>
+                    </div>
+                  </td>
+                  <td>
+                    <p class="text-sm font-weight-bold mb-0">{{ projet.type }}</p>
+                  </td>
+                  <td>
+                    <p class="text-sm font-weight-bold mb-0">${{ projet.budget|number_format(2, '.', ',') }}</p>
+                  </td>
+                  <td>
+                    <span class="badge badge-sm bg-gradient-{{ projet.etat == 'Terminé' ? 'success' : (projet.etat == 'Annulé' ? 'danger' : 'info') }}">
+                      {{ projet.etat ?? 'In progress' }}
+                    </span>
+                  </td>
+                  <td>
+                    <p class="text-sm font-weight-bold mb-0">{{ projet.datecreation|date('Y-m-d') }}</p>
+                  </td>
+                  <td class="align-middle">
+                    <a href="{{ path('app_projet_show', {'idProjet': projet.idProjet}) }}" class="text-secondary font-weight-bold text-xs" data-toggle="tooltip" title="View">
+                      <i class="material-symbols-rounded">visibility</i>
+                    </a>
+                    <a href="{{ path('app_projet_edit', {'idProjet': projet.idProjet}) }}" class="text-secondary font-weight-bold text-xs ms-2" data-toggle="tooltip" title="Edit">
+                      <i class="material-symbols-rounded">edit</i>
+                    </a>
+                  </td>
+                </tr>
+                {% else %}
+                <tr>
+                  <td colspan="6" class="text-center">No projects found</td>
+                </tr>
+                {% endfor %}
+              </tbody>
+            </table>
+          </div>
+        </div>
+      </div>
+    </div>
+  </div>
 {% endblock %}
