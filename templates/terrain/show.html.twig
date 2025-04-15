@@ -2,37 +2,98 @@
 
 {% block title %}Terrain{% endblock %}
 
+{% block stylesheets %}
+  {{ parent() }}
+  <link rel="stylesheet" href="https://fonts.googleapis.com/css?family=Inter:300,400,500,600,700,900" />
+  <link rel="stylesheet" href="https://fonts.googleapis.com/css2?family=Material+Symbols+Rounded:opsz,wght,FILL,GRAD@24,400,0,0" />
+  <style>
+    .card {
+      border-radius: 12px;
+      box-shadow: 0 4px 20px 0 rgba(0, 0, 0, 0.14), 
+                  0 7px 10px -5px rgba(0, 0, 0, 0.4);
+    }
+    .btn-action-group {
+      display: flex;
+      gap: 10px;
+      margin-top: 20px;
+    }
+    .table th {
+      width: 30%;
+    }
+    .bg-gradient-beige {
+      background: linear-gradient(45deg, #A78B6D, #C4AB8D);
+    }
+    .shadow-beige {
+      box-shadow: 0 4px 20px 0 rgba(167, 139, 109, 0.14), 
+                  0 7px 10px -5px rgba(167, 139, 109, 0.4);
+    }
+  </style>
+{% endblock %}
+
 {% block body %}
-    <h1>Terrain</h1>
+<div class="container-fluid py-4">
+  <div class="row">
+    <div class="col-12">
+      <div class="card my-4">
+        <div class="card-header p-0 position-relative mt-n4 mx-3 z-index-2">
+          <div class="bg-gradient-beige shadow-beige border-radius-lg pt-4 pb-3">
+            <h6 class="text-white text-capitalize ps-3">
+              <i class="material-symbols-rounded me-2">landscape</i>
+              Détails du Terrain
+            </h6>
+          </div>
+        </div>
+        <div class="card-body px-0 pb-2">
+          <div class="table-responsive p-3">
+            <table class="table align-items-center mb-0">
+              <tbody>
+                <tr>
+                  <th class="text-uppercase text-secondary text-xs font-weight-bolder opacity-7">ID Terrain</th>
+                  <td class="text-sm">{{ terrain.idTerrain }}</td>
+                </tr>
+                <tr>
+                  <th class="text-uppercase text-secondary text-xs font-weight-bolder opacity-7">Emplacement</th>
+                  <td class="text-sm">{{ terrain.emplacement }}</td>
+                </tr>
+                <tr>
+                  <th class="text-uppercase text-secondary text-xs font-weight-bolder opacity-7">Caractéristiques</th>
+                  <td class="text-sm">{{ terrain.caracteristiques }}</td>
+                </tr>
+                <tr>
+                  <th class="text-uppercase text-secondary text-xs font-weight-bolder opacity-7">Superficie</th>
+                  <td class="text-sm">{{ terrain.superficie }}</td>
+                </tr>
+                <tr>
+                  <th class="text-uppercase text-secondary text-xs font-weight-bolder opacity-7">Détails Géographiques</th>
+                  <td class="text-sm">{{ terrain.detailsgeo }}</td>
+                </tr>
+              </tbody>
+            </table>
+          </div>
+          
+          <div class="ps-3 btn-action-group">
+            <a class="btn btn-outline-secondary" href="{{ path('app_terrain_index') }}">
+              <i class="material-symbols-rounded me-1">arrow_back</i>
+              Retour à la liste
+            </a>
+            <a class="btn btn-outline-primary" href="{{ path('app_terrain_edit', {'idTerrain': terrain.idTerrain}) }}">
+              <i class="material-symbols-rounded me-1">edit</i>
+              Modifier
+            </a>
+            {{ include('terrain/_delete_form.html.twig') }}
+          </div>
+        </div>
+      </div>
+    </div>
+  </div>
+</div>
+{% endblock %}
 
-    <table class="table">
-        <tbody>
-            <tr>
-                <th>IdTerrain</th>
-                <td>{{ terrain.idTerrain }}</td>
-            </tr>
-            <tr>
-                <th>Emplacement</th>
-                <td>{{ terrain.emplacement }}</td>
-            </tr>
-            <tr>
-                <th>Caracteristiques</th>
-                <td>{{ terrain.caracteristiques }}</td>
-            </tr>
-            <tr>
-                <th>Superficie</th>
-                <td>{{ terrain.superficie }}</td>
-            </tr>
-            <tr>
-                <th>Detailsgeo</th>
-                <td>{{ terrain.detailsgeo }}</td>
-            </tr>
-        </tbody>
-    </table>
-
-    <a href="{{ path('app_terrain_index') }}">back to list</a>
-
-    <a href="{{ path('app_terrain_edit', {'idTerrain': terrain.idTerrain}) }}">edit</a>
-
-    {{ include('terrain/_delete_form.html.twig') }}
+{% block javascripts %}
+  {{ parent() }}
+  <script>
+    if (typeof M !== 'undefined') {
+      M.AutoInit();
+    }
+  </script>
 {% endblock %}

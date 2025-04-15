@@ -1,13 +1,167 @@
 {% extends 'base_backOffice.html.twig' %}
 
-{% block title %}Edit Etapeprojet{% endblock %}
+{% block title %}Modifier Étape de Projet{% endblock %}
+
+{% block stylesheets %}
+  {{ parent() }}
+  <link rel="stylesheet" href="https://fonts.googleapis.com/css?family=Inter:300,400,500,600,700,900" />
+  <link rel="stylesheet" href="https://fonts.googleapis.com/css2?family=Material+Symbols+Rounded:opsz,wght,FILL,GRAD@24,400,0,0" />
+  <style>
+    .card {
+      border-radius: 12px;
+      box-shadow: 0 4px 20px 0 rgba(0, 0, 0, 0.14), 
+                  0 7px 10px -5px rgba(0, 0, 0, 0.4);
+    }
+    .form-group {
+      margin-bottom: 1.5rem;
+    }
+    .form-control {
+      border-radius: 8px;
+      padding: 10px 15px;
+      border: 1px solid #d2d6da;
+      transition: all 0.3s;
+    }
+    .form-control:focus {
+      border-color: #A78B6D;
+      box-shadow: 0 0 0 2px rgba(167, 139, 109, 0.1);
+    }
+    .btn-action-group {
+      display: flex;
+      gap: 10px;
+      margin-top: 20px;
+    }
+    .bg-gradient-beige {
+      background: linear-gradient(45deg, #A78B6D, #C4AB8D);
+    }
+    .shadow-beige {
+      box-shadow: 0 4px 20px 0 rgba(167, 139, 109, 0.14), 
+                  0 7px 10px -5px rgba(167, 139, 109, 0.4);
+    }
+  </style>
+{% endblock %}
 
 {% block body %}
-    <h1>Edit Etapeprojet</h1>
+<div class="container-fluid py-4">
+  <div class="row">
+    <div class="col-12">
+      <div class="card my-4">
+        <div class="card-header p-0 position-relative mt-n4 mx-3 z-index-2">
+          <div class="bg-gradient-beige shadow-beige border-radius-lg pt-4 pb-3">
+            <h6 class="text-white text-capitalize ps-3">
+              <i class="material-symbols-rounded me-2">edit</i>
+              Modifier l'Étape de Projet
+            </h6>
+          </div>
+        </div>
+        <div class="card-body px-4 pb-2">
+          {{ form_start(form, {'attr': {'class': 'form-horizontal'}}) }}
+            <div class="row">
+              <div class="col-md-6">
+                <div class="form-group">
+                  {{ form_label(form.nometape) }}
+                  {{ form_widget(form.nometape, {
+                    'attr': {
+                      'class': 'form-control',
+                      'placeholder': 'Ex: Fondations, Gros œuvre'
+                    }
+                  }) }}
+                </div>
+              </div>
+              <div class="col-md-6">
+                <div class="form-group">
+                  {{ form_label(form.idProjet) }}
+                  {{ form_widget(form.idProjet, {
+                    'attr': {
+                      'class': 'form-control'
+                    }
+                  }) }}
+                </div>
+              </div>
+            </div>
 
-    {{ include('etapeprojet/_form.html.twig', {'button_label': 'Update'}) }}
+            <div class="form-group">
+              {{ form_label(form.description) }}
+              {{ form_widget(form.description, {
+                'attr': {
+                  'class': 'form-control',
+                  'rows': 3
+                }
+              }) }}
+            </div>
 
-    <a href="{{ path('app_etapeprojet_index') }}">back to list</a>
+            <div class="row">
+              <div class="col-md-6">
+                <div class="form-group">
+                  {{ form_label(form.datedebut) }}
+                  {{ form_widget(form.datedebut, {
+                    'attr': {
+                      'class': 'form-control'
+                    }
+                  }) }}
+                </div>
+              </div>
+              <div class="col-md-6">
+                <div class="form-group">
+                  {{ form_label(form.datefin) }}
+                  {{ form_widget(form.datefin, {
+                    'attr': {
+                      'class': 'form-control'
+                    }
+                  }) }}
+                </div>
+              </div>
+            </div>
 
-    {{ include('etapeprojet/_delete_form.html.twig') }}
+            <div class="row">
+              <div class="col-md-6">
+                <div class="form-group">
+                  {{ form_label(form.statut) }}
+                  {{ form_widget(form.statut, {
+                    'attr': {
+                      'class': 'form-control'
+                    }
+                  }) }}
+                </div>
+              </div>
+              <div class="col-md-6">
+                <div class="form-group">
+                  {{ form_label(form.montant) }}
+                  <div class="input-group">
+                    {{ form_widget(form.montant, {
+                      'attr': {
+                        'class': 'form-control'
+                      }
+                    }) }}
+                    <span class="input-group-text">TND</span>
+                  </div>
+                </div>
+              </div>
+            </div>
+
+            <div class="btn-action-group">
+              <button type="submit" class="btn btn-success">
+                <i class="material-symbols-rounded me-1">save</i>
+                Enregistrer
+              </button>
+              <a href="{{ path('app_etapeprojet_index') }}" class="btn btn-outline-secondary">
+                <i class="material-symbols-rounded me-1">arrow_back</i>
+                Retour à la liste
+              </a>
+              {{ include('etapeprojet/_delete_form.html.twig') }}
+            </div>
+          {{ form_end(form) }}
+        </div>
+      </div>
+    </div>
+  </div>
+</div>
+{% endblock %}
+
+{% block javascripts %}
+  {{ parent() }}
+  <script>
+    if (typeof M !== 'undefined') {
+      M.AutoInit();
+    }
+  </script>
 {% endblock %}

@@ -1,46 +1,120 @@
 {% extends 'base_backOffice.html.twig' %}
 
-{% block title %}Etapeprojet{% endblock %}
+{% block title %}Étape de Projet{% endblock %}
+
+{% block stylesheets %}
+  {{ parent() }}
+  <link rel="stylesheet" href="https://fonts.googleapis.com/css?family=Inter:300,400,500,600,700,900" />
+  <link rel="stylesheet" href="https://fonts.googleapis.com/css2?family=Material+Symbols+Rounded:opsz,wght,FILL,GRAD@24,400,0,0" />
+  <style>
+    .card {
+      border-radius: 12px;
+      box-shadow: 0 4px 20px 0 rgba(0, 0, 0, 0.14), 
+                  0 7px 10px -5px rgba(0, 0, 0, 0.4);
+    }
+    .btn-action-group {
+      display: flex;
+      gap: 10px;
+      margin-top: 20px;
+    }
+    .table th {
+      width: 30%;
+    }
+    .bg-gradient-beige {
+      background: linear-gradient(45deg, #A78B6D, #C4AB8D);
+    }
+    .shadow-beige {
+      box-shadow: 0 4px 20px 0 rgba(167, 139, 109, 0.14), 
+                  0 7px 10px -5px rgba(167, 139, 109, 0.4);
+    }
+    .badge-sm {
+      font-size: 0.75rem;
+      padding: 0.35em 0.65em;
+    }
+  </style>
+{% endblock %}
 
 {% block body %}
-    <h1>Etapeprojet</h1>
+<div class="container-fluid py-4">
+  <div class="row">
+    <div class="col-12">
+      <div class="card my-4">
+        <div class="card-header p-0 position-relative mt-n4 mx-3 z-index-2">
+          <div class="bg-gradient-beige shadow-beige border-radius-lg pt-4 pb-3">
+            <h6 class="text-white text-capitalize ps-3">
+              <i class="material-symbols-rounded me-2">layers</i>
+              Détails de l'Étape du Projet
+            </h6>
+          </div>
+        </div>
+        <div class="card-body px-0 pb-2">
+          <div class="table-responsive p-3">
+            <table class="table align-items-center mb-0">
+              <tbody>
+                <tr>
+                  <th class="text-uppercase text-secondary text-xs font-weight-bolder opacity-7">ID Étape</th>
+                  <td class="text-sm">{{ etapeprojet.idEtapeprojet }}</td>
+                </tr>
+                <tr>
+                  <th class="text-uppercase text-secondary text-xs font-weight-bolder opacity-7">Nom de l'étape</th>
+                  <td class="text-sm">{{ etapeprojet.nometape }}</td>
+                </tr>
+                <tr>
+                  <th class="text-uppercase text-secondary text-xs font-weight-bolder opacity-7">Description</th>
+                  <td class="text-sm">{{ etapeprojet.description }}</td>
+                </tr>
+                <tr>
+                  <th class="text-uppercase text-secondary text-xs font-weight-bolder opacity-7">Date de début</th>
+                  <td class="text-sm">{{ etapeprojet.datedebut ? etapeprojet.datedebut|date('d/m/Y') : '' }}</td>
+                </tr>
+                <tr>
+                  <th class="text-uppercase text-secondary text-xs font-weight-bolder opacity-7">Date de fin</th>
+                  <td class="text-sm">{{ etapeprojet.datefin ? etapeprojet.datefin|date('d/m/Y') : '' }}</td>
+                </tr>
+                <tr>
+                  <th class="text-uppercase text-secondary text-xs font-weight-bolder opacity-7">Statut</th>
+                  <td class="text-sm">
+                    <span class="badge badge-sm bg-gradient-{{
+                      etapeprojet.statut == 'Terminé' ? 'success' :
+                      (etapeprojet.statut == 'En cours' ? 'info' :
+                      (etapeprojet.statut == 'En attente' ? 'secondary' :
+                      (etapeprojet.statut == 'Annulé' ? 'danger' : 'warning')))
+                    }} text-white">
+                      {{ etapeprojet.statut }}
+                    </span>
+                  </td>
+                </tr>
+                <tr>
+                  <th class="text-uppercase text-secondary text-xs font-weight-bolder opacity-7">Montant</th>
+                  <td class="text-sm">TND {{ etapeprojet.montant|number_format(2, '.', ',') }}</td>
+                </tr>
+              </tbody>
+            </table>
+          </div>
+          
+          <div class="ps-3 btn-action-group">
+            <a class="btn btn-outline-secondary" href="{{ path('app_etapeprojet_index') }}">
+              <i class="material-symbols-rounded me-1">arrow_back</i>
+              Retour à la liste
+            </a>
+            <a class="btn btn-outline-primary" href="{{ path('app_etapeprojet_edit', {'idEtapeprojet': etapeprojet.idEtapeprojet}) }}">
+              <i class="material-symbols-rounded me-1">edit</i>
+              Modifier
+            </a>
+            {{ include('etapeprojet/_delete_form.html.twig') }}
+          </div>
+        </div>
+      </div>
+    </div>
+  </div>
+</div>
+{% endblock %}
 
-    <table class="table">
-        <tbody>
-            <tr>
-                <th>IdEtapeprojet</th>
-                <td>{{ etapeprojet.idEtapeprojet }}</td>
-            </tr>
-            <tr>
-                <th>Nometape</th>
-                <td>{{ etapeprojet.nometape }}</td>
-            </tr>
-            <tr>
-                <th>Description</th>
-                <td>{{ etapeprojet.description }}</td>
-            </tr>
-            <tr>
-                <th>Datedebut</th>
-                <td>{{ etapeprojet.datedebut ? etapeprojet.datedebut|date('Y-m-d') : '' }}</td>
-            </tr>
-            <tr>
-                <th>Datefin</th>
-                <td>{{ etapeprojet.datefin ? etapeprojet.datefin|date('Y-m-d') : '' }}</td>
-            </tr>
-            <tr>
-                <th>Statut</th>
-                <td>{{ etapeprojet.statut }}</td>
-            </tr>
-            <tr>
-                <th>Montant</th>
-                <td>{{ etapeprojet.montant }}</td>
-            </tr>
-        </tbody>
-    </table>
-
-    <a href="{{ path('app_etapeprojet_index') }}">back to list</a>
-
-    <a href="{{ path('app_etapeprojet_edit', {'idEtapeprojet': etapeprojet.idEtapeprojet}) }}">edit</a>
-
-    {{ include('etapeprojet/_delete_form.html.twig') }}
+{% block javascripts %}
+  {{ parent() }}
+  <script>
+    if (typeof M !== 'undefined') {
+      M.AutoInit();
+    }
+  </script>
 {% endblock %}
