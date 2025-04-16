@@ -270,10 +270,11 @@ class Utilisateur implements UserInterface, PasswordAuthenticatedUserInterface
     }
 
     public function getRoles(): array
-    {
-        return ['ROLE_' . strtoupper($this->role ?? 'CLIENT')];
-    }
-    
+{
+    $roles = ['ROLE_' . strtoupper($this->role ?? 'CLIENT')];
+    $roles[] = 'ROLE_USER'; // rôle de base, toujours utile
+    return array_unique($roles);
+}
 
     public function eraseCredentials(): void
     {

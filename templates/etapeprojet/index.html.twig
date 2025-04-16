@@ -1,0 +1,178 @@
+{% extends 'base_backOffice.html.twig' %}
+
+{% block title %}Étapes des projets{% endblock %}
+
+{% block breadcrumb %}Étapes des projets{% endblock %}
+
+{% block stylesheets %}
+  {{ parent() }}
+  <style>
+    .card {
+      border-radius: 12px;
+      box-shadow: 0 4px 20px 0 rgba(0, 0, 0, 0.14), 
+                  0 7px 10px -5px rgba(0, 0, 0, 0.4);
+    }
+    .avatar-sm {
+      width: 36px;
+      height: 36px;
+      display: flex;
+      align-items: center;
+      justify-content: center;
+    }
+    .badge-sm {
+      font-size: 0.65rem;
+      padding: 0.35em 0.65em;
+    }
+    .text-truncate {
+      white-space: nowrap;
+      overflow: hidden;
+      text-overflow: ellipsis;
+      max-width: 150px;
+      display: inline-block;
+    }
+    /* Add this to ensure clickable area fills the cell */
+    table tbody tr td {
+      position: relative;
+    }
+    table tbody tr td a.project-link {
+      position: absolute;
+      top: 0;
+      left: 0;
+      right: 0;
+      bottom: 0;
+      display: flex;
+      align-items: center;
+      padding-left: 16px;
+    }
+  </style>
+{% endblock %}
+
+{% block body %}
+  <div class="row">
+    <div class="col-12">
+      <div class="card my-4">
+        <div class="card-header p-0 position-relative mt-n4 mx-3 z-index-2">
+          <div class="bg-gradient-dark shadow-dark border-radius-lg pt-4 pb-3 d-flex justify-content-between align-items-center">
+            <h6 class="text-white text-capitalize ps-3">Étapes des projets</h6>
+            <a href="{{ path('app_etapeprojet_new') }}" class="btn btn-sm btn-light me-3">
+              <i class="material-symbols-rounded me-1">add</i>
+              Nouvelle Étape du projet
+            </a>
+          </div>
+        </div>
+        <div class="card-body px-0 pb-2">
+          <div class="table-responsive p-0">
+            <table class="table align-items-center justify-content-center mb-0">
+              <thead>
+                <tr>
+                  <th class="text-uppercase text-secondary text-xxs font-weight-bolder opacity-7">Nom de l'étape</th>
+                  <th class="text-uppercase text-secondary text-xxs font-weight-bolder opacity-7">Projet associé</th>
+                  <th class="text-uppercase text-secondary text-xxs font-weight-bolder opacity-7 ps-2">Description</th>
+                  <th class="text-uppercase text-secondary text-xxs font-weight-bolder opacity-7 text-center">Date Début</th>
+                  <th class="text-uppercase text-secondary text-xxs font-weight-bolder opacity-7 text-center">Date Fin</th>
+                  <th class="text-uppercase text-secondary text-xxs font-weight-bolder opacity-7 text-center">État</th>
+                  <th class="text-uppercase text-secondary text-xxs font-weight-bolder opacity-7 text-center">Montant</th>
+                  <th class="text-uppercase text-secondary text-xxs font-weight-bolder opacity-7 text-center">Actions</th>
+                </tr>
+              </thead>
+              <tbody>
+                {% for etapeprojet in etapeprojets %}
+                <tr>
+                  <td>
+                    <div class="d-flex px-2">
+                      <div>
+                        <div class="avatar avatar-sm rounded-circle bg-gradient-dark me-2">
+                          <i class="material-symbols-rounded text-white">layers</i>
+                        </div>
+                      </div>
+                      <div class="my-auto">
+                        <h6 class="mb-0 text-sm">{{ etapeprojet.nometape }}</h6>
+                      </div>
+                    </div>
+                  </td>
+                  <td style="position: relative;">
+                    {% if etapeprojet.idProjet %}
+                    <a href="{{ path('app_projet_show', {'idProjet': etapeprojet.idProjet.idProjet}) }}" 
+                       class="text-decoration-none text-dark project-link">
+                      <div class="d-flex align-items-center">
+                        <div class="avatar avatar-sm rounded-circle bg-gradient-info me-2">
+                          <i class="material-symbols-rounded text-white">work</i>
+                        </div>
+                        <div>
+                          <h6 class="mb-0 text-sm">{{ etapeprojet.idProjet.nomprojet }}</h6>
+                          <p class="text-xs text-secondary mb-0">{{ etapeprojet.idProjet.type }}</p>
+                        </div>
+                      </div>
+                    </a>
+                    {% else %}
+                    <span class="text-sm text-secondary">Aucun projet</span>
+                    {% endif %}
+                  </td>
+                  <td>
+                    <p class="text-sm font-weight-bold mb-0 text-truncate">
+                      {{ etapeprojet.description ?? 'Aucune description' }}
+                    </p>
+                  </td>
+                  <td class="text-center align-middle">
+                    <p class="text-sm font-weight-bold mb-0">
+                      {{ etapeprojet.datedebut ? etapeprojet.datedebut|date('Y-m-d') : 'N/A' }}
+                    </p>
+                  </td>
+                  <td class="text-center align-middle">
+                    <p class="text-sm font-weight-bold mb-0">
+                      {{ etapeprojet.datefin ? etapeprojet.datefin|date('Y-m-d') : 'N/A' }}
+                    </p>
+                  </td>
+                  <td class="text-center align-middle">
+                    <span class="badge badge-sm bg-gradient-{{
+                      etapeprojet.statut == 'Terminé' ? 'success' :
+                      (etapeprojet.statut == 'En cours' ? 'info' :
+                      (etapeprojet.statut == 'En attente' ? 'secondary' :
+                      (etapeprojet.statut == 'Annulé' ? 'danger' : 'info')))
+                    }}">
+                      {{ etapeprojet.statut ?? 'En cours' }}
+                    </span>
+                  </td>
+                  <td class="text-center align-middle">
+                    <p class="text-sm font-weight-bold mb-0">
+                      TND {{ etapeprojet.montant|number_format(2, '.', ',') }}
+                    </p>
+                  </td>
+                  <td class="text-center align-middle">
+                    <a href="{{ path('app_etapeprojet_show', {'idEtapeprojet': etapeprojet.idEtapeprojet}) }}" 
+                       class="text-secondary font-weight-bold text-xs" 
+                       data-toggle="tooltip" 
+                       title="Voir détails">
+                      <i class="material-symbols-rounded">visibility</i>
+                    </a>
+                    <a href="{{ path('app_etapeprojet_edit', {'idEtapeprojet': etapeprojet.idEtapeprojet}) }}" 
+                       class="text-secondary font-weight-bold text-xs ms-2" 
+                       data-toggle="tooltip" 
+                       title="Modifier">
+                      <i class="material-symbols-rounded">edit</i>
+                    </a>
+                  </td>
+                </tr>
+                {% else %}
+                <tr>
+                  <td colspan="8" class="text-center">Aucune étape trouvée</td>
+                </tr>
+                {% endfor %}
+              </tbody>
+            </table>
+          </div>
+        </div>
+      </div>
+    </div>
+  </div>
+{% endblock %}
+
+{% block javascripts %}
+  {{ parent() }}
+  <script>
+    // Initialize tooltips if needed
+    $(function () {
+      $('[data-toggle="tooltip"]').tooltip();
+    });
+  </script>
+{% endblock %}

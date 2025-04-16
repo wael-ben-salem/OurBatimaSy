@@ -1,0 +1,38 @@
+{% extends 'base_backOffice.html.twig' %}
+
+{% block title %}Terrain{% endblock %}
+
+{% block body %}
+    <h1>Terrain</h1>
+
+    <table class="table">
+        <tbody>
+            <tr>
+                <th>IdTerrain</th>
+                <td>{{ terrain.idTerrain }}</td>
+            </tr>
+            <tr>
+                <th>Emplacement</th>
+                <td>{{ terrain.emplacement }}</td>
+            </tr>
+            <tr>
+                <th>Caracteristiques</th>
+                <td>{{ terrain.caracteristiques }}</td>
+            </tr>
+            <tr>
+                <th>Superficie</th>
+                <td>{{ terrain.superficie }}</td>
+            </tr>
+            <tr>
+                <th>Detailsgeo</th>
+                <td>{{ terrain.detailsgeo }}</td>
+            </tr>
+        </tbody>
+    </table>
+
+    <a href="{{ path('app_terrain_index') }}">back to list</a>
+
+    <a href="{{ path('app_terrain_edit', {'idTerrain': terrain.idTerrain}) }}">edit</a>
+
+    {{ include('terrain/_delete_form.html.twig') }}
+{% endblock %}

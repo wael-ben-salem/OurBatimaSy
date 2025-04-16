@@ -4,6 +4,8 @@ namespace App\Entity;
 
 use Doctrine\DBAL\Types\Types;
 use Doctrine\ORM\Mapping as ORM;
+use App\Entity\Projet;
+use App\Entity\Visite;
 
 /**
  * Terrain
@@ -14,51 +16,30 @@ use Doctrine\ORM\Mapping as ORM;
 #[ORM\Entity]
 class Terrain
 {
-    /**
-     * @var int
-     */
     #[ORM\Column(name: 'Id_terrain', type: 'integer', nullable: false)]
     #[ORM\Id]
     #[ORM\GeneratedValue(strategy: 'IDENTITY')]
     private $idTerrain;
 
-    /**
-     * @var string
-     */
     #[ORM\Column(name: 'emplacement', type: 'string', length: 100, nullable: false)]
     private $emplacement;
 
-    /**
-     * @var string
-     */
     #[ORM\Column(name: 'caracteristiques', type: 'text', length: 65535, nullable: false)]
     private $caracteristiques;
 
-    /**
-     * @var string|null
-     */
     #[ORM\Column(name: 'superficie', type: 'decimal', precision: 10, scale: 2, nullable: true)]
     private $superficie;
 
-    /**
-     * @var string|null
-     */
     #[ORM\Column(name: 'detailsGeo', type: 'string', length: 100, nullable: true)]
     private $detailsgeo;
 
-    /**
-     * @var \Projet
-     */
-    #[ORM\JoinColumn(name: 'Id_projet', referencedColumnName: 'Id_projet')]
-    #[ORM\ManyToOne(targetEntity: \Projet::class)]
-    private $idProjet;
+    #[ORM\JoinColumn(name: 'Id_projet', referencedColumnName: 'Id_projet', nullable: true)]
+    #[ORM\ManyToOne(targetEntity: Projet::class)]
+    private ?Projet $idProjet = null;
 
-    /**
-     * @var \Visite
-     */
-    #[ORM\JoinColumn(name: 'Id_visite', referencedColumnName: 'Id_visite')]
-    #[ORM\ManyToOne(targetEntity: \Visite::class)]
-    private $idVisite;
+    #[ORM\JoinColumn(name: 'Id_visite', referencedColumnName: 'Id_visite', nullable: true)]
+    #[ORM\ManyToOne(targetEntity: Visite::class)]
+    private ?Visite $idVisite = null;
 
     public function getIdTerrain(): ?int
     {
@@ -136,6 +117,4 @@ class Terrain
 
         return $this;
     }
-
-
 }
