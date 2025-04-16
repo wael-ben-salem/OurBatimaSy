@@ -1,0 +1,149 @@
+{% extends 'base_backOffice.html.twig' %}
+
+{% block title %}Modifier Terrain{% endblock %}
+
+{% block stylesheets %}
+  {{ parent() }}
+  <style>
+    .card {
+      border-radius: 12px;
+      box-shadow: 0 4px 20px 0 rgba(0, 0, 0, 0.14), 
+                  0 7px 10px -5px rgba(0, 0, 0, 0.4);
+    }
+    .form-group {
+      margin-bottom: 1.5rem;
+    }
+    .form-control {
+      border-radius: 8px;
+      padding: 10px 15px;
+      border: 1px solid #d2d6da;
+      transition: all 0.3s;
+    }
+    .form-control:focus {
+      border-color: #4CAF50; /* Changed to green */
+      box-shadow: 0 0 0 2px rgba(76, 175, 80, 0.1); /* Green shadow */
+    }
+    .form-text {
+      font-size: 0.8rem;
+      color: #6c757d;
+      margin-top: 0.25rem;
+    }
+    .btn-action-group {
+      display: flex;
+      gap: 10px;
+      margin-top: 20px;
+    }
+    .input-group-text {
+      background-color: #f8f9fa;
+      border: 1px solid #d2d6da;
+    }
+  </style>
+{% endblock %}
+
+{% block body %}
+<div class="container-fluid py-4">
+  <div class="row">
+    <div class="col-12">
+      <div class="card my-4">
+        <div class="card-header p-0 position-relative mt-n4 mx-3 z-index-2">
+          <div class="bg-gradient-success shadow-success border-radius-lg pt-4 pb-3"> <!-- Changed to success/green -->
+            <h6 class="text-white text-capitalize ps-3">
+              <i class="material-symbols-rounded me-2">edit</i>
+              Modifier le Terrain
+            </h6>
+          </div>
+        </div>
+        <div class="card-body px-4 pb-2">
+          {# Flash messages #}
+          {% for message in app.flashes('success') %}
+            <div class="alert alert-success alert-dismissible fade show">
+              {{ message }}
+              <button type="button" class="btn-close" data-bs-dismiss="alert" aria-label="Close"></button>
+            </div>
+          {% endfor %}
+
+          {% for message in app.flashes('error') %}
+            <div class="alert alert-danger alert-dismissible fade show">
+              {{ message }}
+              <button type="button" class="btn-close" data-bs-dismiss="alert" aria-label="Close"></button>
+            </div>
+          {% endfor %}
+
+          {{ form_start(form, {'attr': {'class': 'form-horizontal'}}) }}
+
+            <div class="row">
+              <div class="col-md-6">
+                <div class="form-group">
+                  {{ form_label(form.emplacement) }}
+                  {{ form_widget(form.emplacement, {
+                    'attr': {
+                      'class': 'form-control',
+                      'placeholder': 'Ex: Quartier résidentiel, Sousse'
+                    }
+                  }) }}
+                  <small class="form-text">Localisation du terrain</small>
+                </div>
+              </div>
+              <div class="col-md-6">
+                <div class="form-group">
+                  {{ form_label(form.superficie) }}
+                  <div class="input-group">
+                    {{ form_widget(form.superficie, {
+                      'attr': {
+                        'class': 'form-control',
+                        'placeholder': 'Ex: 500'
+                      }
+                    }) }}
+                    <span class="input-group-text">m²</span>
+                  </div>
+                  <small class="form-text">Superficie totale du terrain</small>
+                </div>
+              </div>
+            </div>
+
+            <div class="row">
+              <div class="col-md-6">
+                <div class="form-group">
+                  {{ form_label(form.caracteristiques) }}
+                  {{ form_widget(form.caracteristiques, {
+                    'attr': {
+                      'class': 'form-control',
+                      'placeholder': 'Ex: Terrain plat avec vue mer'
+                    }
+                  }) }}
+                  <small class="form-text">Description des caractéristiques</small>
+                </div>
+              </div>
+              <div class="col-md-6">
+                <div class="form-group">
+                  {{ form_label(form.detailsgeo) }}
+                  {{ form_widget(form.detailsgeo, {
+                    'attr': {
+                      'class': 'form-control',
+                      'placeholder': 'Ex: Coordonnées GPS, pente, etc.'
+                    }
+                  }) }}
+                  <small class="form-text">Détails géographiques</small>
+                </div>
+              </div>
+            </div>
+
+            <div class="btn-action-group">
+              <button type="submit" class="btn btn-success">
+                <i class="material-symbols-rounded me-1">save</i>
+                Mettre à jour
+              </button>
+              <a href="{{ path('app_terrain_index') }}" class="btn btn-outline-secondary">
+                <i class="material-symbols-rounded me-1">arrow_back</i>
+                Retour à la liste
+              </a>
+              {{ include('terrain/_delete_form.html.twig') }}
+            </div>
+
+          {{ form_end(form) }}
+        </div>
+      </div>
+    </div>
+  </div>
+</div>
+{% endblock %}

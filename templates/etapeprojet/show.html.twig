@@ -1,0 +1,46 @@
+{% extends 'base_backOffice.html.twig' %}
+
+{% block title %}Etapeprojet{% endblock %}
+
+{% block body %}
+    <h1>Etapeprojet</h1>
+
+    <table class="table">
+        <tbody>
+            <tr>
+                <th>IdEtapeprojet</th>
+                <td>{{ etapeprojet.idEtapeprojet }}</td>
+            </tr>
+            <tr>
+                <th>Nometape</th>
+                <td>{{ etapeprojet.nometape }}</td>
+            </tr>
+            <tr>
+                <th>Description</th>
+                <td>{{ etapeprojet.description }}</td>
+            </tr>
+            <tr>
+                <th>Datedebut</th>
+                <td>{{ etapeprojet.datedebut ? etapeprojet.datedebut|date('Y-m-d') : '' }}</td>
+            </tr>
+            <tr>
+                <th>Datefin</th>
+                <td>{{ etapeprojet.datefin ? etapeprojet.datefin|date('Y-m-d') : '' }}</td>
+            </tr>
+            <tr>
+                <th>Statut</th>
+                <td>{{ etapeprojet.statut }}</td>
+            </tr>
+            <tr>
+                <th>Montant</th>
+                <td>{{ etapeprojet.montant }}</td>
+            </tr>
+        </tbody>
+    </table>
+
+    <a href="{{ path('app_etapeprojet_index') }}">back to list</a>
+
+    <a href="{{ path('app_etapeprojet_edit', {'idEtapeprojet': etapeprojet.idEtapeprojet}) }}">edit</a>
+
+    {{ include('etapeprojet/_delete_form.html.twig') }}
+{% endblock %}

@@ -1,0 +1,137 @@
+{% extends 'base_backOffice.html.twig' %}
+
+{% block title %}Projects{% endblock %}
+
+{% block breadcrumb %}Projects{% endblock %}
+
+{% block stylesheets %}
+  {{ parent() }}
+  <style>
+    .card {
+      border-radius: 12px;
+      box-shadow: 0 4px 20px 0 rgba(0, 0, 0, 0.14), 
+                  0 7px 10px -5px rgba(0, 0, 0, 0.4);
+    }
+    .avatar-sm {
+      width: 36px;
+      height: 36px;
+      display: flex;
+      align-items: center;
+      justify-content: center;
+    }
+
+    .bg-gradient-success { background: linear-gradient(45deg,rgb(39, 223, 82), #20c997); }
+    .bg-gradient-info { background: linear-gradient(45deg, #17a2b8, #0dcaf0); }
+    .bg-gradient-secondary { background: linear-gradient(45deg, #6c757d, #adb5bd); }
+    .bg-gradient-danger { background: linear-gradient(45deg, #dc3545, #fd7e14); }
+
+    .badge-sm {
+      font-size: 0.65rem;
+      padding: 0.35em 0.65em;
+    }
+  </style>
+{% endblock %}
+
+{% block body %}
+  <div class="row">
+    <div class="col-12">
+      <div class="card my-4">
+        <div class="card-header p-0 position-relative mt-n4 mx-3 z-index-2">
+          <div class="bg-gradient-dark shadow-dark border-radius-lg pt-4 pb-3 d-flex justify-content-between align-items-center">
+            <h6 class="text-white text-capitalize ps-3">Projects table</h6>
+            <a href="{{ path('app_projet_new') }}" class="btn btn-sm btn-light me-3">
+              <i class="material-symbols-rounded me-1">add</i>
+              New Project
+            </a>
+          </div>
+        </div>
+        <div class="card-body px-0 pb-2">
+          <div class="table-responsive p-0">
+            <table class="table align-items-center justify-content-center mb-0">
+              <thead>
+                <tr>
+                  <th class="text-uppercase text-secondary text-xxs font-weight-bolder opacity-7">Projet</th>
+                  <th class="text-uppercase text-secondary text-xxs font-weight-bolder opacity-7 text-center">Client</th>
+                  <th class="text-uppercase text-secondary text-xxs font-weight-bolder opacity-7 text-center">Type</th>
+                  <th class="text-uppercase text-secondary text-xxs font-weight-bolder opacity-7 text-center">Budget</th>
+                  <th class="text-uppercase text-secondary text-xxs font-weight-bolder opacity-7 text-center">État</th>
+                  <th class="text-uppercase text-secondary text-xxs font-weight-bolder opacity-7 text-center">Date de création</th>
+                  <th class="text-uppercase text-secondary text-xxs font-weight-bolder opacity-7 text-center">Actions</th>
+                </tr>
+              </thead>
+              <tbody>
+                {% for projet in projets %}
+                  {% set etatRaw = projet.etat|default('En cours') %}
+                  {% set etat = etatRaw|trim|lower %}
+                  {% set color = 
+                    etat == 'fini' ? 'success' :
+                    (etat == 'en cours' ? 'info' :
+                    (etat == 'en attente' ? 'secondary' :
+                    (etat == 'annulé' ? 'danger' : 'info')))
+                  %}
+                <tr>
+                  <td>
+                    <div class="d-flex px-2">
+                      <div>
+                        <div class="avatar avatar-sm rounded-circle bg-gradient-dark me-2">
+                          <i class="material-symbols-rounded text-white">work</i>
+                        </div>
+                      </div>
+                      <div class="my-auto">
+                        <h6 class="mb-0 text-sm">{{ projet.nomprojet }}</h6>
+                        <p class="text-xs text-secondary mb-0">
+                          {{ projet.stylearch ?? 'No style specified' }}
+                        </p>
+                      </div>
+                    </div>
+                  </td>
+                  <td class="text-center align-middle">
+                    <p class="text-sm font-weight-bold mb-0">
+                      {{ projet.idClient and projet.idClient.client ? projet.idClient.client.email : 'Pas de client' }}
+                    </p>
+                  </td>
+                  <td class="text-center align-middle">
+                    <p class="text-sm font-weight-bold mb-0">{{ projet.type }}</p>
+                  </td>
+                  <td class="text-center align-middle">
+                    <p class="text-sm font-weight-bold mb-0">TND {{ projet.budget|number_format(2, '.', ',') }}</p>
+                  </td>
+                  <td class="text-center align-middle">
+                    <span class="badge badge-sm bg-gradient-{{ color }}">
+                      {{ etatRaw }}
+                    </span>
+                  </td>
+                  <td class="text-center align-middle">
+                    <p class="text-sm font-weight-bold mb-0">{{ projet.datecreation|date('Y-m-d') }}</p>
+                  </td>
+                  <td class="text-center align-middle">
+                    <a href="{{ path('app_projet_show', {'idProjet': projet.idProjet}) }}" class="text-secondary font-weight-bold text-xs" data-toggle="tooltip" title="View">
+                      <i class="material-symbols-rounded">visibility</i>
+                    </a>
+                    <a href="{{ path('app_projet_edit', {'idProjet': projet.idProjet}) }}" class="text-secondary font-weight-bold text-xs ms-2" data-toggle="tooltip" title="Edit">
+                      <i class="material-symbols-rounded">edit</i>
+                    </a>
+                  </td>
+                </tr>
+                {% else %}
+                <tr>
+                  <td colspan="7" class="text-center">No projects found</td>
+                </tr>
+                {% endfor %}
+              </tbody>
+            </table>
+          </div>
+        </div>
+      </div>
+    </div>
+  </div>
+{% endblock %}
+
+{% block javascripts %}
+  {{ parent() }}
+  <script>
+    $(function () {
+      $('[data-toggle="tooltip"]').tooltip();
+    });
+  </script>
+{% endblock %}

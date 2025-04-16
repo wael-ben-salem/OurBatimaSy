@@ -1,0 +1,113 @@
+{% extends 'base_backOffice.html.twig' %}
+
+{% block title %}Projet{% endblock %}
+
+{% block stylesheets %}
+  {{ parent() }}
+  <!-- Additional styles specific to this page -->
+  <link rel="stylesheet" href="https://fonts.googleapis.com/css?family=Inter:300,400,500,600,700,900" />
+  <link rel="stylesheet" href="https://fonts.googleapis.com/css2?family=Material+Symbols+Rounded:opsz,wght,FILL,GRAD@24,400,0,0" />
+  <style>
+    .card {
+      border-radius: 12px;
+      box-shadow: 0 4px 20px 0 rgba(0, 0, 0, 0.14), 
+                  0 7px 10px -5px rgba(0, 0, 0, 0.4);
+    }
+    .btn-action-group {
+      display: flex;
+      gap: 10px;
+      margin-top: 20px;
+    }
+    .table th {
+      width: 30%;
+    }
+  </style>
+{% endblock %}
+
+{% block body %}
+<div class="container-fluid py-4">
+  <div class="row">
+    <div class="col-12">
+      <div class="card my-4">
+        <div class="card-header p-0 position-relative mt-n4 mx-3 z-index-2">
+          <div class="bg-gradient-primary shadow-primary border-radius-lg pt-4 pb-3">
+            <h6 class="text-white text-capitalize ps-3">
+              <i class="material-symbols-rounded me-2">folder</i>
+              Détails du Projet
+            </h6>
+          </div>
+        </div>
+        <div class="card-body px-0 pb-2">
+          <div class="table-responsive p-3">
+            <table class="table align-items-center mb-0">
+              <tbody>
+                <tr>
+                  <th class="text-uppercase text-secondary text-xs font-weight-bolder opacity-7">ID Projet</th>
+                  <td class="text-sm">{{ projet.idProjet }}</td>
+                </tr>
+                <tr>
+                  <th class="text-uppercase text-secondary text-xs font-weight-bolder opacity-7">Type</th>
+                  <td class="text-sm">{{ projet.type }}</td>
+                </tr>
+                <tr>
+                  <th class="text-uppercase text-secondary text-xs font-weight-bolder opacity-7">Style Architectural</th>
+                  <td class="text-sm">{{ projet.stylearch }}</td>
+                </tr>
+                <tr>
+                  <th class="text-uppercase text-secondary text-xs font-weight-bolder opacity-7">Budget</th>
+                  <td class="text-sm">{{ projet.budget }} €</td>
+                </tr>
+                <tr>
+                  <th class="text-uppercase text-secondary text-xs font-weight-bolder opacity-7">État</th>
+                  <td class="text-sm">
+                    <span class="badge badge-sm bg-gradient-{{ projet.etat == 'Terminé' ? 'success' : (projet.etat == 'En cours' ? 'info' : 'warning') }}">
+                      {{ projet.etat }}
+                    </span>
+                  </td>
+                </tr>
+                <tr>
+                  <th class="text-uppercase text-secondary text-xs font-weight-bolder opacity-7">Date de création</th>
+                  <td class="text-sm">{{ projet.datecreation ? projet.datecreation|date('d/m/Y H:i') : '' }}</td>
+                </tr>
+                <tr>
+                  <th class="text-uppercase text-secondary text-xs font-weight-bolder opacity-7">Nom du projet</th>
+                  <td class="text-sm font-weight-bold">{{ projet.nomprojet }}</td>
+                </tr>
+              </tbody>
+            </table>
+          </div>
+          
+          <div class="ps-3 btn-action-group">
+            <a class="btn btn-outline-secondary" href="{{ path('app_projet_index') }}">
+              <i class="material-symbols-rounded me-1">arrow_back</i>
+              Retour à la liste
+            </a>
+            <a class="btn btn-outline-primary" href="{{ path('app_projet_edit', {'idProjet': projet.idProjet}) }}">
+              <i class="material-symbols-rounded me-1">edit</i>
+              Modifier
+            </a>
+            <form method="post" action="{{ path('app_projet_delete', {'idProjet': projet.idProjet}) }}" class="d-inline">
+              <input type="hidden" name="_token" value="{{ csrf_token('delete' ~ projet.idProjet) }}">
+              <button class="btn btn-outline-danger" onclick="return confirm('Êtes-vous sûr de vouloir supprimer ce projet?')">
+                <i class="material-symbols-rounded me-1">delete</i>
+                Supprimer
+              </button>
+            </form>
+          </div>
+        </div>
+      </div>
+    </div>
+  </div>
+</div>
+{% endblock %}
+
+{% block javascripts %}
+  {{ parent() }}
+  <!-- Additional scripts specific to this page -->
+  <script>
+    // Initialize Material Dashboard components
+    if (typeof M !== 'undefined') {
+      M.AutoInit();
+    }
+  </script>
+{% endblock %}

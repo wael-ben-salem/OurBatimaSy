@@ -2,6 +2,9 @@
 
 namespace App\Entity;
 
+use App\Entity\Terrain;
+use App\Entity\Equipe;
+use App\Entity\Client;
 use Doctrine\DBAL\Types\Types;
 use Doctrine\ORM\Mapping as ORM;
 
@@ -16,70 +19,40 @@ use Doctrine\ORM\Mapping as ORM;
 #[ORM\Entity]
 class Projet
 {
-    /**
-     * @var int
-     */
     #[ORM\Column(name: 'Id_projet', type: 'integer', nullable: false)]
     #[ORM\Id]
     #[ORM\GeneratedValue(strategy: 'IDENTITY')]
     private $idProjet;
 
-    /**
-     * @var string
-     */
     #[ORM\Column(name: 'type', type: 'string', length: 20, nullable: false)]
     private $type;
 
-    /**
-     * @var string|null
-     */
     #[ORM\Column(name: 'styleArch', type: 'string', length: 20, nullable: true)]
     private $stylearch;
 
-    /**
-     * @var string
-     */
     #[ORM\Column(name: 'budget', type: 'decimal', precision: 15, scale: 3, nullable: false)]
     private $budget;
 
-    /**
-     * @var string|null
-     */
     #[ORM\Column(name: 'etat', type: 'string', length: 20, nullable: true)]
     private $etat;
 
-    /**
-     * @var \DateTime
-     */
-    #[ORM\Column(name: 'dateCreation', type: 'datetime', nullable: false, options: ['default' => 'CURRENT_TIMESTAMP'])]
-    private $datecreation = 'CURRENT_TIMESTAMP';
+    #[ORM\Column(name: 'dateCreation', type: 'datetime', nullable: false)]
+    private $datecreation;
 
-    /**
-     * @var string
-     */
     #[ORM\Column(name: 'nomProjet', type: 'string', length: 30, nullable: false)]
     private $nomprojet;
 
-    /**
-     * @var \Terrain
-     */
     #[ORM\JoinColumn(name: 'Id_terrain', referencedColumnName: 'Id_terrain')]
-    #[ORM\ManyToOne(targetEntity: \Terrain::class)]
-    private $idTerrain;
+    #[ORM\ManyToOne(targetEntity: Terrain::class)]
+    private ?Terrain $idTerrain = null;
 
-    /**
-     * @var \Equipe
-     */
     #[ORM\JoinColumn(name: 'Id_equipe', referencedColumnName: 'id')]
-    #[ORM\ManyToOne(targetEntity: \Equipe::class)]
-    private $idEquipe;
+    #[ORM\ManyToOne(targetEntity: Equipe::class)]
+    private ?Equipe $idEquipe = null;
 
-    /**
-     * @var \Client
-     */
     #[ORM\JoinColumn(name: 'id_client', referencedColumnName: 'client_id')]
-    #[ORM\ManyToOne(targetEntity: \Client::class)]
-    private $idClient;
+    #[ORM\ManyToOne(targetEntity: Client::class)]
+    private ?Client $idClient = null;
 
     public function getIdProjet(): ?int
     {
@@ -193,6 +166,4 @@ class Projet
 
         return $this;
     }
-
-
 }

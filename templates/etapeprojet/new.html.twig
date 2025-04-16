@@ -1,0 +1,191 @@
+{% extends 'base_backOffice.html.twig' %}
+
+{% block title %}Nouvelle Étape de Projet{% endblock %}
+
+{% block stylesheets %}
+  {{ parent() }}
+  <style>
+    .card {
+      border-radius: 12px;
+      box-shadow: 0 4px 20px 0 rgba(0, 0, 0, 0.14), 
+                  0 7px 10px -5px rgba(0, 0, 0, 0.4);
+    }
+    .form-group {
+      margin-bottom: 1.5rem;
+    }
+    .form-control {
+      border-radius: 8px;
+      padding: 10px 15px;
+      border: 1px solid #d2d6da;
+      transition: all 0.3s;
+    }
+    .form-control:focus {
+      border-color: #9c27b0;
+      box-shadow: 0 0 0 2px rgba(156, 39, 176, 0.1);
+    }
+    .form-text {
+      font-size: 0.8rem;
+      color: #6c757d;
+      margin-top: 0.25rem;
+    }
+    .btn-action-group {
+      display: flex;
+      gap: 10px;
+      margin-top: 20px;
+    }
+    .input-group-text {
+      background-color: #f8f9fa;
+      border: 1px solid #d2d6da;
+    }
+    .bg-gradient-lilac {
+      background: linear-gradient(45deg, #9c27b0, #ba68c8);
+    }
+    .shadow-lilac {
+      box-shadow: 0 4px 20px 0 rgba(156, 39, 176, 0.14), 
+                  0 7px 10px -5px rgba(156, 39, 176, 0.4);
+    }
+  </style>
+{% endblock %}
+
+{% block body %}
+<div class="container-fluid py-4">
+  <div class="row">
+    <div class="col-12">
+      <div class="card my-4">
+        <div class="card-header p-0 position-relative mt-n4 mx-3 z-index-2">
+          <div class="bg-gradient-lilac shadow-lilac border-radius-lg pt-4 pb-3">
+            <h6 class="text-white text-capitalize ps-3">
+              <i class="material-symbols-rounded me-2">add_circle</i>
+              Créer une nouvelle Étape de Projet
+            </h6>
+          </div>
+        </div>
+        <div class="card-body px-4 pb-2">
+          {# Flash messages #}
+          {% for message in app.flashes('success') %}
+            <div class="alert alert-success alert-dismissible fade show">
+              {{ message }}
+              <button type="button" class="btn-close" data-bs-dismiss="alert" aria-label="Close"></button>
+            </div>
+          {% endfor %}
+
+          {% for message in app.flashes('error') %}
+            <div class="alert alert-danger alert-dismissible fade show">
+              {{ message }}
+              <button type="button" class="btn-close" data-bs-dismiss="alert" aria-label="Close"></button>
+            </div>
+          {% endfor %}
+
+          {{ form_start(form, {'attr': {'class': 'form-horizontal'}}) }}
+
+            <div class="row">
+              <div class="col-md-6">
+                <div class="form-group">
+                  {{ form_label(form.nometape) }}
+                  {{ form_widget(form.nometape, {
+                    'attr': {
+                      'class': 'form-control',
+                      'placeholder': 'Ex: Fondations, Gros œuvre, Finitions'
+                    }
+                  }) }}
+                  <small class="form-text">Entrez un nom descriptif pour cette étape</small>
+                </div>
+              </div>
+              <div class="col-md-6">
+                <div class="form-group">
+                  {{ form_label(form.idProjet) }}
+                  {{ form_widget(form.idProjet, {
+                    'attr': {
+                      'class': 'form-control',
+                      'placeholder': 'Sélectionnez un projet'
+                    }
+                  }) }}
+                  <small class="form-text">Projet associé à cette étape</small>
+                </div>
+              </div>
+            </div>
+
+            <div class="form-group">
+              {{ form_label(form.description) }}
+              {{ form_widget(form.description, {
+                'attr': {
+                  'class': 'form-control',
+                  'placeholder': 'Décrivez cette étape en détail',
+                  'rows': 3
+                }
+              }) }}
+              <small class="form-text">Description complète de l'étape</small>
+            </div>
+
+            <div class="row">
+              <div class="col-md-6">
+                <div class="form-group">
+                  {{ form_label(form.datedebut) }}
+                  {{ form_widget(form.datedebut, {
+                    'attr': {
+                      'class': 'form-control'
+                    }
+                  }) }}
+                  <small class="form-text">Date prévue de début</small>
+                </div>
+              </div>
+              <div class="col-md-6">
+                <div class="form-group">
+                  {{ form_label(form.datefin) }}
+                  {{ form_widget(form.datefin, {
+                    'attr': {
+                      'class': 'form-control'
+                    }
+                  }) }}
+                  <small class="form-text">Date prévue de fin</small>
+                </div>
+              </div>
+            </div>
+
+            <div class="row">
+              <div class="col-md-6">
+                <div class="form-group">
+                  {{ form_label(form.statut) }}
+                  {{ form_widget(form.statut, {
+                    'attr': {
+                      'class': 'form-control'
+                    }
+                  }) }}
+                  <small class="form-text">Statut actuel de l'étape</small>
+                </div>
+              </div>
+              <div class="col-md-6">
+                <div class="form-group">
+                  {{ form_label(form.montant) }}
+                  <div class="input-group">
+                    {{ form_widget(form.montant, {
+                      'attr': {
+                        'class': 'form-control',
+                        'placeholder': 'Ex: 50000'
+                      }
+                    }) }}
+                    <span class="input-group-text">TND</span>
+                  </div>
+                  <small class="form-text">Budget alloué à cette étape</small>
+                </div>
+              </div>
+            </div>
+
+            <div class="btn-action-group">
+              <button type="submit" class="btn btn-success">
+                <i class="material-symbols-rounded me-1">save</i>
+                Enregistrer
+              </button>
+              <a href="{{ path('app_etapeprojet_index') }}" class="btn btn-outline-secondary">
+                <i class="material-symbols-rounded me-1">arrow_back</i>
+                Retour à la liste
+              </a>
+            </div>
+
+          {{ form_end(form) }}
+        </div>
+      </div>
+    </div>
+  </div>
+</div>
+{% endblock %}
