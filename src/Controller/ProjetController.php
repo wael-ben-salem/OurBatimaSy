@@ -113,4 +113,67 @@ final class ProjetController extends AbstractController
 
         return $this->redirectToRoute('app_projet_index', [], Response::HTTP_SEE_OTHER);
     }
+
+    //FRONT OFFICE
+    #[Route('/front', name: 'app_projet_front_index', methods: ['GET'])]
+    public function frontIndex(EntityManagerInterface $entityManager): Response
+    {
+        $projets = $entityManager
+            ->getRepository(Projet::class)
+            ->findAll();
+
+        return $this->render('projetFront/index.html.twig', [
+            'projets' => $projets,
+        ]);
+    }
+
+    #[Route('/front/new', name: 'app_projet_front_new', methods: ['GET', 'POST'])]
+    public function frontNew(Request $request, EntityManagerInterface $entityManager): Response
+    {
+        $projet = new Projet();
+        $form = $this->createForm(ProjetType::class, $projet, [
+            'action' => $this->generateUrl('app_projet_front_new'),
+        ]);
+        
+        $form->handleRequest($request);
+    
+        if ($form->isSubmitted() && $form->isValid()) {
+            $projet->setDatecreation(new \DateTime());
+            
+            // Handle client association if needed
+            $emailClient = $form->get('nomClient')->getData();
+            if (!empty($emailClient)) {
+                $client = $entityManager->getRepository(Client::class)
+                    ->createQueryBuilder('c')
+                    ->join('c.client', 'u')
+                    ->where('u.email = :email')
+                    ->setParameter('email', $emailClient)
+                    ->getQuery()
+                    ->getOneOrNullResult();
+                
+                if ($client) {
+                    $projet->setIdClient($client);
+                }
+            }
+            
+            $entityManager->persist($projet);
+            $entityManager->flush();
+            
+            $this->addFlash('success', 'Your project has been submitted successfully!');
+            return $this->redirectToRoute('app_projet_front_index');
+        }
+    
+        return $this->render('projetFront/new.html.twig', [
+            'form' => $form->createView(),
+        ]);
+    }
+
+    #[Route('/front/{idProjet}', name: 'app_projet_front_show', methods: ['GET'])]
+    public function frontShow(Projet $projet): Response
+    {
+        return $this->render('projetFront/show.html.twig', [
+            'projet' => $projet,
+        ]);
+    }
+    
 }

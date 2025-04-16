@@ -1,0 +1,135 @@
+{% extends 'base_frontOffice.html.twig' %}
+
+{% block title %}Our Projects - Builderz Construction{% endblock %}
+
+{% block stylesheets %}
+    {{ parent() }}
+    <style>
+        .project-card {
+            border-radius: 12px;
+            box-shadow: 0 4px 20px 0 rgba(0, 0, 0, 0.14), 
+                        0 7px 10px -5px rgba(0, 0, 0, 0.4);
+            transition: transform 0.3s;
+            margin-bottom: 30px;
+        }
+        .project-card:hover {
+            transform: translateY(-5px);
+        }
+        .project-status {
+            font-size: 0.75rem;
+            padding: 0.35em 0.65em;
+        }
+        .status-success { background-color: #28a745; }
+        .status-info { background-color: #17a2b8; }
+        .status-secondary { background-color: #6c757d; }
+        .status-danger { background-color: #dc3545; }
+        .project-budget {
+            font-weight: bold;
+            color: #fd7e14;
+        }
+    </style>
+{% endblock %}
+
+{% block body %}
+    <!-- Page Header Start -->
+    <div class="page-header">
+        <div class="container">
+            <div class="row">
+                <div class="col-12">
+                    <h2>Our Projects</h2>
+                </div>
+                <div class="col-12">
+                    <a href="{{ path('app_home') }}">Home</a>
+                    <a href="{{ path('app_projet_front_index') }}">Projects</a>
+                </div>
+            </div>
+        </div>
+    </div>
+    <!-- Page Header End -->
+
+    <!-- Projects Start -->
+    <div class="portfolio">
+        <div class="container">
+            <div class="section-header text-center">
+                <p>Our Portfolio</p>
+                <h2>Recent Projects</h2>
+            </div>
+            
+            <div class="row">
+                {% for projet in projets %}
+                    {% set etatRaw = projet.etat|default('En cours') %}
+                    {% set etat = etatRaw|trim|lower %}
+                    {% set color = 
+                        etat == 'fini' ? 'success' :
+                        (etat == 'en cours' ? 'info' :
+                        (etat == 'en attente' ? 'secondary' :
+                        (etat == 'annulé' ? 'danger' : 'info')))
+                    %}
+                    
+                    <div class="col-lg-4 col-md-6 col-sm-12 mb-4">
+                        <div class="project-card">
+                            <div class="card-header p-3 bg-gradient-dark text-white">
+                                <div class="d-flex justify-content-between align-items-center">
+                                    <h5 class="mb-0">{{ projet.nomprojet }}</h5>
+                                    <span class="project-status badge status-{{ color }}">
+                                        {{ etatRaw }}
+                                    </span>
+                                </div>
+                            </div>
+                            <div class="card-body">
+                                <div class="d-flex mb-3">
+                                    <div class="avatar avatar-sm rounded-circle bg-gradient-dark me-3">
+                                        <i class="fas fa-building text-white"></i>
+                                    </div>
+                                    <div>
+                                        <h6 class="mb-0">{{ projet.type }}</h6>
+                                        <p class="text-muted text-sm mb-0">
+                                            {{ projet.stylearch ?? 'No style specified' }}
+                                        </p>
+                                    </div>
+                                </div>
+                                
+                                <div class="mb-3">
+                                    <p class="mb-1"><strong>Client:</strong></p>
+                                    <p class="text-muted mb-0">
+                                        {{ projet.idClient and projet.idClient.client ? projet.idClient.client.email : 'No client assigned' }}
+                                    </p>
+                                </div>
+                                
+                                <div class="d-flex justify-content-between">
+                                    <div>
+                                        <p class="mb-1"><strong>Budget:</strong></p>
+                                        <p class="project-budget mb-0">
+                                            TND {{ projet.budget|number_format(2, '.', ',') }}
+                                        </p>
+                                    </div>
+                                    <div>
+                                        <p class="mb-1"><strong>Created:</strong></p>
+                                        <p class="text-muted mb-0">
+                                            {{ projet.datecreation|date('Y-m-d') }}
+                                        </p>
+                                    </div>
+                                </div>
+                            </div>
+                            <div class="card-footer bg-light text-center">
+                                <a href="{{ path('app_projet_front_show', {'idProjet': projet.idProjet}) }}" 
+                                   class="btn btn-sm btn-dark">
+                                    View Details
+                                </a>
+                            </div>
+                        </div>
+                    </div>
+                {% else %}
+                    <div class="col-12">
+                        <div class="alert alert-info">No projects found</div>
+                    </div>
+                {% endfor %}
+            </div>
+        </div>
+    </div>
+    <!-- Projects End -->
+{% endblock %}
+
+{% block javascripts %}
+    {{ parent() }}
+{% endblock %}
