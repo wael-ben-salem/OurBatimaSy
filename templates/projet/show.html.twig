@@ -46,6 +46,10 @@
                   <td class="text-sm">{{ projet.idProjet }}</td>
                 </tr>
                 <tr>
+                  <th class="text-uppercase text-secondary text-xs font-weight-bolder opacity-7">Nom du projet</th>
+                  <td class="text-sm font-weight-bold">{{ projet.nomprojet }}</td>
+                </tr>
+                <tr>
                   <th class="text-uppercase text-secondary text-xs font-weight-bolder opacity-7">Type</th>
                   <td class="text-sm">{{ projet.type }}</td>
                 </tr>
@@ -55,7 +59,7 @@
                 </tr>
                 <tr>
                   <th class="text-uppercase text-secondary text-xs font-weight-bolder opacity-7">Budget</th>
-                  <td class="text-sm">{{ projet.budget }} €</td>
+                  <td class="text-sm">{{ projet.budget }} TND</td>
                 </tr>
                 <tr>
                   <th class="text-uppercase text-secondary text-xs font-weight-bolder opacity-7">État</th>
@@ -70,8 +74,25 @@
                   <td class="text-sm">{{ projet.datecreation ? projet.datecreation|date('d/m/Y H:i') : '' }}</td>
                 </tr>
                 <tr>
-                  <th class="text-uppercase text-secondary text-xs font-weight-bolder opacity-7">Nom du projet</th>
-                  <td class="text-sm font-weight-bold">{{ projet.nomprojet }}</td>
+                  <th class="text-uppercase text-secondary text-xs font-weight-bolder opacity-7">Emplacement du Terrain</th>
+                  <td class="text-sm">
+                    {% if projet.idTerrain %}
+                      {{ projet.idTerrain.emplacement }}
+                    {% else %}
+                      <span class="text-muted">Aucun terrain associé</span>
+                    {% endif %}
+                  </td>
+                </tr>
+                <tr>
+                  <th class="text-uppercase text-secondary text-xs font-weight-bolder opacity-7">Équipe Responsable</th>
+                  <td class="text-sm">
+                    {% if projet.idEquipe %}
+                      {{ projet.idEquipe.nomEquipe }}
+                      <small class="text-muted">(ID: {{ projet.idEquipe.id }})</small>
+                    {% else %}
+                      <span class="text-muted">Aucune équipe assignée</span>
+                    {% endif %}
+                  </td>
                 </tr>
               </tbody>
             </table>
