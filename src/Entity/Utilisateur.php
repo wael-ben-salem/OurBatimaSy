@@ -165,10 +165,10 @@ class Utilisateur implements UserInterface, PasswordAuthenticatedUserInterface
         return $this->role;
     }
 
+    // src/Entity/Utilisateur.php
     public function setRole(?string $role): static
     {
-        $this->role = $role;
-
+        $this->role = strtolower($role);
         return $this;
     }
 

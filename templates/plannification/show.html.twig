@@ -1,0 +1,49 @@
+{% extends 'base.html.twig' %}
+
+{% block title %}Plannification{% endblock %}
+
+{% block body %}
+    <h1>Plannification</h1>
+
+    <table class="table">
+        <tbody>
+        <tr>
+            <th>Id</th>
+            <td>{{ plannification.idPlannification }}</td>
+        </tr>
+        <tr>
+            <th>Priorité</th>
+            <td>{{ plannification.priorite }}</td>
+        </tr>
+        <tr>
+            <th>Date planifiée</th>
+            <td>{{ plannification.datePlanifiee|date('Y-m-d') }}</td>
+        </tr>
+        <tr>
+            <th>Heure début</th>
+            <td>{{ plannification.heureDebut ? plannification.heureDebut|date('H:i') : '' }}</td>
+        </tr>
+        <tr>
+            <th>Heure fin</th>
+            <td>{{ plannification.heureFin ? plannification.heureFin|date('H:i') : '' }}</td>
+        </tr>
+        <tr>
+            <th>Remarques</th>
+            <td>{{ plannification.remarques }}</td>
+        </tr>
+        <tr>
+            <th>Statut</th>
+            <td>{{ plannification.statut }}</td>
+        </tr>
+        <tr>
+            <th>Tâche associée</th>
+            <td>{{ plannification.idTache.description }}</td>
+        </tr>
+        </tbody>
+    </table>
+
+    <a href="{{ path('app_plannification_index') }}">Retour à la liste</a>
+    <a href="{{ path('app_plannification_edit', {'idPlannification': plannification.idPlannification}) }}">Modifier</a>
+
+    {{ include('plannification/_delete_form.html.twig') }}
+{% endblock %}

@@ -1,0 +1,45 @@
+{% extends 'base.html.twig' %}
+
+{% block title %}Plannification index{% endblock %}
+
+{% block body %}
+    <h1>Plannification index</h1>
+
+    <table class="table">
+        <thead>
+        <tr>
+            <th>Id</th>
+            <th>Priorité</th>
+            <th>Date planifiée</th>
+            <th>Heure début</th>
+            <th>Heure fin</th>
+            <th>Statut</th>
+            <th>Tâche associée</th>
+            <th>Actions</th>
+        </tr>
+        </thead>
+        <tbody>
+        {% for plannification in plannifications %}
+            <tr>
+                <td>{{ plannification.idPlannification }}</td>
+                <td>{{ plannification.priorite }}</td>
+                <td>{{ plannification.datePlanifiee|date('Y-m-d') }}</td>
+                <td>{{ plannification.heureDebut ? plannification.heureDebut|date('H:i') : '' }}</td>
+                <td>{{ plannification.heureFin ? plannification.heureFin|date('H:i') : '' }}</td>
+                <td>{{ plannification.statut }}</td>
+                <td>{{ plannification.idTache.description }}</td>
+                <td>
+                    <a href="{{ path('app_plannification_show', {'idPlannification': plannification.idPlannification}) }}">Voir</a>
+                    <a href="{{ path('app_plannification_edit', {'idPlannification': plannification.idPlannification}) }}">Modifier</a>
+                </td>
+            </tr>
+        {% else %}
+            <tr>
+                <td colspan="8">Aucun enregistrement trouvé</td>
+            </tr>
+        {% endfor %}
+        </tbody>
+    </table>
+
+    <a href="{{ path('app_plannification_new') }}">Créer nouveau</a>
+{% endblock %}
