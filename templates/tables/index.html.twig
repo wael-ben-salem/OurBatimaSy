@@ -1,0 +1,37 @@
+{% extends 'dash/basedash.html.twig' %}
+
+{% block title %}Utilisateurs par rôle{% endblock %}
+
+{% block body %}
+<div class="card my-4">
+  <div class="card-header p-0 position-relative mt-n4 mx-3 z-index-2">
+    <div class="bg-gradient-dark shadow-dark border-radius-lg pt-4 pb-3">
+      <h6 class="text-white text-capitalize ps-3">Liste des utilisateurs</h6>
+    </div>
+  </div>
+<div class="container mt-5">
+    <div class="btn-group mb-3" role="group">
+        <button class="btn btn-outline-primary" onclick="loadUsers('Client')">Client</button>
+        <button class="btn btn-outline-primary" onclick="loadUsers('Artisan')">Artisan</button>
+        <button class="btn btn-outline-primary" onclick="loadUsers('Constructeur')">Constructeur</button>
+        <button class="btn btn-outline-primary" onclick="loadUsers('GestionnaireStock')">Gestionnaire</button>
+    </div>
+
+    <div id="userTableContainer" class="table-responsive">
+        <p>Sélectionnez un rôle pour afficher les utilisateurs.</p>
+    </div>
+</div>
+
+<script>
+    function loadUsers(role) {
+        fetch(`/tables/role/${role}`)
+            .then(response => response.text())
+            .then(html => {
+                document.getElementById('userTableContainer').innerHTML = html;
+            })
+            .catch(error => {
+                console.error('Erreur lors du chargement :', error);
+            });
+    }
+</script>
+{% endblock %}
