@@ -9,9 +9,7 @@ use Doctrine\ORM\Mapping as ORM;
  * Contrat
  */
 #[ORM\Table(name: 'contrat')]
-#[ORM\Index(name: 'client_id', columns: ['client_id'])]
-#[ORM\Index(name: 'Id_projet', columns: ['Id_projet'])]
-#[ORM\Index(name: 'constructeur_id', columns: ['constructeur_id'])]
+#[ORM\Index(name: 'Id_projet', columns: ['Id_projet'])] // Supprimé l'index client_id et constructeur_id
 #[ORM\Entity]
 class Contrat
 {
@@ -58,20 +56,6 @@ class Contrat
      */
     #[ORM\Column(name: 'montant_total', type: 'integer', nullable: true)]
     private $montantTotal;
-
-    /**
-     * @var \Constructeur
-     */
-    #[ORM\JoinColumn(name: 'constructeur_id', referencedColumnName: 'constructeur_id')]
-    #[ORM\ManyToOne(targetEntity: \Constructeur::class)]
-    private $constructeur;
-
-    /**
-     * @var \Client
-     */
-    #[ORM\JoinColumn(name: 'client_id', referencedColumnName: 'client_id')]
-    #[ORM\ManyToOne(targetEntity: \Client::class)]
-    private $client;
 
     /**
      * @var \Projet
@@ -157,30 +141,6 @@ class Contrat
         return $this;
     }
 
-    public function getConstructeur(): ?Constructeur
-    {
-        return $this->constructeur;
-    }
-
-    public function setConstructeur(?Constructeur $constructeur): static
-    {
-        $this->constructeur = $constructeur;
-
-        return $this;
-    }
-
-    public function getClient(): ?Client
-    {
-        return $this->client;
-    }
-
-    public function setClient(?Client $client): static
-    {
-        $this->client = $client;
-
-        return $this;
-    }
-
     public function getIdProjet(): ?Projet
     {
         return $this->idProjet;
@@ -192,6 +152,4 @@ class Contrat
 
         return $this;
     }
-
-
 }
