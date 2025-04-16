@@ -46,16 +46,37 @@
             border: 1px solid #d2d6da;
         }
         
-        /* Fixes for dropdown display issues */
+        /* Error styling */
+        .field-with-errors .form-control {
+            border-color: #dc3545 !important;
+            background-image: url("data:image/svg+xml,%3csvg xmlns='http://www.w3.org/2000/svg' viewBox='0 0 12 12' width='12' height='12' fill='none' stroke='%23dc3545'%3e%3ccircle cx='6' cy='6' r='4.5'/%3e%3cpath stroke-linejoin='round' d='M5.8 3.6h.4L6 6.5z'/%3e%3ccircle cx='6' cy='8.2' r='.6' fill='%23dc3545' stroke='none'/%3e%3c/svg%3e");
+            background-repeat: no-repeat;
+            background-position: right calc(0.375em + 0.1875rem) center;
+            background-size: calc(0.75em + 0.375rem) calc(0.75em + 0.375rem);
+            padding-right: 2.5rem;
+        }
+        .invalid-feedback {
+            display: none;
+            color: #dc3545;
+            font-size: 0.875rem;
+            margin-top: 0.25rem;
+            font-weight: 500;
+        }
+        .form-submitted .field-with-errors .invalid-feedback {
+            display: block;
+        }
+        .alert-danger {
+            background-color: #f8d7da;
+            border-color: #f5c6cb;
+            color: #721c24;
+        }
+        
+        /* Form select styling */
         select.form-control {
             padding-top: 10px;
             padding-bottom: 10px;
             line-height: 1.5;
             height: auto;
-        }
-        select.form-control option {
-            padding: 8px 15px;
-            line-height: 1.5;
         }
         .form-select {
             padding-top: 10px;
@@ -65,16 +86,17 @@
         .form-control, .form-select {
             min-height: 45px;
         }
-        .d-flex.align-items-end {
-        align-items: flex-end !important;
-        }
-        .flex-grow-1.me-3 {
-        margin-right: 1rem !important;
-        }
+        
+        /* Terrain button alignment */
         .terrain-button-container {
-        margin-top: -10px !important;
+            margin-top: 10px;
         }
-    
+        @media (min-width: 768px) {
+            .terrain-button-container {
+                margin-top: 0;
+                align-self: flex-end;
+            }
+        }
     </style>
 {% endblock %}
 
@@ -109,23 +131,23 @@
                     {# Flash messages #}
                     {% for message in app.flashes('success') %}
                         <div class="alert alert-success alert-dismissible fade show">
-                            {{ message }}
+                            <i class="fas fa-check-circle me-2"></i>{{ message }}
                             <button type="button" class="btn-close" data-bs-dismiss="alert" aria-label="Close"></button>
                         </div>
                     {% endfor %}
 
                     {% for message in app.flashes('error') %}
                         <div class="alert alert-danger alert-dismissible fade show">
-                            {{ message }}
+                            <i class="fas fa-exclamation-circle me-2"></i>{{ message }}
                             <button type="button" class="btn-close" data-bs-dismiss="alert" aria-label="Close"></button>
                         </div>
                     {% endfor %}
 
-                    {{ form_start(form, {'attr': {'class': 'form-horizontal'}}) }}
+                    {{ form_start(form, {'attr': {'class': 'form-horizontal' ~ (app.request.method == 'POST' ? ' form-submitted' : '')}}) }}
 
                         <div class="row">
                             <div class="col-md-6">
-                                <div class="form-group">
+                                <div class="form-group {% if form.nomprojet.vars.errors|length %}field-with-errors{% endif %}">
                                     {{ form_label(form.nomprojet) }}
                                     {{ form_widget(form.nomprojet, {
                                         'attr': {
@@ -134,10 +156,18 @@
                                         }
                                     }) }}
                                     <small class="form-text">Entrez un nom descriptif pour votre projet</small>
+                                    {% if form.nomprojet.vars.errors %}
+                                        <div class="invalid-feedback">
+                                            <i class="fas fa-exclamation-circle me-1"></i>
+                                            {% for error in form.nomprojet.vars.errors %}
+                                                {{ error.message }}
+                                            {% endfor %}
+                                        </div>
+                                    {% endif %}
                                 </div>
                             </div>
                             <div class="col-md-6">
-                                <div class="form-group">
+                                <div class="form-group {% if form.type.vars.errors|length %}field-with-errors{% endif %}">
                                     {{ form_label(form.type) }}
                                     {{ form_widget(form.type, {
                                         'attr': {
@@ -146,13 +176,21 @@
                                         }
                                     }) }}
                                     <small class="form-text">Choisissez le type de construction</small>
+                                    {% if form.type.vars.errors %}
+                                        <div class="invalid-feedback">
+                                            <i class="fas fa-exclamation-circle me-1"></i>
+                                            {% for error in form.type.vars.errors %}
+                                                {{ error.message }}
+                                            {% endfor %}
+                                        </div>
+                                    {% endif %}
                                 </div>
                             </div>
                         </div>
 
                         <div class="row">
                             <div class="col-md-6">
-                                <div class="form-group">
+                                <div class="form-group {% if form.stylearch.vars.errors|length %}field-with-errors{% endif %}">
                                     {{ form_label(form.stylearch) }}
                                     {{ form_widget(form.stylearch, {
                                         'attr': {
@@ -161,10 +199,18 @@
                                         }
                                     }) }}
                                     <small class="form-text">Décrivez le style architectural</small>
+                                    {% if form.stylearch.vars.errors %}
+                                        <div class="invalid-feedback">
+                                            <i class="fas fa-exclamation-circle me-1"></i>
+                                            {% for error in form.stylearch.vars.errors %}
+                                                {{ error.message }}
+                                            {% endfor %}
+                                        </div>
+                                    {% endif %}
                                 </div>
                             </div>
                             <div class="col-md-6">
-                                <div class="form-group">
+                                <div class="form-group {% if form.budget.vars.errors|length %}field-with-errors{% endif %}">
                                     {{ form_label(form.budget) }}
                                     <div class="input-group">
                                         {{ form_widget(form.budget, {
@@ -176,11 +222,19 @@
                                         <span class="input-group-text">TND</span>
                                     </div>
                                     <small class="form-text">Estimation du budget total</small>
+                                    {% if form.budget.vars.errors %}
+                                        <div class="invalid-feedback">
+                                            <i class="fas fa-exclamation-circle me-1"></i>
+                                            {% for error in form.budget.vars.errors %}
+                                                {{ error.message }}
+                                            {% endfor %}
+                                        </div>
+                                    {% endif %}
                                 </div>
                             </div>
                         </div>
 
-                        <div class="form-group">
+                        <div class="form-group {% if form.etat.vars.errors|length %}field-with-errors{% endif %}">
                             {{ form_label(form.etat) }}
                             {{ form_widget(form.etat, {
                                 'attr': {
@@ -189,31 +243,48 @@
                                 }
                             }) }}
                             <small class="form-text">État actuel du projet</small>
+                            {% if form.etat.vars.errors %}
+                                <div class="invalid-feedback">
+                                    <i class="fas fa-exclamation-circle me-1"></i>
+                                    {% for error in form.etat.vars.errors %}
+                                        {{ error.message }}
+                                    {% endfor %}
+                                </div>
+                            {% endif %}
                         </div>
 
-<div class="form-group">
-    <div class="d-flex align-items-center">  {# Changed to align-items-center #}
-        <div class="flex-grow-1 me-3">
-            {{ form_label(form.idTerrain) }}
-            {{ form_widget(form.idTerrain, {
-                'attr': {
-                    'class': 'form-control',
-                    'placeholder': 'Sélectionnez un terrain'
-                }
-            }) }}
-            <small class="form-text">Terrain associé à ce projet</small>
-        </div>
-        <div class="align-self-center">  {# Added align-self-center #}
-            <a href="{{ path('app_terrain_front_new') }}" class="btn btn-primary">
-                <i class="fas fa-plus me-1"></i>
-                Ajouter un terrain
-            </a>
-        </div>
-    </div>
-</div>
+                        <div class="form-group {% if form.idTerrain.vars.errors|length %}field-with-errors{% endif %}">
+                            <div class="row align-items-center">
+                                <div class="col-md-8">
+                                    {{ form_label(form.idTerrain) }}
+                                    {{ form_widget(form.idTerrain, {
+                                        'attr': {
+                                            'class': 'form-control',
+                                            'placeholder': 'Sélectionnez un terrain'
+                                        }
+                                    }) }}
+                                    {% if form.idTerrain.vars.errors %}
+                                        <div class="invalid-feedback">
+                                            <i class="fas fa-exclamation-circle me-1"></i>
+                                            {% for error in form.idTerrain.vars.errors %}
+                                                {{ error.message }}
+                                            {% endfor %}
+                                        </div>
+                                    {% endif %}
+                                </div>
+                                <div class="col-md-4 terrain-button-container">
+                                    <a href="{{ path('app_terrain_front_new') }}" class="btn btn-primary w-100">
+                                        <i class="fas fa-plus me-1"></i>
+                                        Ajouter un terrain
+                                    </a>
+                                </div>
+                            </div>
+                            <small class="form-text">Terrain associé à ce projet</small>
+                        </div>
+
                         <div class="row">
                             <div class="col-md-6">
-                                <div class="form-group">
+                                <div class="form-group {% if form.idEquipe.vars.errors|length %}field-with-errors{% endif %}">
                                     {{ form_label(form.idEquipe) }}
                                     {{ form_widget(form.idEquipe, {
                                         'attr': {
@@ -222,18 +293,34 @@
                                         }
                                     }) }}
                                     <small class="form-text">Équipe en charge du projet</small>
+                                    {% if form.idEquipe.vars.errors %}
+                                        <div class="invalid-feedback">
+                                            <i class="fas fa-exclamation-circle me-1"></i>
+                                            {% for error in form.idEquipe.vars.errors %}
+                                                {{ error.message }}
+                                            {% endfor %}
+                                        </div>
+                                    {% endif %}
                                 </div>
                             </div>
                             <div class="col-md-6">
-                                <div class="form-group">
+                                <div class="form-group {% if form.nomClient.vars.errors|length %}field-with-errors{% endif %}">
                                     {{ form_label(form.nomClient) }}
                                     {{ form_widget(form.nomClient, {
                                         'attr': {
                                             'class': 'form-control',
-                                            'placeholder': 'Email du client'
+                                            'placeholder': 'exemple@domaine.com'
                                         }
                                     }) }}
                                     <small class="form-text">Client associé à ce projet</small>
+                                    {% if form.nomClient.vars.errors %}
+                                        <div class="invalid-feedback">
+                                            <i class="fas fa-exclamation-circle me-1"></i>
+                                            {% for error in form.nomClient.vars.errors %}
+                                                {{ error.message }}
+                                            {% endfor %}
+                                        </div>
+                                    {% endif %}
                                 </div>
                             </div>
                         </div>
@@ -260,15 +347,26 @@
 {% block javascripts %}
     {{ parent() }}
     <script>
-        $(document).ready(function() {
-            // Input masking for budget field
-            $('input[name$="[budget]"]').inputmask('numeric', {
-                radixPoint: ".",
-                groupSeparator: ",",
-                digits: 2,
-                autoGroup: true,
-                rightAlign: false
-            });
+        document.addEventListener('DOMContentLoaded', function() {
+            // Add form-submitted class on form submission
+            const form = document.querySelector('form');
+            if (form) {
+                form.addEventListener('submit', function() {
+                    this.classList.add('form-submitted');
+                });
+            }
+
+            // Initialize input masking for budget field
+            if (typeof $.fn.inputmask !== 'undefined') {
+                $('input[name$="[budget]"]').inputmask('numeric', {
+                    radixPoint: ".",
+                    groupSeparator: ",",
+                    digits: 2,
+                    autoGroup: true,
+                    rightAlign: false,
+                    placeholder: ''
+                });
+            }
         });
     </script>
 {% endblock %}

@@ -37,6 +37,13 @@
       background-color: #f8f9fa;
       border: 1px solid #d2d6da;
     }
+    .text-danger {
+      color: #dc3545;
+      font-size: 0.875em;
+    }
+    .is-invalid {
+      border-color: #dc3545;
+    }
   </style>
 {% endblock %}
 
@@ -77,10 +84,11 @@
                   {{ form_label(form.nomprojet) }}
                   {{ form_widget(form.nomprojet, {
                     'attr': {
-                      'class': 'form-control',
+                      'class': 'form-control' ~ (form.nomprojet.vars.errors|length ? ' is-invalid' : ''),
                       'placeholder': 'Ex: Villa moderne à Sousse'
                     }
                   }) }}
+                  {{ form_errors(form.nomprojet, {'attr': {'class': 'text-danger'}}) }}
                   <small class="form-text">Entrez un nom descriptif pour votre projet</small>
                 </div>
               </div>
@@ -89,10 +97,11 @@
                   {{ form_label(form.type) }}
                   {{ form_widget(form.type, {
                     'attr': {
-                      'class': 'form-control',
+                      'class': 'form-control' ~ (form.type.vars.errors|length ? ' is-invalid' : ''),
                       'placeholder': 'Sélectionnez le type de projet'
                     }
                   }) }}
+                  {{ form_errors(form.type, {'attr': {'class': 'text-danger'}}) }}
                   <small class="form-text">Choisissez le type de construction</small>
                 </div>
               </div>
@@ -104,10 +113,11 @@
                   {{ form_label(form.stylearch) }}
                   {{ form_widget(form.stylearch, {
                     'attr': {
-                      'class': 'form-control',
+                      'class': 'form-control' ~ (form.stylearch.vars.errors|length ? ' is-invalid' : ''),
                       'placeholder': 'Ex: Moderne, Classique, Méditerranéen'
                     }
                   }) }}
+                  {{ form_errors(form.stylearch, {'attr': {'class': 'text-danger'}}) }}
                   <small class="form-text">Décrivez le style architectural</small>
                 </div>
               </div>
@@ -117,12 +127,13 @@
                   <div class="input-group">
                     {{ form_widget(form.budget, {
                       'attr': {
-                        'class': 'form-control',
+                        'class': 'form-control' ~ (form.budget.vars.errors|length ? ' is-invalid' : ''),
                         'placeholder': 'Ex: 250000'
                       }
                     }) }}
                     <span class="input-group-text">TND</span>
                   </div>
+                  {{ form_errors(form.budget, {'attr': {'class': 'text-danger'}}) }}
                   <small class="form-text">Estimation du budget total</small>
                 </div>
               </div>
@@ -132,10 +143,11 @@
               {{ form_label(form.etat) }}
               {{ form_widget(form.etat, {
                 'attr': {
-                  'class': 'form-control',
+                  'class': 'form-control' ~ (form.etat.vars.errors|length ? ' is-invalid' : ''),
                   'placeholder': 'Sélectionnez l\'état du projet'
                 }
               }) }}
+              {{ form_errors(form.etat, {'attr': {'class': 'text-danger'}}) }}
               <small class="form-text">État actuel du projet</small>
             </div>
 
@@ -145,10 +157,11 @@
                   {{ form_label(form.idTerrain) }}
                   {{ form_widget(form.idTerrain, {
                     'attr': {
-                      'class': 'form-control',
+                      'class': 'form-control' ~ (form.idTerrain.vars.errors|length ? ' is-invalid' : ''),
                       'placeholder': 'Sélectionnez un terrain'
                     }
                   }) }}
+                  {{ form_errors(form.idTerrain, {'attr': {'class': 'text-danger'}}) }}
                   <small class="form-text">Terrain associé à ce projet</small>
                 </div>
                 <div class="ms-3" style="margin-top: 28px;">
@@ -178,11 +191,12 @@
                   {{ form_label(form.nomClient) }}
                   {{ form_widget(form.nomClient, {
                     'attr': {
-                      'class': 'form-control',
-                      'placeholder': 'Nom du client principal'
+                      'class': 'form-control' ~ (form.nomClient.vars.errors|length ? ' is-invalid' : ''),
+                      'placeholder': 'exemple@domaine.com'
                     }
                   }) }}
-                  <small class="form-text">Client associé à ce projet</small>
+                  {{ form_errors(form.nomClient, {'attr': {'class': 'text-danger'}}) }}
+                  <small class="form-text">Email du client associé</small>
                 </div>
               </div>
             </div>
