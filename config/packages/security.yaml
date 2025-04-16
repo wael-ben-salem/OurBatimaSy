@@ -37,5 +37,4 @@ security:
 
  
 
-        - { path: ^/projet, roles: [ROLE_USER, ROLE_CLIENT] }
 
