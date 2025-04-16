@@ -48,6 +48,13 @@ class Artisan
     {
         $this->equipe = new \Doctrine\Common\Collections\ArrayCollection();
     }
+    //mahdiii
+    // src/Entity/Artisan.php
+    public function __toString(): string
+    {
+        $user = $this->getArtisan();
+        return $user ? $user->getPrenom().' '.$user->getNom() : '';
+    }
 
     public function getSpecialite(): ?string
     {

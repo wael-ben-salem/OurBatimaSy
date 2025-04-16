@@ -16,6 +16,18 @@ class ArtisanRepository extends ServiceEntityRepository
         parent::__construct($registry, Artisan::class);
     }
 
+    public function findArtisansWithUsers()
+    {
+        return $this->createQueryBuilder('a')
+            ->innerJoin('a.artisan', 'u')
+            ->andWhere('u.role = :role')
+            ->setParameter('role', 'artisan')
+            ->getQuery()
+            ->getResult();
+    }
+
+
+
     //    /**
     //     * @return Artisan[] Returns an array of Artisan objects
     //     */
