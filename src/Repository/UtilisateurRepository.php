@@ -32,6 +32,15 @@ class UtilisateurRepository extends ServiceEntityRepository implements PasswordU
         $this->getEntityManager()->persist($user);
         $this->getEntityManager()->flush();
     }
+    public function findConfirmedByRole(string $role)
+{
+    return $this->createQueryBuilder('u')
+        ->andWhere('u.role = :role')
+        ->andWhere('u.isconfirmed = true')
+        ->setParameter('role', $role)
+        ->getQuery()
+        ->getResult();
+}
 
     //    /**
     //     * @return User[] Returns an array of User objects

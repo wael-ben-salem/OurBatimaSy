@@ -4,6 +4,8 @@ namespace App\Entity;
 
 use Doctrine\DBAL\Types\Types;
 use Doctrine\ORM\Mapping as ORM;
+use App\Entity\Projet;
+use App\Entity\Rapport;
 
 /**
  * Etapeprojet
@@ -14,63 +16,36 @@ use Doctrine\ORM\Mapping as ORM;
 #[ORM\Entity]
 class Etapeprojet
 {
-    /**
-     * @var int
-     */
     #[ORM\Column(name: 'Id_etapeProjet', type: 'integer', nullable: false)]
     #[ORM\Id]
     #[ORM\GeneratedValue(strategy: 'IDENTITY')]
     private $idEtapeprojet;
 
-    /**
-     * @var string
-     */
     #[ORM\Column(name: 'nomEtape', type: 'string', length: 50, nullable: false)]
     private $nometape;
 
-    /**
-     * @var string
-     */
     #[ORM\Column(name: 'description', type: 'text', length: 65535, nullable: false)]
     private $description;
 
-    /**
-     * @var \DateTime|null
-     */
     #[ORM\Column(name: 'dateDebut', type: 'date', nullable: true)]
     private $datedebut;
 
-    /**
-     * @var \DateTime|null
-     */
     #[ORM\Column(name: 'dateFin', type: 'date', nullable: true)]
     private $datefin;
 
-    /**
-     * @var string|null
-     */
     #[ORM\Column(name: 'statut', type: 'string', length: 0, nullable: true, options: ['default' => 'En attente'])]
     private $statut = 'En attente';
 
-    /**
-     * @var string|null
-     */
     #[ORM\Column(name: 'montant', type: 'decimal', precision: 15, scale: 3, nullable: true)]
     private $montant;
 
-    /**
-     * @var \Projet
-     */
-    #[ORM\JoinColumn(name: 'Id_projet', referencedColumnName: 'Id_projet')]
-    #[ORM\ManyToOne(targetEntity: \Projet::class)]
-    private $idProjet;
+    #[ORM\JoinColumn(name: 'Id_projet', referencedColumnName: 'Id_projet', nullable: false)]
+    #[ORM\ManyToOne(targetEntity: Projet::class)]
+    private ?Projet $idProjet = null;
 
-    /**
-     * @var \Rapport
-     */
     #[ORM\JoinColumn(name: 'Id_rapport', referencedColumnName: 'id')]
-    #[ORM\ManyToOne(targetEntity: \Rapport::class)]
-    private $idRapport;
+    #[ORM\ManyToOne(targetEntity: Rapport::class)]
+    private ?Rapport $idRapport = null;
 
     public function getIdEtapeprojet(): ?int
     {
@@ -172,6 +147,4 @@ class Etapeprojet
 
         return $this;
     }
-
-
 }

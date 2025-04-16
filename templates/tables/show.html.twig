@@ -1,0 +1,15 @@
+{% extends 'dash/basedash.html.twig' %}
+
+{% block body %}
+<div class="container mt-5">
+  <h3>Détails de l'utilisateur</h3>
+  <ul>
+    <li><strong>Nom:</strong> {{ utilisateur.nom }}</li>
+    <li><strong>Prénom:</strong> {{ utilisateur.prenom }}</li>
+    <li><strong>Email:</strong> {{ utilisateur.email }}</li>
+    <li><strong>Téléphone:</strong> {{ utilisateur.telephone }}</li>
+    <li><strong>Statut:</strong> {{ utilisateur.statut }}</li>
+    {# Ajoute spécialité et salaire si Artisan ou Constructeur #}
+  </ul>
+</div>
+{% endblock %}
