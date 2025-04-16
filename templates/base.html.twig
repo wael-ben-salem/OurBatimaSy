@@ -5,7 +5,13 @@
     <meta charset="UTF-8">
     <title>{% block title %}Welcome!{% endblock %}</title>
     <link rel="stylesheet" href="https://stackpath.bootstrapcdn.com/bootstrap/4.5.2/css/bootstrap.min.css">
-    {% block stylesheets %}{% endblock %}
+        <link rel="stylesheet" href="{{ asset('css/newabonnement.css') }}">
+         <link rel="stylesheet" href="{{ asset('css/abonnementfront.css') }}">
+          <link rel="stylesheet" href="{{ asset('css/nicepage.css') }}">
+
+    {% block stylesheets %}
+
+    {% endblock %}
 </head>
 <body>
 <nav class="navbar navbar-expand-lg navbar-dark bg-dark">

@@ -1,0 +1,40 @@
+{% extends 'base.html.twig' %}
+
+{% block title %}Abonnement index{% endblock %}
+
+{% block body %}
+    <h1>Abonnements</h1>
+
+    <table class="table">
+        <thead>
+            <tr>
+              
+                <th>Nom</th>
+                <th>Duree</th>
+                <th>Prix</th>
+                <th>actions</th>
+            </tr>
+        </thead>
+        <tbody>
+        {% for abonnement in abonnements %}
+            <tr>
+             
+                <td>{{ abonnement.nomAbonnement }}</td>
+                <td>{{ abonnement.duree }}</td>
+                <td>{{ abonnement.prix }}</td>
+              <td  style="gap: 1rem">
+    <a style="margin-right: 10px;" href="{{ path('app_abonnement_show', {'idAbonnement': abonnement.idAbonnement}) }}"  ><img src="{{ asset('img/more.png') }}" alt="Edit" width="20" height="20"></a>
+    <a style="margin-right: 10px;" href="{{ path('app_abonnement_edit', {'idAbonnement': abonnement.idAbonnement}) }}">
+     <img src="{{ asset('img/edit.png') }}" alt="Edit" width="20" height="20"></a>
+              </td>
+            </tr>
+        {% else %}
+            <tr>
+                <td colspan="5">no records found</td>
+            </tr>
+        {% endfor %}
+        </tbody>
+    </table>
+
+    <a href="{{ path('app_abonnement_new') }}"><img src="{{ asset('img/plus.png') }}" alt="ajouter" width="40" height="40"> </a> Ajouter Abonnement
+{% endblock %}
