@@ -4,7 +4,6 @@
 
 {% block stylesheets %}
   {{ parent() }}
-  <link rel="stylesheet" href="https://fonts.googleapis.com/css?family=Inter:300,400,500,600,700,900" />
   <link rel="stylesheet" href="https://fonts.googleapis.com/css2?family=Material+Symbols+Rounded:opsz,wght,FILL,GRAD@24,400,0,0" />
   <style>
     .card {
@@ -37,6 +36,13 @@
       box-shadow: 0 4px 20px 0 rgba(167, 139, 109, 0.14), 
                   0 7px 10px -5px rgba(167, 139, 109, 0.4);
     }
+    .is-invalid {
+      border-color: #dc3545;
+    }
+    .invalid-feedback {
+      color: #dc3545;
+      font-size: 0.875rem;
+    }
   </style>
 {% endblock %}
 
@@ -54,17 +60,36 @@
           </div>
         </div>
         <div class="card-body px-4 pb-2">
+          {# Flash messages #}
+          {% for message in app.flashes('success') %}
+            <div class="alert alert-success alert-dismissible fade show">
+              <i class="material-symbols-rounded me-2">check_circle</i>
+              {{ message }}
+              <button type="button" class="btn-close" data-bs-dismiss="alert" aria-label="Close"></button>
+            </div>
+          {% endfor %}
+
+          {% for message in app.flashes('error') %}
+            <div class="alert alert-danger alert-dismissible fade show">
+              <i class="material-symbols-rounded me-2">error</i>
+              {{ message }}
+              <button type="button" class="btn-close" data-bs-dismiss="alert" aria-label="Close"></button>
+            </div>
+          {% endfor %}
+
           {{ form_start(form, {'attr': {'class': 'form-horizontal'}}) }}
+
             <div class="row">
               <div class="col-md-6">
                 <div class="form-group">
                   {{ form_label(form.nometape) }}
                   {{ form_widget(form.nometape, {
                     'attr': {
-                      'class': 'form-control',
+                      'class': 'form-control' ~ (form.nometape.vars.errors|length ? ' is-invalid' : ''),
                       'placeholder': 'Ex: Fondations, Gros œuvre'
                     }
                   }) }}
+                  {{ form_errors(form.nometape) }}
                 </div>
               </div>
               <div class="col-md-6">
@@ -72,9 +97,10 @@
                   {{ form_label(form.idProjet) }}
                   {{ form_widget(form.idProjet, {
                     'attr': {
-                      'class': 'form-control'
+                      'class': 'form-control' ~ (form.idProjet.vars.errors|length ? ' is-invalid' : '')
                     }
                   }) }}
+                  {{ form_errors(form.idProjet) }}
                 </div>
               </div>
             </div>
@@ -83,10 +109,11 @@
               {{ form_label(form.description) }}
               {{ form_widget(form.description, {
                 'attr': {
-                  'class': 'form-control',
+                  'class': 'form-control' ~ (form.description.vars.errors|length ? ' is-invalid' : ''),
                   'rows': 3
                 }
               }) }}
+              {{ form_errors(form.description) }}
             </div>
 
             <div class="row">
@@ -95,9 +122,10 @@
                   {{ form_label(form.datedebut) }}
                   {{ form_widget(form.datedebut, {
                     'attr': {
-                      'class': 'form-control'
+                      'class': 'form-control' ~ (form.datedebut.vars.errors|length ? ' is-invalid' : '')
                     }
                   }) }}
+                  {{ form_errors(form.datedebut) }}
                 </div>
               </div>
               <div class="col-md-6">
@@ -105,9 +133,10 @@
                   {{ form_label(form.datefin) }}
                   {{ form_widget(form.datefin, {
                     'attr': {
-                      'class': 'form-control'
+                      'class': 'form-control' ~ (form.datefin.vars.errors|length ? ' is-invalid' : '')
                     }
                   }) }}
+                  {{ form_errors(form.datefin) }}
                 </div>
               </div>
             </div>
@@ -118,9 +147,10 @@
                   {{ form_label(form.statut) }}
                   {{ form_widget(form.statut, {
                     'attr': {
-                      'class': 'form-control'
+                      'class': 'form-control' ~ (form.statut.vars.errors|length ? ' is-invalid' : '')
                     }
                   }) }}
+                  {{ form_errors(form.statut) }}
                 </div>
               </div>
               <div class="col-md-6">
@@ -129,11 +159,12 @@
                   <div class="input-group">
                     {{ form_widget(form.montant, {
                       'attr': {
-                        'class': 'form-control'
+                        'class': 'form-control' ~ (form.montant.vars.errors|length ? ' is-invalid' : '')
                       }
                     }) }}
                     <span class="input-group-text">TND</span>
                   </div>
+                  {{ form_errors(form.montant) }}
                 </div>
               </div>
             </div>
@@ -147,10 +178,39 @@
                 <i class="material-symbols-rounded me-1">arrow_back</i>
                 Retour à la liste
               </a>
-              {{ include('etapeprojet/_delete_form.html.twig') }}
+              <button type="button" class="btn btn-outline-danger" data-bs-toggle="modal" data-bs-target="#deleteModal">
+                <i class="material-symbols-rounded me-1">delete</i>
+                Supprimer
+              </button>
             </div>
+
           {{ form_end(form) }}
         </div>
+      </div>
+    </div>
+  </div>
+</div>
+
+<!-- Delete Confirmation Modal -->
+<div class="modal fade" id="deleteModal" tabindex="-1" role="dialog" aria-labelledby="deleteModalLabel" aria-hidden="true">
+  <div class="modal-dialog" role="document">
+    <div class="modal-content">
+      <div class="modal-header">
+        <h5 class="modal-title" id="deleteModalLabel">Confirmer la suppression</h5>
+        <button type="button" class="btn-close" data-bs-dismiss="modal" aria-label="Close"></button>
+      </div>
+      <div class="modal-body">
+        Êtes-vous sûr de vouloir supprimer définitivement cette étape de projet ? Cette action est irréversible.
+      </div>
+      <div class="modal-footer">
+        <button type="button" class="btn btn-secondary" data-bs-dismiss="modal">Annuler</button>
+        <form action="{{ path('app_etapeprojet_delete', {'idEtapeprojet': etapeprojet.idEtapeprojet}) }}" method="post" class="d-inline">
+          <input type="hidden" name="_token" value="{{ csrf_token('delete' ~ etapeprojet.idEtapeprojet) }}">
+          <button type="submit" class="btn btn-danger">
+            <i class="material-symbols-rounded me-1">delete_forever</i>
+            Confirmer la suppression
+          </button>
+        </form>
       </div>
     </div>
   </div>
@@ -160,8 +220,12 @@
 {% block javascripts %}
   {{ parent() }}
   <script>
-    if (typeof M !== 'undefined') {
-      M.AutoInit();
-    }
+    $(document).ready(function() {
+      // Initialize date pickers if needed
+      $('.datepicker').datepicker({
+        format: 'yyyy-mm-dd',
+        autoclose: true
+      });
+    });
   </script>
 {% endblock %}
