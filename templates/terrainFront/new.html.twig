@@ -1,0 +1,157 @@
+{% extends 'base_frontOffice.html.twig' %}
+
+{% block title %}Ajouter un Terrain - Our Batima{% endblock %}
+
+{% block stylesheets %}
+    {{ parent() }}
+    <style>
+        .terrain-form {
+            background: white;
+            border-radius: 12px;
+            box-shadow: 0 4px 20px 0 rgba(0, 0, 0, 0.14), 
+                        0 7px 10px -5px rgba(0, 0, 0, 0.4);
+            padding: 30px;
+            margin-bottom: 30px;
+        }
+        .form-header {
+            border-bottom: 1px solid #eee;
+            padding-bottom: 15px;
+            margin-bottom: 30px;
+        }
+        .form-group {
+            margin-bottom: 1.5rem;
+        }
+        .form-control {
+            border-radius: 8px;
+            padding: 10px 15px;
+            border: 1px solid #d2d6da;
+        }
+        .btn-action {
+            padding: 10px 20px;
+            border-radius: 8px;
+            font-weight: 500;
+        }
+        .input-group-text {
+            background-color: #f8f9fa;
+        }
+        /* Add this to hide the extra form buttons */
+        form .form-group ~ .form-group {
+            display: none;
+        }
+    </style>
+{% endblock %}
+
+{% block body %}
+    <!-- En-tête de page -->
+    <div class="page-header">
+        <div class="container">
+            <div class="row">
+                <div class="col-12">
+                    <h2>Ajouter un Terrain</h2>
+                </div>
+                <div class="col-12">
+                    <a href="{{ path('app_home') }}">Accueil</a>
+                    <a href="{{ path('app_projet_front_index') }}">Projets</a>
+                    <a href="#">Ajouter Terrain</a>
+                </div>
+            </div>
+        </div>
+    </div>
+    <!-- Fin de l'en-tête -->
+
+    <!-- Formulaire de terrain -->
+    <div class="container">
+        <div class="row justify-content-center">
+            <div class="col-lg-10">
+                <div class="terrain-form">
+                    <div class="form-header">
+                        <h3><i class="fas fa-plus-circle me-2"></i>Créer un nouveau Terrain</h3>
+                        <p class="text-muted">Remplissez les détails ci-dessous pour ajouter un nouveau terrain</p>
+                    </div>
+                    
+                    {{ form_start(form, {'render_rest': false}) }}  {# Add render_rest: false #}
+                        <div class="row">
+                            <div class="col-md-6">
+                                <div class="form-group">
+                                    {{ form_label(form.emplacement, 'Emplacement') }}
+                                    {{ form_widget(form.emplacement, {
+                                        'attr': {
+                                            'class': 'form-control',
+                                            'placeholder': 'Ex: Sousse, Tunis'
+                                        }
+                                    }) }}
+                                </div>
+                            </div>
+                            <div class="col-md-6">
+                                <div class="form-group">
+                                    {{ form_label(form.superficie, 'Superficie') }}
+                                    <div class="input-group">
+                                        {{ form_widget(form.superficie, {
+                                            'attr': {
+                                                'class': 'form-control',
+                                                'placeholder': 'Surface en mètres carrés'
+                                            }
+                                        }) }}
+                                        <span class="input-group-text">m²</span>
+                                    </div>
+                                </div>
+                            </div>
+                        </div>
+                        
+                        <div class="row">
+                            <div class="col-md-6">
+                                <div class="form-group">
+                                    {{ form_label(form.caracteristiques, 'Caractéristiques') }}
+                                    {{ form_widget(form.caracteristiques, {
+                                        'attr': {
+                                            'class': 'form-control',
+                                            'placeholder': 'Ex: Plat, en pente, arboré'
+                                        }
+                                    }) }}
+                                </div>
+                            </div>
+                            <div class="col-md-6">
+                                <div class="form-group">
+                                    {{ form_label(form.detailsgeo, 'Détails Géographiques') }}
+                                    {{ form_widget(form.detailsgeo, {
+                                        'attr': {
+                                            'class': 'form-control',
+                                            'placeholder': 'Ex: Proche de la mer, zone urbaine'
+                                        }
+                                    }) }}
+                                </div>
+                            </div>
+                        </div>
+                        
+                        <div class="form-group mt-4">
+                            <button type="submit" class="btn btn-primary btn-action">
+                                <i class="fas fa-save me-1"></i> Enregistrer
+                            </button>
+                            <a href="{{ path('app_projet_front_new') }}" class="btn btn-secondary btn-action">
+                                <i class="fas fa-arrow-left me-1"></i> Retour au Projet
+                            </a>
+                        </div>
+                    {{ form_end(form, {'render_rest': false}) }}  {# Add render_rest: false here too #}
+                </div>
+            </div>
+        </div>
+    </div>
+    <!-- Fin du formulaire -->
+{% endblock %}
+
+{% block javascripts %}
+    {{ parent() }}
+    <script>
+        $(document).ready(function() {
+            // Masquage des entrées pour la superficie
+            $('input[name$="[superficie]"]').inputmask('numeric', {
+                radixPoint: ",",
+                groupSeparator: " ",
+                digits: 2,
+                autoGroup: true,
+                suffix: ' m²',
+                rightAlign: false
+            });
+        });
+    </script>
+{% endblock %}

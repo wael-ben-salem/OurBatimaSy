@@ -20,8 +20,8 @@
       transition: all 0.3s;
     }
     .form-control:focus {
-      border-color: #A78B6D; /* Light brown focus color */
-      box-shadow: 0 0 0 2px rgba(167, 139, 109, 0.1); /* Light brown shadow */
+      border-color: #A78B6D;
+      box-shadow: 0 0 0 2px rgba(167, 139, 109, 0.1);
     }
     .form-text {
       font-size: 0.8rem;
@@ -37,7 +37,6 @@
       background-color: #f8f9fa;
       border: 1px solid #d2d6da;
     }
-    /* Custom light brown gradient */
     .bg-gradient-brown {
       background: linear-gradient(195deg, #A78B6D 0%, #8B7355 100%);
     }
@@ -54,7 +53,46 @@
       background-color: #8B7355;
       color: white;
     }
+    /* Error styling */
+    .invalid-feedback {
+      display: none;
+      color: #dc3545;
+      font-size: 0.875rem;
+      margin-top: 0.25rem;
+      font-weight: 500;
+    }
+    .form-submitted .is-invalid {
+      border-color: #dc3545 !important;
+      background-image: url("data:image/svg+xml,%3csvg xmlns='http://www.w3.org/2000/svg' viewBox='0 0 12 12' width='12' height='12' fill='none' stroke='%23dc3545'%3e%3ccircle cx='6' cy='6' r='4.5'/%3e%3cpath stroke-linejoin='round' d='M5.8 3.6h.4L6 6.5z'/%3e%3ccircle cx='6' cy='8.2' r='.6' fill='%23dc3545' stroke='none'/%3e%3c/svg%3e");
+      background-repeat: no-repeat;
+      background-position: right calc(0.375em + 0.1875rem) center;
+      background-size: calc(0.75em + 0.375rem) calc(0.75em + 0.375rem);
+      padding-right: 2.5rem;
+    }
+    .form-submitted .is-invalid + .invalid-feedback {
+      display: block;
+    }
+    .alert-danger {
+      background-color: #f8d7da;
+      border-color: #f5c6cb;
+      color: #721c24;
+    }
   </style>
+{% endblock %}
+
+{% block javascripts %}
+  {{ parent() }}
+  <script>
+    document.addEventListener('DOMContentLoaded', function() {
+      const form = document.querySelector('form');
+      if (form) {
+        form.addEventListener('submit', function() {
+          // Add class to form when submitted
+          form.classList.add('form-submitted');
+        });
+      }
+    });
+  </script>
 {% endblock %}
 
 {% block body %}
@@ -63,7 +101,7 @@
     <div class="col-12">
       <div class="card my-4">
         <div class="card-header p-0 position-relative mt-n4 mx-3 z-index-2">
-          <div class="bg-gradient-brown shadow-brown border-radius-lg pt-4 pb-3">  <!-- Changed to brown classes -->
+          <div class="bg-gradient-brown shadow-brown border-radius-lg pt-4 pb-3">
             <h6 class="text-white text-capitalize ps-3">
               <i class="material-symbols-rounded me-2">add_circle</i>
               Créer un nouveau Terrain
@@ -71,9 +109,9 @@
           </div>
         </div>
         <div class="card-body px-4 pb-2">
-          {# Flash messages #}
           {% for message in app.flashes('success') %}
             <div class="alert alert-success alert-dismissible fade show">
+              <i class="material-symbols-rounded me-2">check_circle</i>
               {{ message }}
               <button type="button" class="btn-close" data-bs-dismiss="alert" aria-label="Close"></button>
             </div>
@@ -81,12 +119,13 @@
 
           {% for message in app.flashes('error') %}
             <div class="alert alert-danger alert-dismissible fade show">
+              <i class="material-symbols-rounded me-2">error</i>
               {{ message }}
               <button type="button" class="btn-close" data-bs-dismiss="alert" aria-label="Close"></button>
             </div>
           {% endfor %}
 
-          {{ form_start(form, {'attr': {'class': 'form-horizontal'}}) }}
+          {{ form_start(form, {'attr': {'class': 'form-horizontal' ~ (app.request.method == 'POST' ? ' form-submitted' : '')}}) }}
 
             <div class="row">
               <div class="col-md-6">
@@ -94,11 +133,19 @@
                   {{ form_label(form.emplacement) }}
                   {{ form_widget(form.emplacement, {
                     'attr': {
-                      'class': 'form-control',
+                      'class': 'form-control' ~ (form.emplacement.vars.errors|length ? ' is-invalid' : ''),
                       'placeholder': 'Ex: Quartier résidentiel, Sousse'
                     }
                   }) }}
                   <small class="form-text">Localisation précise du terrain</small>
+                  {% if form.emplacement.vars.errors %}
+                    <div class="invalid-feedback">
+                      <i class="material-symbols-rounded me-1" style="font-size:1rem">error</i>
+                      {% for error in form.emplacement.vars.errors %}
+                        {{ error.message }}
+                      {% endfor %}
+                    </div>
+                  {% endif %}
                 </div>
               </div>
               <div class="col-md-6">
@@ -107,13 +154,21 @@
                   <div class="input-group">
                     {{ form_widget(form.superficie, {
                       'attr': {
-                        'class': 'form-control',
+                        'class': 'form-control' ~ (form.superficie.vars.errors|length ? ' is-invalid' : ''),
                         'placeholder': 'Ex: 500'
                       }
                     }) }}
                     <span class="input-group-text">m²</span>
                   </div>
                   <small class="form-text">Superficie totale en mètres carrés</small>
+                  {% if form.superficie.vars.errors %}
+                    <div class="invalid-feedback">
+                      <i class="material-symbols-rounded me-1" style="font-size:1rem">error</i>
+                      {% for error in form.superficie.vars.errors %}
+                        {{ error.message }}
+                      {% endfor %}
+                    </div>
+                  {% endif %}
                 </div>
               </div>
             </div>
@@ -124,11 +179,19 @@
                   {{ form_label(form.caracteristiques) }}
                   {{ form_widget(form.caracteristiques, {
                     'attr': {
-                      'class': 'form-control',
+                      'class': 'form-control' ~ (form.caracteristiques.vars.errors|length ? ' is-invalid' : ''),
                       'placeholder': 'Ex: Terrain plat avec vue mer'
                     }
                   }) }}
                   <small class="form-text">Description des caractéristiques principales</small>
+                  {% if form.caracteristiques.vars.errors %}
+                    <div class="invalid-feedback">
+                      <i class="material-symbols-rounded me-1" style="font-size:1rem">error</i>
+                      {% for error in form.caracteristiques.vars.errors %}
+                        {{ error.message }}
+                      {% endfor %}
+                    </div>
+                  {% endif %}
                 </div>
               </div>
               <div class="col-md-6">
@@ -136,17 +199,25 @@
                   {{ form_label(form.detailsgeo) }}
                   {{ form_widget(form.detailsgeo, {
                     'attr': {
-                      'class': 'form-control',
+                      'class': 'form-control' ~ (form.detailsgeo.vars.errors|length ? ' is-invalid' : ''),
                       'placeholder': 'Ex: Coordonnées GPS, pente, orientation'
                     }
                   }) }}
                   <small class="form-text">Détails géographiques et techniques</small>
+                  {% if form.detailsgeo.vars.errors %}
+                    <div class="invalid-feedback">
+                      <i class="material-symbols-rounded me-1" style="font-size:1rem">error</i>
+                      {% for error in form.detailsgeo.vars.errors %}
+                        {{ error.message }}
+                      {% endfor %}
+                    </div>
+                  {% endif %}
                 </div>
               </div>
             </div>
 
             <div class="btn-action-group">
-              <button type="submit" class="btn btn-brown">  <!-- Changed to custom brown button -->
+              <button type="submit" class="btn btn-brown">
                 <i class="material-symbols-rounded me-1">save</i>
                 Enregistrer
               </button>

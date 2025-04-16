@@ -1,6 +1,6 @@
 {% extends 'base_backOffice.html.twig' %}
 
-{% block title %}Modifier Terrain{% endblock %}
+{% block title %}Modifier Terrain{% endblock %} {# Removed ID from title #}
 
 {% block stylesheets %}
   {{ parent() }}
@@ -20,8 +20,8 @@
       transition: all 0.3s;
     }
     .form-control:focus {
-      border-color: #4CAF50; /* Changed to green */
-      box-shadow: 0 0 0 2px rgba(76, 175, 80, 0.1); /* Green shadow */
+      border-color: #4CAF50;
+      box-shadow: 0 0 0 2px rgba(76, 175, 80, 0.1);
     }
     .form-text {
       font-size: 0.8rem;
@@ -37,6 +37,16 @@
       background-color: #f8f9fa;
       border: 1px solid #d2d6da;
     }
+    .bg-gradient-success {
+      background: linear-gradient(195deg, #4CAF50 0%, #2E7D32 100%);
+    }
+    .is-invalid {
+      border-color: #dc3545;
+    }
+    .invalid-feedback {
+      color: #dc3545;
+      font-size: 0.875rem;
+    }
   </style>
 {% endblock %}
 
@@ -46,10 +56,10 @@
     <div class="col-12">
       <div class="card my-4">
         <div class="card-header p-0 position-relative mt-n4 mx-3 z-index-2">
-          <div class="bg-gradient-success shadow-success border-radius-lg pt-4 pb-3"> <!-- Changed to success/green -->
+          <div class="bg-gradient-success shadow-success border-radius-lg pt-4 pb-3">
             <h6 class="text-white text-capitalize ps-3">
               <i class="material-symbols-rounded me-2">edit</i>
-              Modifier le Terrain
+              Modifier le Terrain {# Removed ID from header #}
             </h6>
           </div>
         </div>
@@ -57,6 +67,7 @@
           {# Flash messages #}
           {% for message in app.flashes('success') %}
             <div class="alert alert-success alert-dismissible fade show">
+              <i class="material-symbols-rounded me-2">check_circle</i>
               {{ message }}
               <button type="button" class="btn-close" data-bs-dismiss="alert" aria-label="Close"></button>
             </div>
@@ -64,6 +75,7 @@
 
           {% for message in app.flashes('error') %}
             <div class="alert alert-danger alert-dismissible fade show">
+              <i class="material-symbols-rounded me-2">error</i>
               {{ message }}
               <button type="button" class="btn-close" data-bs-dismiss="alert" aria-label="Close"></button>
             </div>
@@ -77,10 +89,11 @@
                   {{ form_label(form.emplacement) }}
                   {{ form_widget(form.emplacement, {
                     'attr': {
-                      'class': 'form-control',
+                      'class': 'form-control' ~ (form.emplacement.vars.errors|length ? ' is-invalid' : ''),
                       'placeholder': 'Ex: Quartier résidentiel, Sousse'
                     }
                   }) }}
+                  {{ form_errors(form.emplacement) }}
                   <small class="form-text">Localisation du terrain</small>
                 </div>
               </div>
@@ -90,12 +103,13 @@
                   <div class="input-group">
                     {{ form_widget(form.superficie, {
                       'attr': {
-                        'class': 'form-control',
+                        'class': 'form-control' ~ (form.superficie.vars.errors|length ? ' is-invalid' : ''),
                         'placeholder': 'Ex: 500'
                       }
                     }) }}
                     <span class="input-group-text">m²</span>
                   </div>
+                  {{ form_errors(form.superficie) }}
                   <small class="form-text">Superficie totale du terrain</small>
                 </div>
               </div>
@@ -107,10 +121,11 @@
                   {{ form_label(form.caracteristiques) }}
                   {{ form_widget(form.caracteristiques, {
                     'attr': {
-                      'class': 'form-control',
+                      'class': 'form-control' ~ (form.caracteristiques.vars.errors|length ? ' is-invalid' : ''),
                       'placeholder': 'Ex: Terrain plat avec vue mer'
                     }
                   }) }}
+                  {{ form_errors(form.caracteristiques) }}
                   <small class="form-text">Description des caractéristiques</small>
                 </div>
               </div>
@@ -119,10 +134,11 @@
                   {{ form_label(form.detailsgeo) }}
                   {{ form_widget(form.detailsgeo, {
                     'attr': {
-                      'class': 'form-control',
+                      'class': 'form-control' ~ (form.detailsgeo.vars.errors|length ? ' is-invalid' : ''),
                       'placeholder': 'Ex: Coordonnées GPS, pente, etc.'
                     }
                   }) }}
+                  {{ form_errors(form.detailsgeo) }}
                   <small class="form-text">Détails géographiques</small>
                 </div>
               </div>
@@ -133,15 +149,43 @@
                 <i class="material-symbols-rounded me-1">save</i>
                 Mettre à jour
               </button>
-              <a href="{{ path('app_terrain_index') }}" class="btn btn-outline-secondary">
-                <i class="material-symbols-rounded me-1">arrow_back</i>
-                Retour à la liste
+              <a href="{{ path('app_terrain_show', {'idTerrain': terrain.idTerrain}) }}" class="btn btn-outline-secondary">
+                <i class="material-symbols-rounded me-1">cancel</i>
+                Annuler
               </a>
-              {{ include('terrain/_delete_form.html.twig') }}
+              <button type="button" class="btn btn-outline-danger" data-bs-toggle="modal" data-bs-target="#deleteModal">
+                <i class="material-symbols-rounded me-1">delete</i>
+                Supprimer
+              </button>
             </div>
 
           {{ form_end(form) }}
         </div>
+      </div>
+    </div>
+  </div>
+</div>
+
+<!-- Delete Confirmation Modal -->
+<div class="modal fade" id="deleteModal" tabindex="-1" role="dialog" aria-labelledby="deleteModalLabel" aria-hidden="true">
+  <div class="modal-dialog" role="document">
+    <div class="modal-content">
+      <div class="modal-header">
+        <h5 class="modal-title" id="deleteModalLabel">Confirmer la suppression</h5>
+        <button type="button" class="btn-close" data-bs-dismiss="modal" aria-label="Close"></button>
+      </div>
+      <div class="modal-body">
+        Êtes-vous sûr de vouloir supprimer définitivement ce terrain ? Cette action est irréversible.
+      </div>
+      <div class="modal-footer">
+        <button type="button" class="btn btn-secondary" data-bs-dismiss="modal">Annuler</button>
+        <form action="{{ path('app_terrain_delete', {'idTerrain': terrain.idTerrain}) }}" method="post" class="d-inline">
+          <input type="hidden" name="_token" value="{{ csrf_token('delete' ~ terrain.idTerrain) }}">
+          <button type="submit" class="btn btn-danger">
+            <i class="material-symbols-rounded me-1">delete_forever</i>
+            Confirmer la suppression
+          </button>
+        </form>
       </div>
     </div>
   </div>
