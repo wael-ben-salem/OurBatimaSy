@@ -280,5 +280,33 @@ class Utilisateur implements UserInterface, PasswordAuthenticatedUserInterface
     {
         // Si tu stockes des données sensibles temporairement, efface-les ici
     }
+    #[ORM\OneToOne(mappedBy: 'artisan', targetEntity: Artisan::class)]
+private ?Artisan $artisan = null;
+
+#[ORM\OneToOne(mappedBy: 'constructeur', targetEntity: Constructeur::class)]
+private ?Constructeur $constructeur = null;
+
+public function getArtisan(): ?Artisan
+{
+    return $this->artisan;
+}
+
+public function setArtisan(?Artisan $artisan): static
+{
+    $this->artisan = $artisan;
+    return $this;
+}
+
+public function getConstructeur(): ?Constructeur
+{
+    return $this->constructeur;
+}
+
+public function setConstructeur(?Constructeur $constructeur): static
+{
+    $this->constructeur = $constructeur;
+    return $this;
+}
+
 
 }

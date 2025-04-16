@@ -14,6 +14,11 @@ class WelcomeController extends AbstractController
     {
         return $this->render('home/index.html.twig');
     }
+    #[Route('/test', name: 'test')]
+    public function test(): Response
+    {
+        return $this->render('dash/base.html.twig');
+    }
 
     #[Route('/welcome', name: 'app_welcome')]
     public function index(): Response

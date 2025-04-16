@@ -57,6 +57,36 @@
             box-shadow: 0 0 0 4px rgba(13, 110, 253, 0.25);
         }
 
+        .form-control.is-valid {
+            border-color: #28a745;
+            background-image: url("data:image/svg+xml,%3csvg xmlns='http://www.w3.org/2000/svg' viewBox='0 0 8 8'%3e%3cpath fill='%2328a745' d='M2.3 6.73L.6 4.53c-.4-1.04.46-1.4 1.1-.8l1.1 1.4 3.4-3.8c.6-.63 1.6-.27 1.2.7l-4 4.6c-.43.5-.8.4-1.1.1z'/%3e%3c/svg%3e");
+            background-repeat: no-repeat;
+            background-position: right calc(0.375em + 0.1875rem) center;
+            background-size: calc(0.75em + 0.375rem) calc(0.75em + 0.375rem);
+            padding-right: 2.5rem;
+        }
+
+        .form-control.is-invalid {
+            border-color: #dc3545;
+            background-image: url("data:image/svg+xml,%3csvg xmlns='http://www.w3.org/2000/svg' viewBox='0 0 12 12' width='12' height='12' fill='none' stroke='%23dc3545'%3e%3ccircle cx='6' cy='6' r='4.5'/%3e%3cpath stroke-linejoin='round' d='M5.8 3.6h.4L6 6.5z'/%3e%3ccircle cx='6' cy='8.2' r='.6' fill='%23dc3545' stroke='none'/%3e%3c/svg%3e");
+            background-repeat: no-repeat;
+            background-position: right calc(0.375em + 0.1875rem) center;
+            background-size: calc(0.75em + 0.375rem) calc(0.75em + 0.375rem);
+            padding-right: 2.5rem;
+        }
+
+        .invalid-feedback {
+            display: none;
+            width: 100%;
+            margin-top: 0.25rem;
+            font-size: 0.875em;
+            color: #dc3545;
+        }
+
+        .is-invalid ~ .invalid-feedback {
+            display: block;
+        }
+
         .form-label {
             font-weight: 600;
         }
@@ -151,18 +181,50 @@
 
             <div class="row g-4">
                 <div class="col-md-6">
-                    {{ form_row(registrationForm.nom, {'attr': {'class': 'form-control'}}) }}
+                    <div class="form-group">
+                        {{ form_label(registrationForm.nom) }}
+                        {{ form_widget(registrationForm.nom, {
+                            'attr': {
+                                'class': 'form-control',
+                                'required': 'required',
+                                'pattern': '.{2,}'
+                            }
+                        }) }}
+                        <div class="invalid-feedback">
+                            Veuillez entrer un nom valide (au moins 2 caractères).
+                        </div>
+                    </div>
                 </div>
                 <div class="col-md-6">
-                    {{ form_row(registrationForm.prenom, {'attr': {'class': 'form-control'}}) }}
+                    <div class="form-group">
+                        {{ form_label(registrationForm.prenom) }}
+                        {{ form_widget(registrationForm.prenom, {
+                            'attr': {
+                                'class': 'form-control',
+                                'required': 'required',
+                                'pattern': '.{2,}'
+                            }
+                        }) }}
+                        <div class="invalid-feedback">
+                            Veuillez entrer un prénom valide (au moins 2 caractères).
+                        </div>
+                    </div>
                 </div>
                 <div class="col-12">
-                    {{ form_row(registrationForm.email, {
-                        'attr': {
-                            'class': 'form-control',
-                            'placeholder': 'ex: jean.dupont@email.com'
-                        }
-                    }) }}
+                    <div class="form-group">
+                        {{ form_label(registrationForm.email) }}
+                        {{ form_widget(registrationForm.email, {
+                            'attr': {
+                                'class': 'form-control',
+                                'required': 'required',
+                                'placeholder': 'ex: jean.dupont@email.com',
+                                'pattern': '[a-z0-9._%+-]+@[a-z0-9.-]+\.[a-z]{2,}$'
+                            }
+                        }) }}
+                        <div class="invalid-feedback">
+                            Veuillez entrer une adresse email valide.
+                        </div>
+                    </div>
                 </div>
 
                 <div class="col-12">
@@ -176,35 +238,53 @@
                             <i class="bi bi-search"></i> Rechercher
                         </button>
                     </div>
-                    <div class="mt-1">
-                        {{ form_row(registrationForm.adresse, {
+                    <div class="form-group mt-1">
+                        {{ form_label(registrationForm.adresse) }}
+                        {{ form_widget(registrationForm.adresse, {
                             'attr': {
                                 'class': 'form-control',
-                                'readonly': 'readonly'
+                                'readonly': 'readonly',
+                                'required': 'required'
                             }
                         }) }}
+                        <div class="invalid-feedback">
+                            Veuillez sélectionner une adresse sur la carte.
+                        </div>
                     </div>
                 </div>
 
                 <div class="col-12">
-                    {{ form_row(registrationForm.telephone, {
-                        'attr': {
-                            'class': 'form-control',
-                            'style': 'padding-left: 65px;'
-                        }
-                    }) }}
+                    <div class="form-group">
+                        {{ form_label(registrationForm.telephone) }}
+                        {{ form_widget(registrationForm.telephone, {
+                            'attr': {
+                                'class': 'form-control',
+                                'style': 'padding-left: 65px;',
+                                'required': 'required'
+                            }
+                        }) }}
+                        <div class="invalid-feedback">
+                            Veuillez entrer un numéro de téléphone valide.
+                        </div>
+                    </div>
                 </div>
 
                 <div class="col-12">
-                    <label for="registration_form_plainPassword" class="form-label">Mot de passe</label>
-                    {{ form_widget(registrationForm.plainPassword, {
-                        'attr': {
-                            'class': 'form-control',
-                            'autocomplete': 'new-password'
-                        }
-                    }) }}
-                    <div class="password-strength"></div>
-                    {{ form_errors(registrationForm.plainPassword) }}
+                    <div class="form-group">
+                        <label for="registration_form_plainPassword" class="form-label">Mot de passe</label>
+                        {{ form_widget(registrationForm.plainPassword, {
+                            'attr': {
+                                'class': 'form-control',
+                                'autocomplete': 'new-password',
+                                'required': 'required',
+                                'minlength': '6'
+                            }
+                        }) }}
+                        <div class="password-strength"></div>
+                        <div class="invalid-feedback">
+                            Le mot de passe doit contenir au moins 6 caractères.
+                        </div>
+                    </div>
                 </div>
 
                 <div class="col-12">
@@ -235,4 +315,149 @@
     <script src="https://cdn.jsdelivr.net/npm/leaflet.locatecontrol/dist/L.Control.Locate.min.js"></script>
     <script src="https://cdn.jsdelivr.net/npm/zxcvbn@4.4.2/dist/zxcvbn.js"></script>
     <script src="{{ asset('js/register.js') }}"></script>
+
+    <script>
+        // Validation du formulaire en temps réel
+        (function() {
+            'use strict';
+            
+            // Sélectionner tous les champs requis
+            const fields = document.querySelectorAll('.form-control[required]');
+            
+            fields.forEach(field => {
+                // Validation lors de la perte de focus
+                field.addEventListener('blur', function() {
+                    this.classList.remove('is-valid', 'is-invalid');
+                    
+                    if (this.checkValidity()) {
+                        this.classList.add('is-valid');
+                    } else {
+                        this.classList.add('is-invalid');
+                    }
+                });
+                
+                // Validation lors de la saisie pour certains champs
+                if (field.type !== 'password' && field.id !== 'registration_form_adresse') {
+                    field.addEventListener('input', function() {
+                        if (this.value.length > 0) {
+                            this.classList.remove('is-valid', 'is-invalid');
+                            if (this.checkValidity()) {
+                                this.classList.add('is-valid');
+                            }
+                        }
+                    });
+                }
+            });
+            
+            // Validation du formulaire avant soumission
+            const form = document.querySelector('.needs-validation');
+            form.addEventListener('submit', function(event) {
+                if (!form.checkValidity()) {
+                    event.preventDefault();
+                    event.stopPropagation();
+                    
+                    // Forcer l'affichage des erreurs pour tous les champs
+                    fields.forEach(field => {
+                        field.classList.remove('is-valid', 'is-invalid');
+                        if (!field.checkValidity()) {
+                            field.classList.add('is-invalid');
+                        }
+                    });
+                }
+                
+                form.classList.add('was-validated');
+            }, false);
+            
+            // Validation personnalisée pour la carte
+            const adresseField = document.getElementById('registration_form_adresse');
+            const map = L.map('map').setView([33.8869, 9.5375], 6);
+            L.tileLayer('https://{s}.tile.openstreetmap.org/{z}/{x}/{y}.png').addTo(map);
+            const marker = L.marker([33.8869, 9.5375], { draggable: true }).addTo(map);
+            
+            function updateAddress(lat, lng) {
+                fetch(`https://nominatim.openstreetmap.org/reverse?lat=${lat}&lon=${lng}&format=json`)
+                    .then(res => res.json())
+                    .then(data => {
+                        adresseField.value = data.display_name || '';
+                        adresseField.classList.remove('is-invalid');
+                        adresseField.classList.add('is-valid');
+                    });
+            }
+            
+            map.on('click', e => {
+                marker.setLatLng(e.latlng);
+                updateAddress(e.latlng.lat, e.latlng.lng);
+            });
+            
+            marker.on('dragend', e => {
+                const pos = marker.getLatLng();
+                updateAddress(pos.lat, pos.lng);
+            });
+            
+            document.getElementById('locate-me').addEventListener('click', function() {
+                map.locate({setView: true, maxZoom: 16});
+            });
+            
+            map.on('locationfound', function(e) {
+                marker.setLatLng(e.latlng);
+                updateAddress(e.latlng.lat, e.latlng.lng);
+            });
+            
+            // Initialisation du champ téléphone
+            const phoneInput = document.querySelector("#registration_form_telephone");
+            if (phoneInput) {
+                const iti = window.intlTelInput(phoneInput, {
+                    initialCountry: "auto",
+                    preferredCountries: ["tn", "fr", "dz", "ma"],
+                    separateDialCode: true,
+                    utilsScript: "https://cdnjs.cloudflare.com/ajax/libs/intl-tel-input/17.0.19/js/utils.js",
+                    customPlaceholder: function(selectedCountryPlaceholder, selectedCountryData) {
+                        return "ex: " + selectedCountryPlaceholder;
+                    },
+                    geoIpLookup: function(callback) {
+                        fetch('https://ipapi.co/json')
+                            .then(res => res.json())
+                            .then(data => callback(data.country_code))
+                            .catch(() => callback("tn"));
+                    }
+                });
+                
+                phoneInput.addEventListener('blur', function() {
+                    if (iti.isValidNumber()) {
+                        this.classList.remove('is-invalid');
+                        this.classList.add('is-valid');
+                    } else {
+                        this.classList.remove('is-valid');
+                        this.classList.add('is-invalid');
+                    }
+                });
+            }
+            
+            // Indicateur de force du mot de passe
+            const passwordInput = document.querySelector('#registration_form_plainPassword');
+            const strengthBar = document.querySelector('.password-strength');
+            
+            if (passwordInput && strengthBar) {
+                passwordInput.addEventListener('input', function() {
+                    const result = zxcvbn(this.value);
+                    const strength = result.score * 25;
+                    const colors = ['#dc3545', '#ff6b6b', '#ffd93d', '#6cbf6c', '#4caf50'];
+                    
+                    strengthBar.style.setProperty('--strength', `${strength}%`);
+                    strengthBar.style.setProperty('--strength-color', colors[result.score]);
+                    
+                    // Validation visuelle
+                    if (this.value.length >= 6) {
+                        this.classList.remove('is-invalid');
+                        this.classList.add('is-valid');
+                    } else {
+                        this.classList.remove('is-valid');
+                        if (this.value.length > 0) {
+                            this.classList.add('is-invalid');
+                        }
+                    }
+                });
+            }
+        })();
+    </script>
 {% endblock %}
