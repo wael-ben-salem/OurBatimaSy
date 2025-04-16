@@ -2,6 +2,16 @@
 
 <html lang="fr">
 <head>
+
+    <meta charset="UTF-8">
+    <title>{% block title %}Welcome!{% endblock %}</title>
+    <link rel="stylesheet" href="https://stackpath.bootstrapcdn.com/bootstrap/4.5.2/css/bootstrap.min.css">
+        
+
+    {% block stylesheets %}
+
+    {% endblock %}
+
         <meta charset="utf-8">
         <title>{% block title %}Builderz - Construction Company Website Template{% endblock %}</title>
         <meta content="width=device-width, initial-scale=1.0" name="viewport">
@@ -53,9 +63,12 @@
         <!-- Template Javascript -->
         <script src="{{ asset('js/main.js') }}"></script>
 
-=======
+
 <html lang="en">
 <head>
+<link rel="stylesheet" href="{{ asset('css/newabonnement.css') }}">
+         <link rel="stylesheet" href="{{ asset('css/abonnementfront.css') }}">
+          <link rel="stylesheet" href="{{ asset('css/nicepage.css') }}">
     <meta charset="utf-8">
     <meta name="viewport" content="width=device-width, initial-scale=1, shrink-to-fit=no">
     <title>{% block title %}Material Dashboard{% endblock %}</title>
@@ -67,6 +80,7 @@
     <!-- CSS Files -->
     <link id="pagestyle" href="{{ asset('material-dashboard-master/assets/css/material-dashboard.css') }}" rel="stylesheet">
     {% block stylesheets %}{% endblock %}
+
 </head>
 <body class="g-sidenav-show bg-gray-100">
     {% include '_sidebar.html.twig' %}
