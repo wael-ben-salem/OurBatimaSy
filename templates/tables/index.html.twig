@@ -1,37 +1,139 @@
-{% extends 'dash/basedash.html.twig' %}
+{% extends 'base_backOffice.html.twig' %}
 
-{% block title %}Utilisateurs par rôle{% endblock %}
+{% block title %}Utilisateurs{% endblock %}
+
+{% block breadcrumb %}Utilisateurs{% endblock %}
+
+{% block stylesheets %}
+  {{ parent() }}
+  <style>
+    .card {
+      border-radius: 12px;
+      box-shadow: 0 4px 20px 0 rgba(0, 0, 0, 0.14), 
+                  0 7px 10px -5px rgba(0, 0, 0, 0.4);
+    }
+    .avatar-sm {
+      width: 36px;
+      height: 36px;
+      display: flex;
+      align-items: center;
+      justify-content: center;
+    }
+
+    .bg-gradient-success { background: linear-gradient(45deg,rgb(39, 223, 82), #20c997); }
+    .bg-gradient-secondary { background: linear-gradient(45deg, #6c757d, #adb5bd); }
+    .bg-gradient-primary { background: linear-gradient(45deg, #007bff, #6610f2); }
+    .bg-gradient-warning { background: linear-gradient(45deg, #ffc107, #fd7e14); }
+
+    .badge-sm {
+      font-size: 0.65rem;
+      padding: 0.35em 0.65em;
+    }
+    
+    .nav-tabs .nav-link {
+      border: none;
+      color: #495057;
+      font-weight: 500;
+    }
+    
+    .nav-tabs .nav-link.active {
+      color: #007bff;
+      border-bottom: 3px solid #007bff;
+      background: transparent;
+    }
+    
+    .tab-content {
+      padding-top: 20px;
+    }
+  </style>
+{% endblock %}
 
 {% block body %}
-<div class="card my-4">
-  <div class="card-header p-0 position-relative mt-n4 mx-3 z-index-2">
-    <div class="bg-gradient-dark shadow-dark border-radius-lg pt-4 pb-3">
-      <h6 class="text-white text-capitalize ps-3">Liste des utilisateurs</h6>
+  <div class="row">
+    <div class="col-12">
+      <div class="card my-4">
+        <div class="card-header p-0 position-relative mt-n4 mx-3 z-index-2">
+          <div class="bg-gradient-dark shadow-dark border-radius-lg pt-4 pb-3 d-flex justify-content-between align-items-center">
+            <h6 class="text-white text-capitalize ps-3">Gestion des utilisateurs</h6>
+            <a href="{{ path('app_register') }}" class="btn btn-sm btn-light me-3">
+              <i class="material-symbols-rounded me-1">add</i>
+              Nouvel Utilisateur
+            </a>
+          </div>
+        </div>
+        <div class="card-body px-4 pb-2">
+          <!-- Onglets -->
+          <ul class="nav nav-tabs" id="userTabs" role="tablist">
+            <li class="nav-item" role="presentation">
+              <button class="nav-link active" id="client-tab" data-bs-toggle="tab" data-bs-target="#client" type="button" role="tab" aria-controls="client" aria-selected="true">
+                Clients
+              </button>
+            </li>
+            <li class="nav-item" role="presentation">
+              <button class="nav-link" id="artisan-tab" data-bs-toggle="tab" data-bs-target="#artisan" type="button" role="tab" aria-controls="artisan" aria-selected="false">
+                Artisans
+              </button>
+            </li>
+            <li class="nav-item" role="presentation">
+              <button class="nav-link" id="constructeur-tab" data-bs-toggle="tab" data-bs-target="#constructeur" type="button" role="tab" aria-controls="constructeur" aria-selected="false">
+                Constructeurs
+              </button>
+            </li>
+            <li class="nav-item" role="presentation">
+              <button class="nav-link" id="gestionnaire-tab" data-bs-toggle="tab" data-bs-target="#gestionnaire" type="button" role="tab" aria-controls="gestionnaire" aria-selected="false">
+                Gestionnaires
+              </button>
+            </li>
+          </ul>
+          
+          <!-- Contenu des onglets -->
+          <div class="tab-content" id="userTabsContent">
+            <div class="tab-pane fade show active" id="client" role="tabpanel" aria-labelledby="client-tab">
+              {{ render(controller('App\\Controller\\UtilisateurController::getUsersByRole', {role: 'Client'})) }}
+            </div>
+            <div class="tab-pane fade" id="artisan" role="tabpanel" aria-labelledby="artisan-tab">
+              {{ render(controller('App\\Controller\\UtilisateurController::getUsersByRole', {role: 'Artisan'})) }}
+            </div>
+            <div class="tab-pane fade" id="constructeur" role="tabpanel" aria-labelledby="constructeur-tab">
+              {{ render(controller('App\\Controller\\UtilisateurController::getUsersByRole', {role: 'Constructeur'})) }}
+            </div>
+            <div class="tab-pane fade" id="gestionnaire" role="tabpanel" aria-labelledby="gestionnaire-tab">
+              {{ render(controller('App\\Controller\\UtilisateurController::getUsersByRole', {role: 'GestionnaireStock'})) }}
+            </div>
+          </div>
+        </div>
+      </div>
     </div>
   </div>
-<div class="container mt-5">
-    <div class="btn-group mb-3" role="group">
-        <button class="btn btn-outline-primary" onclick="loadUsers('Client')">Client</button>
-        <button class="btn btn-outline-primary" onclick="loadUsers('Artisan')">Artisan</button>
-        <button class="btn btn-outline-primary" onclick="loadUsers('Constructeur')">Constructeur</button>
-        <button class="btn btn-outline-primary" onclick="loadUsers('GestionnaireStock')">Gestionnaire</button>
-    </div>
+{% endblock %}
 
-    <div id="userTableContainer" class="table-responsive">
-        <p>Sélectionnez un rôle pour afficher les utilisateurs.</p>
-    </div>
-</div>
-
-<script>
-    function loadUsers(role) {
-        fetch(`/tables/role/${role}`)
-            .then(response => response.text())
-            .then(html => {
-                document.getElementById('userTableContainer').innerHTML = html;
-            })
-            .catch(error => {
-                console.error('Erreur lors du chargement :', error);
-            });
-    }
-</script>
+{% block javascripts %}
+  {{ parent() }}
+  <script>
+    $(function () {
+      $('[data-toggle="tooltip"]').tooltip();
+      
+      // Chargement initial des clients
+      loadUserTable('Client');
+      
+      // Gestion du changement d'onglet
+      $('button[data-bs-toggle="tab"]').on('shown.bs.tab', function (e) {
+        const target = $(e.target).attr('aria-controls');
+        const roleMap = {
+          'client': 'Client',
+          'artisan': 'Artisan',
+          'constructeur': 'Constructeur',
+          'gestionnaire': 'GestionnaireStock'
+        };
+        loadUserTable(roleMap[target]);
+      });
+      
+      function loadUserTable(role) {
+        const url = `/tables/role/${role}`;
+        const targetId = `#${role.toLowerCase()}`;
+        
+        $(targetId).load(url + ' ' + targetId + ' > *');
+      }
+    });
+  </script>
 {% endblock %}
