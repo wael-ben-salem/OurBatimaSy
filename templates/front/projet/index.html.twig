@@ -1,0 +1,17 @@
+{% extends 'base_frontOffice.html.twig' %}
+
+{% block content %}
+    <h1>Our Projects</h1>
+    <div class="project-list">
+        {% for projet in projets %}
+            <div class="project-card">
+                <h2>
+                    <a href="{{ path('front_projet_show', {'idProjet': projet.idProjet}) }}">
+                        {{ projet.name }}
+                    </a>
+                </h2>
+                <p>{{ projet.shortDescription }}</p>
+            </div>
+        {% endfor %}
+    </div>
+{% endblock %}
