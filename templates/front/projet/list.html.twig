@@ -1,0 +1,12 @@
+{% extends 'front/base.html.twig' %}
+
+{% block content %}
+    <article class="project-details">
+        <h1>{{ projet.name }}</h1>
+        <p class="project-description">{{ projet.description }}</p>
+        <div class="project-meta">
+            <span>Created: {{ projet.datecreation|date('Y-m-d') }}</span>
+        </div>
+        <a href="{{ path('front_projet_index') }}" class="back-link">Back to projects</a>
+    </article>
+{% endblock %}
