@@ -1,6 +1,6 @@
 {% extends 'base_frontOffice.html.twig' %}
 
-{% block title %}Our Projects - Builderz Construction{% endblock %}
+{% block title %}Nos Projets - Our Batima{% endblock %}
 
 {% block stylesheets %}
     {{ parent() }}
@@ -27,6 +27,42 @@
             font-weight: bold;
             color: #fd7e14;
         }
+        .create-btn-container {
+            margin-top: 20px;
+            margin-bottom: 30px;
+        }
+        .stages-dropdown {
+            position: relative;
+            display: inline-block;
+        }
+        .stages-dropdown-content {
+            display: none;
+            position: absolute;
+            background-color: white;
+            min-width: 250px;
+            box-shadow: 0px 8px 16px 0px rgba(0,0,0,0.2);
+            z-index: 1;
+            border-radius: 8px;
+            padding: 10px;
+            bottom: 100%;
+            left: 50%;
+            transform: translateX(-50%);
+            margin-bottom: 10px;
+        }
+        .stages-dropdown:hover .stages-dropdown-content {
+            display: block;
+        }
+        .stage-item {
+            padding: 8px 0;
+            border-bottom: 1px solid #eee;
+        }
+        .stage-item:last-child {
+            border-bottom: none;
+        }
+        .stage-badge {
+            font-size: 0.7rem;
+            padding: 0.25em 0.4em;
+        }
     </style>
 {% endblock %}
 
@@ -36,11 +72,11 @@
         <div class="container">
             <div class="row">
                 <div class="col-12">
-                    <h2>Our Projects</h2>
+                    <h2>Nos Projets</h2>
                 </div>
                 <div class="col-12">
-                    <a href="{{ path('app_home') }}">Home</a>
-                    <a href="{{ path('app_projet_front_index') }}">Projects</a>
+                    <a href="{{ path('app_home') }}">Acceuil</a>
+                    <a href="{{ path('app_projet_front_index') }}">Projets</a>
                 </div>
             </div>
         </div>
@@ -51,8 +87,13 @@
     <div class="portfolio">
         <div class="container">
             <div class="section-header text-center">
-                <p>Our Portfolio</p>
-                <h2>Recent Projects</h2>
+                <p>Nos Projets</p>
+                <h2>Nos Projets</h2>
+                <div class="create-btn-container">
+                    <a href="{{ path('app_projet_front_new') }}" class="btn btn-primary btn-lg">
+                        <i class="fas fa-plus mr-2"></i> Créer un nouveau project
+                    </a>
+                </div>
             </div>
             
             <div class="row">
@@ -112,10 +153,40 @@
                                 </div>
                             </div>
                             <div class="card-footer bg-light text-center">
-                                <a href="{{ path('app_projet_front_show', {'idProjet': projet.idProjet}) }}" 
-                                   class="btn btn-sm btn-dark">
-                                    View Details
-                                </a>
+                                <div class="stages-dropdown">
+                                    <button class="btn btn-sm btn-dark">
+                                        Voir les étapes du projet
+                                    </button>
+                                    <div class="stages-dropdown-content">
+                                        {% if projet.etapeprojets|length > 0 %}
+                                            {% for etape in projet.etapeprojets %}
+                                                <div class="stage-item">
+                                                    <div class="d-flex justify-content-between">
+                                                        <strong>{{ etape.nometape }}</strong>
+                                                        <span class="badge stage-badge bg-{{ 
+                                                            etape.statut == 'Terminé' ? 'success' : 
+                                                            (etape.statut == 'En cours' ? 'info' : 
+                                                            (etape.statut == 'En attente' ? 'warning' : 'danger')) 
+                                                        }}">{{ etape.statut }}</span>
+                                                    </div>
+                                                    <div class="text-muted small">
+                                                        {{ etape.datedebut|date('d/m/Y') }} - 
+                                                        {% if etape.datefin %}
+                                                            {{ etape.datefin|date('d/m/Y') }}
+                                                        {% else %}
+                                                            En cours
+                                                        {% endif %}
+                                                    </div>
+                                                    {% if etape.description %}
+                                                        <div class="text-muted small mt-1">{{ etape.description|u.truncate(50, '...') }}</div>
+                                                    {% endif %}
+                                                </div>
+                                            {% endfor %}
+                                        {% else %}
+                                            <div class="text-center text-muted">Aucune étape disponible</div>
+                                        {% endif %}
+                                    </div>
+                                </div>
                             </div>
                         </div>
                     </div>
@@ -131,5 +202,30 @@
 {% endblock %}
 
 {% block javascripts %}
-    {{ parent() }}
+    {parent() %}
+    <script>
+        // Make the dropdown work on click instead of hover
+        document.querySelectorAll('.stages-dropdown button').forEach(button => {
+            button.addEventListener('click', function(e) {
+                e.stopPropagation();
+                const dropdown = this.parentElement;
+                const content = dropdown.querySelector('.stages-dropdown-content');
+                
+                // Close all other open dropdowns
+                document.querySelectorAll('.stages-dropdown-content').forEach(d => {
+                    if (d !== content) d.style.display = 'none';
+                });
+                
+                // Toggle current dropdown
+                content.style.display = content.style.display === 'block' ? 'none' : 'block';
+            });
+        });
+
+        // Close dropdown when clicking outside
+        document.addEventListener('click', function() {
+            document.querySelectorAll('.stages-dropdown-content').forEach(d => {
+                d.style.display = 'none';
+            });
+        });
+    </script>
 {% endblock %}

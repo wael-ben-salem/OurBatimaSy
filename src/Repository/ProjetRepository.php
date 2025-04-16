@@ -31,6 +31,16 @@ class ProjetRepository extends ServiceEntityRepository
             ->getQuery()
             ->getResult();
     }
+    
+    public function findAllWithStages()
+{
+    return $this->createQueryBuilder('p')
+        ->leftJoin('p.etapeprojets', 'e')
+        ->addSelect('e')
+        ->orderBy('p.datecreation', 'DESC')
+        ->getQuery()
+        ->getResult();
+}
 
     public function findEtapesForProjet(int $projetId): array
     {
