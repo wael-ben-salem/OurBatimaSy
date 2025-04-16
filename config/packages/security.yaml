@@ -30,9 +30,12 @@ security:
         - { path: ^/register, roles: PUBLIC_ACCESS }
         - { path: ^/login, roles: PUBLIC_ACCESS }
 
+
         - { path: ^/welcome, roles: [ROLE_USER, ROLE_CLIENT] }
         - { path: ^/tache, roles: ROLE_CONSTRUCTEUR }  # Fixed this line
         - {path: ^/plannification, roles: [ROLE_ARTISAN, ROLE_CLIENT]} # Fixed this line
 
  
+
+        - { path: ^/projet, roles: [ROLE_USER, ROLE_CLIENT] }
 

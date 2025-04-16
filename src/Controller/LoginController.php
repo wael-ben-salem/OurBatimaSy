@@ -15,7 +15,7 @@ class LoginController extends AbstractController
     public function index(AuthenticationUtils $authenticationUtils, Request $request): Response
     {
         if ($this->getUser()) {
-            return $this->redirectToRoute('app_welcome');
+            return $this->redirectToRoute('app_projet_index');
         }
     
         $error = $authenticationUtils->getLastAuthenticationError();
@@ -32,7 +32,7 @@ class LoginController extends AbstractController
     
             return new JsonResponse([
                 'success' => true,
-                'redirect' => $this->generateUrl('app_welcome')
+                'redirect' => $this->generateUrl('app_projet_index')
             ]);
         }
     
