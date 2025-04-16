@@ -1,0 +1,45 @@
+{% extends 'base.html.twig' %}
+
+{% block title %}Tache index{% endblock %}
+
+{% block body %}
+    <h1>Tache index</h1>
+
+    <table class="table">
+        <thead>
+        <tr>
+            <th>IdTache</th>
+            <th>Description</th>
+            <th>DateDebut</th>
+            <th>DateFin</th>
+            <th>Etat</th>
+            <th>Artisan</th>
+            <th>Projet</th>
+            <th>actions</th>
+        </tr>
+        </thead>
+        <tbody>
+        {% for tache in taches %}
+            <tr>
+                <td>{{ tache.idTache }}</td>
+                <td>{{ tache.description }}</td>
+                <td>{{ tache.dateDebut ? tache.dateDebut|date('Y-m-d') : '' }}</td>
+                <td>{{ tache.dateFin ? tache.dateFin|date('Y-m-d') : '' }}</td>
+                <td>{{ tache.etat }}</td>
+                <td>{{ tache.artisan }}</td>
+                <td>{{ tache.idProjet }}</td>
+                <td>
+                    <a href="{{ path('app_tache_show', {'idTache': tache.idTache}) }}">show</a>
+                    <a href="{{ path('app_tache_edit', {'idTache': tache.idTache}) }}">edit</a>
+                </td>
+            </tr>
+        {% else %}
+            <tr>
+                <td colspan="8">no records found</td>
+            </tr>
+        {% endfor %}
+        </tbody>
+    </table>
+
+    <a href="{{ path('app_tache_new') }}">Create new</a>
+{% endblock %}
