@@ -21,9 +21,28 @@ class ArticleType extends AbstractType
             ->add('nom')
             ->add('description')
             ->add('prixUnitaire')
-            ->add('photo', FileType::class, [
-                'label' => 'Photo (Image file)',
-                'mapped' => false,
+            
+            ->add('etapeprojet', EntityType::class, [
+                'class' => Etapeprojet::class,
+                'choice_label' => 'nometape', // Display the name
+                'placeholder' => 'Sélectionnez une étape de projet',
+                'required' => false,
+            ])
+            ->add('stock', EntityType::class, [
+                'class' => Stock::class,
+                'choice_label' => 'nom', // Display the name
+                'placeholder' => 'Sélectionnez un stock',
+                'required' => false,
+            ])
+            ->add('fournisseur', EntityType::class, [
+                'class' => Fournisseur::class,
+                'choice_label' => 'nom', // Display the name
+                'placeholder' => 'Sélectionnez un fournisseur',
+                'required' => false,
+            ])
+            ->add('photoFile', FileType::class, [
+                'label' => 'Photo (JPG, PNG)',
+                'mapped' => false, // This field is not mapped to the Article entity
                 'required' => false,
                 'constraints' => [
                     new File([
@@ -31,25 +50,11 @@ class ArticleType extends AbstractType
                         'mimeTypes' => [
                             'image/jpeg',
                             'image/png',
-                            'image/gif',
                         ],
-                        'mimeTypesMessage' => 'Please upload a valid image file',
-                    ])
+                        'mimeTypesMessage' => 'Please upload a valid image file (JPG or PNG).',
+                    ]),
                 ],
-            ])
-            ->add('etapeprojet', EntityType::class, [
-                'class' => Etapeprojet::class,
-                'choice_label' => 'id',
-            ])
-            ->add('stock', EntityType::class, [
-                'class' => Stock::class,
-                'choice_label' => 'id',
-            ])
-            ->add('fournisseur', EntityType::class, [
-                'class' => Fournisseur::class,
-                'choice_label' => 'id',
-            ])
-        ;
+            ]);
     }
 
     public function configureOptions(OptionsResolver $resolver): void

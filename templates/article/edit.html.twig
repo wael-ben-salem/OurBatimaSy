@@ -20,8 +20,20 @@
       transition: all 0.3s;
     }
     .form-control:focus {
-      border-color: #9c27b0;
-      box-shadow: 0 0 0 2px rgba(156, 39, 176, 0.1);
+      border-color: #A78B6D;
+      box-shadow: 0 0 0 2px rgba(167, 139, 109, 0.1);
+    }
+    .btn-action-group {
+      display: flex;
+      gap: 10px;
+      margin-top: 20px;
+    }
+    .bg-gradient-beige {
+      background: linear-gradient(45deg, #A78B6D, #C4AB8D);
+    }
+    .shadow-beige {
+      box-shadow: 0 4px 20px 0 rgba(167, 139, 109, 0.14), 
+                  0 7px 10px -5px rgba(167, 139, 109, 0.4);
     }
   </style>
 {% endblock %}
@@ -32,7 +44,7 @@
     <div class="col-12">
       <div class="card my-4">
         <div class="card-header p-0 position-relative mt-n4 mx-3 z-index-2">
-          <div class="bg-gradient-lilac shadow-lilac border-radius-lg pt-4 pb-3">
+          <div class="bg-gradient-beige shadow-beige border-radius-lg pt-4 pb-3">
             <h6 class="text-white text-capitalize ps-3">
               <i class="material-symbols-rounded me-2">edit</i>
               Modifier l'Article
@@ -40,23 +52,27 @@
           </div>
         </div>
         <div class="card-body px-4 pb-2">
-          <form method="post">
+          <form method="post" enctype="multipart/form-data">
             {{ form_start(form) }}
             {{ form_widget(form) }}
-            <div class="form-group">
-              <label for="photoFile">Photo</label>
-              <input type="file" id="photoFile" name="photoFile" class="form-control">
-              {% if article.photo %}
-                <p class="mt-2">Photo actuelle : <img src="{{ article.photo }}" alt="Photo de l'article" style="max-width: 100px; max-height: 100px;"></p>
-              {% endif %}
+            {% if article.photo %}
+              <div class="form-group">
+                <label>Photo actuelle :</label>
+                <img src="{{ article.photo }}" alt="Photo actuelle" class="img-thumbnail" style="max-width: 200px;">
+              </div>
+            {% endif %}
+            <div class="btn-action-group">
+              <button type="submit" class="btn btn-success">
+                <i class="material-symbols-rounded me-1">save</i>
+                Mettre à jour
+              </button>
+              <a href="{{ path('app_article_index') }}" class="btn btn-outline-secondary">
+                <i class="material-symbols-rounded me-1">arrow_back</i>
+                Retour à la liste
+              </a>
             </div>
-            <button type="submit" class="btn btn-primary">Mettre à jour</button>
             {{ form_end(form) }}
           </form>
-          <a href="{{ path('app_article_index') }}" class="btn btn-outline-secondary mt-3">
-            <i class="material-symbols-rounded me-1">arrow_back</i>
-            Retour à la liste
-          </a>
         </div>
       </div>
     </div>
