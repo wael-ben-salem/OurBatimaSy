@@ -44,6 +44,14 @@
         </a>
       </li>
 
+ <li class="nav-item">
+        <a class="nav-link {{ current_route starts with 'app_abonnement_' ? 'active bg-gradient-dark text-white' : 'text-dark' }}" href="{{path('app_abonnement_index') }}">
+          <i class="material-symbols-rounded opacity-5">list_alt</i>
+          <span class="nav-link-text ms-1">Abonnements</span>
+        </a>
+      </li>
+
+
       <li class="nav-item">
         <a class="nav-link {{ current_route starts with 'app_stock_index' ? 'active bg-gradient-dark text-white' : 'text-dark' }}" href="{{ path('app_stock_index') }}">
           <i class="material-symbols-rounded opacity-5">table_view</i>
@@ -65,6 +73,7 @@
           <span class="nav-link-text ms-1">Article</span>
         </a>
       </li>
+
       <!-- Add other menu items as needed -->
     </ul>
   </div>

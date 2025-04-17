@@ -1,8 +1,8 @@
 {% extends 'base_backOffice.html.twig' %}
 
-{% block title %}Abonnements{% endblock %}
+{% block title %}Contrats{% endblock %}
 
-{% block breadcrumb %}Abonnements{% endblock %}
+{% block breadcrumb %}Contrats{% endblock %}
 
 {% block stylesheets %}
   {{ parent() }}
@@ -19,12 +19,10 @@
       align-items: center;
       justify-content: center;
     }
-
     .bg-gradient-success { background: linear-gradient(45deg,rgb(39, 223, 82), #20c997); }
     .bg-gradient-info { background: linear-gradient(45deg, #17a2b8, #0dcaf0); }
     .bg-gradient-secondary { background: linear-gradient(45deg, #6c757d, #adb5bd); }
     .bg-gradient-danger { background: linear-gradient(45deg, #dc3545, #fd7e14); }
-
     .badge-sm {
       font-size: 0.65rem;
       padding: 0.35em 0.65em;
@@ -38,10 +36,10 @@
       <div class="card my-4">
         <div class="card-header p-0 position-relative mt-n4 mx-3 z-index-2">
           <div class="bg-gradient-dark shadow-dark border-radius-lg pt-4 pb-3 d-flex justify-content-between align-items-center">
-            <h6 class="text-white text-capitalize ps-3">Abonnements</h6>
-            <a href="{{ path('app_abonnement_new') }}" class="btn btn-sm btn-light me-3">
+            <h6 class="text-white text-capitalize ps-3">Liste des Contrats</h6>
+            <a href="{{ path('app_contrat_new') }}" class="btn btn-sm btn-light me-3">
               <i class="material-symbols-rounded me-1">add</i>
-              Nouvel Abonnement
+              Nouveau Contrat
             </a>
           </div>
         </div>
@@ -50,45 +48,67 @@
             <table class="table align-items-center justify-content-center mb-0">
               <thead>
                 <tr>
-                  <th class="text-uppercase text-secondary text-xxs font-weight-bolder opacity-7">Nom</th>
-                  <th class="text-uppercase text-secondary text-xxs font-weight-bolder opacity-7 text-center">Durée</th>
-                  <th class="text-uppercase text-secondary text-xxs font-weight-bolder opacity-7 text-center">Prix</th>
+                  <th class="text-uppercase text-secondary text-xxs font-weight-bolder opacity-7">Type</th>
+                  <th class="text-uppercase text-secondary text-xxs font-weight-bolder opacity-7 text-center">Dates</th>
+                  <th class="text-uppercase text-secondary text-xxs font-weight-bolder opacity-7 text-center">Montant</th>
+                  <th class="text-uppercase text-secondary text-xxs font-weight-bolder opacity-7 text-center">Signature</th>
                   <th class="text-uppercase text-secondary text-xxs font-weight-bolder opacity-7 text-center">Actions</th>
                 </tr>
               </thead>
               <tbody>
-                {% for abonnement in abonnements %}
+                {% for contrat in contrats %}
                 <tr>
                   <td>
                     <div class="d-flex px-2">
                       <div>
                         <div class="avatar avatar-sm rounded-circle bg-gradient-dark me-2">
-                          <i class="material-symbols-rounded text-white">subscriptions</i>
+                          <i class="material-symbols-rounded text-white">description</i>
                         </div>
                       </div>
                       <div class="my-auto">
-                        <h6 class="mb-0 text-sm">{{ abonnement.nomAbonnement }}</h6>
+                        <h6 class="mb-0 text-sm">{{ contrat.typeContrat }}</h6>
+                        <p class="text-xs text-secondary mb-0">
+                          Projet: {{ contrat.idProjet.nomprojet ?? 'N/A' }}
+                        </p>
                       </div>
                     </div>
                   </td>
                   <td class="text-center align-middle">
-                    <p class="text-sm font-weight-bold mb-0">{{ abonnement.duree }}</p>
+                    <p class="text-sm font-weight-bold mb-0">
+                      Début: {{ contrat.dateDebut ? contrat.dateDebut|date('d/m/Y') : 'N/A' }}
+                    </p>
+                    <p class="text-sm font-weight-bold mb-0">
+                      Fin: {{ contrat.dateFin ? contrat.dateFin|date('d/m/Y') : 'N/A' }}
+                    </p>
                   </td>
                   <td class="text-center align-middle">
-                    <p class="text-sm font-weight-bold mb-0">{{ abonnement.prix }} TND</p>
+                    <p class="text-sm font-weight-bold mb-0">{{ contrat.montantTotal }} TND</p>
                   </td>
                   <td class="text-center align-middle">
-                    <a href="{{ path('app_abonnement_show', {'idAbonnement': abonnement.idAbonnement}) }}" class="text-secondary font-weight-bold text-xs" data-toggle="tooltip" title="Voir">
+                    {% if contrat.signatureElectronique %}
+                      <span class="badge badge-sm bg-gradient-success">Signé</span>
+                    {% else %}
+                      <span class="badge badge-sm bg-gradient-secondary">En attente</span>
+                    {% endif %}
+                  </td>
+                  <td class="text-center align-middle">
+                    <a href="{{ path('app_contrat_show', {'idContrat': contrat.idContrat}) }}" 
+                       class="text-secondary font-weight-bold text-xs" 
+                       data-toggle="tooltip" 
+                       title="Voir détails">
                       <i class="material-symbols-rounded">visibility</i>
                     </a>
-                    <a href="{{ path('app_abonnement_edit', {'idAbonnement': abonnement.idAbonnement}) }}" class="text-secondary font-weight-bold text-xs ms-2" data-toggle="tooltip" title="Modifier">
+                    <a href="{{ path('app_contrat_edit', {'idContrat': contrat.idContrat}) }}" 
+                       class="text-secondary font-weight-bold text-xs ms-2" 
+                       data-toggle="tooltip" 
+                       title="Modifier">
                       <i class="material-symbols-rounded">edit</i>
                     </a>
                   </td>
                 </tr>
                 {% else %}
                 <tr>
-                  <td colspan="4" class="text-center">Aucun abonnement trouvé</td>
+                  <td colspan="5" class="text-center">Aucun contrat trouvé</td>
                 </tr>
                 {% endfor %}
               </tbody>
