@@ -32,8 +32,9 @@ security:
 
 
         - { path: ^/welcome, roles: [ROLE_USER, ROLE_CLIENT] }
-        - { path: ^/tache, roles: ROLE_CONSTRUCTEUR }  # Fixed this line
-        - {path: ^/plannification, roles: [ROLE_ARTISAN, ROLE_CLIENT]} # Fixed this line
+        - { path: ^/tache, roles: [ROLE_ARTISAN, ROLE_CONSTRUCTEUR, ROLE_CLIENT] }  # Fixed this line
+        - {path: ^/plannification, roles: [ROLE_ARTISAN, ROLE_CONSTRUCTEUR, ROLE_CLIENT]} # Fixed this line
+        - { path: ^/discussion, roles: [ ROLE_USER, ROLE_ARTISAN, ROLE_CLIENT, ROLE_CONSTRUCTEUR ] }
 
  
 
