@@ -39,7 +39,7 @@ final class ArticleController extends AbstractController{
         $form->handleRequest($request);
 
         if ($form->isSubmitted() && $form->isValid()) {
-            $photoFile = $request->files->get('photoFile'); // Get the uploaded file
+            $photoFile = $form->get('photoFile')->getData(); // Get the uploaded file
 
             if ($photoFile) {
                 $uploadsDir = $this->getParameter('uploads_directory'); // Directory to save the file
@@ -75,7 +75,7 @@ final class ArticleController extends AbstractController{
         $form->handleRequest($request);
 
         if ($form->isSubmitted() && $form->isValid()) {
-            $photoFile = $request->files->get('photoFile'); // Get the uploaded file
+            $photoFile = $form->get('photoFile')->getData(); // Get the uploaded file
 
             if ($photoFile) {
                 $uploadsDir = $this->getParameter('uploads_directory'); // Directory to save the file

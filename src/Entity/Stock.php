@@ -3,6 +3,7 @@
 namespace App\Entity;
 
 use Doctrine\ORM\Mapping as ORM;
+use Symfony\Component\Validator\Constraints as Assert;
 
 /**
  * Stock
@@ -23,18 +24,28 @@ class Stock
      * @var string
      */
     #[ORM\Column(name: 'nom', type: 'string', length: 255, nullable: false)]
+    #[Assert\NotBlank(message: 'The name cannot be blank.')]
+    #[Assert\Length(
+        min: 3,
+        minMessage: 'The name must be at least {{ limit }} characters long.'
+    )]
     private $nom;
 
     /**
      * @var string|null
      */
     #[ORM\Column(name: 'emplacement', type: 'string', length: 255, nullable: true)]
+    #[Assert\Length(
+        min: 3,
+        minMessage: 'The emplacement must be at least {{ limit }} characters long.'
+    )]
     private $emplacement;
 
     /**
      * @var \DateTime
      */
     #[ORM\Column(name: 'dateCreation', type: 'datetime', nullable: false)]
+    #[Assert\NotNull(message: 'The creation date is mandatory.')]
     private $datecreation;
 
     public function getId(): ?int
