@@ -3,7 +3,7 @@
 namespace App\Controller;
 
 use App\Entity\Utilisateur;
-use App\Entity\Artisan;
+use App\Entity\Constructeur; // Changed from Artisan to Constructeur
 use App\Form\RegistrationFormType;
 use Doctrine\ORM\EntityManagerInterface;
 use Symfony\Bundle\FrameworkBundle\Controller\AbstractController;
@@ -22,29 +22,28 @@ class RegistrationController extends AbstractController
         $form->handleRequest($request);
 
         if ($form->isSubmitted() && $form->isValid()) {
-            // Hasher le mot de passe à partir du champ `plainPassword`
-            $hashedPassword = $passwordHasher->hashPassword(
-                $user,
-                $form->get('plainPassword')->getData()
+            // Hash the plain password
+            $user->setPassword(
+                $passwordHasher->hashPassword(
+                    $user,
+                    $form->get('plainPassword')->getData()
+                )
             );
-            $user->setPassword($hashedPassword);
 
-            // Définir le rôle par défaut
-            $user->setRole('artisan');
+            // Set default role to constructeur
+            $user->setRole('constructeur');
 
-            // Persister l'utilisateur
+            // Persist the user first
             $entityManager->persist($user);
 
-            // Si le rôle est artisan, créer un objet Artisan lié
-            if ($user->getRole() === 'artisan') {
-                $artisan = new Artisan();
-                $artisan->setArtisan($user);
-                $artisan->setSpecialite('Default Specialite');
-                $artisan->setSalaireHeure('0.00');
-                $entityManager->persist($artisan);
-            }
+            // Create and associate Constructeur entity
+            $constructeur = new Constructeur();
+            $constructeur->setConstructeur($user); // Make sure this matches your Constructeur entity's method
+            $constructeur->setSpecialite('Default Speciality'); // Set default or get from form
+            $constructeur->setSalaireHeure('0.00'); // Default value
 
-            // Sauvegarder dans la base de données
+            $entityManager->persist($constructeur);
+
             $entityManager->flush();
 
             return $this->redirectToRoute('app_welcome');

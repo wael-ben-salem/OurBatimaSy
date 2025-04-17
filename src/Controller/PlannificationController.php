@@ -101,7 +101,7 @@ class PlannificationController extends AbstractController
         ]);
     }
 
-    #[Route('/{idPlannification}', name: 'app_plannification_delete', methods: ['POST'])]
+    #[Route('/{idPlannification}/delete', name: 'app_plannification_delete', methods: ['POST'])]
     public function delete(Request $request, Plannification $plannification, EntityManagerInterface $entityManager): Response
     {
         if ($this->isCsrfTokenValid('delete'.$plannification->getIdPlannification(), $request->request->get('_token'))) {
