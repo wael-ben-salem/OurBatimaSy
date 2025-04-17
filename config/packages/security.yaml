@@ -6,9 +6,7 @@ security:
 
     providers:
         app_user_provider:
-            entity:
-                class: App\Entity\Utilisateur
-                property: email
+            id: App\Security\CustomUserProvider
 
     firewalls:
         dev:
@@ -32,5 +30,5 @@ security:
         - { path: ^/register, roles: PUBLIC_ACCESS }
         - { path: ^/login, roles: PUBLIC_ACCESS }
         - { path: ^/welcome, roles: [ROLE_USER, ROLE_CLIENT] }
-        
+
 

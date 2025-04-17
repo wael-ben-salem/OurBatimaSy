@@ -46,7 +46,7 @@ class Contrat
      */
     #[ORM\Column(name: 'signature_electronique', type: 'string', length: 500, nullable: true)]
     private $signatureElectronique;
-
+       
     /**
      * @var \DateTime|null
      */

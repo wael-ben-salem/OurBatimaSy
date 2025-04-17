@@ -10,7 +10,7 @@
   <div class="collapse navbar-collapse w-auto" id="sidenav-collapse-main">
     <ul class="navbar-nav">
       {% set current_route = app.request.attributes.get('_route') %}
-      
+
       <li class="nav-item">
         <a class="nav-link {{ current_route == 'app_home' ? 'active bg-gradient-dark text-white' : 'text-dark' }}" href="{{ path('app_home') }}">
           <i class="material-symbols-rounded opacity-5">dashboard</i>
@@ -33,6 +33,18 @@
         <a class="nav-link {{ current_route starts with 'app_etapeprojet_' ? 'active bg-gradient-dark text-white' : 'text-dark' }}" href="{{ path('app_etapeprojet_index') }}">
           <i class="material-symbols-rounded opacity-5">list_alt</i>
           <span class="nav-link-text ms-1">Étapes des projets</span>
+        </a>
+      </li>
+      <li class="nav-item">
+        <a class="nav-link {{ current_route starts with 'app_reclamation_' ? 'active bg-gradient-dark text-white' : 'text-dark' }}" href="{{ path('app_reclamation_index') }}">
+          <i class="material-symbols-rounded opacity-5">report_problem</i>
+          <span class="nav-link-text ms-1">Reclamations</span>
+        </a>
+      </li>
+      <li class="nav-item">
+        <a class="nav-link {{ current_route starts with 'app_reponse_' ? 'active bg-gradient-dark text-white' : 'text-dark' }}" href="{{ path('app_reponse_index') }}">
+          <i class="material-symbols-rounded opacity-5">question_answer</i>
+          <span class="nav-link-text ms-1">Reponses</span>
         </a>
       </li>
       <!-- Add other menu items as needed -->
