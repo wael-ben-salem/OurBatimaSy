@@ -4,7 +4,7 @@
     <meta charset="utf-8">
     <meta name="viewport" content="width=device-width, initial-scale=1, shrink-to-fit=no">
     <title>{% block title %}Material Dashboard{% endblock %}</title>
-    
+
     <!-- Fonts and icons -->
     <link rel="stylesheet" type="text/css" href="https://fonts.googleapis.com/css?family=Inter:300,400,500,600,700,900">
     <!-- Material Icons -->
@@ -19,10 +19,10 @@
 </head>
 <body class="g-sidenav-show bg-gray-100">
     {% include '_sidebar.html.twig' %}
-    
+
     <main class="main-content position-relative max-height-vh-100 h-100 border-radius-lg">
         {% include '_navbar.html.twig' %}
-        
+
         <div class="container-fluid py-4">
             {% block body %}{% endblock %}
         </div>
@@ -35,7 +35,7 @@
     <script src="{{ asset('material-dashboard-master/assets/js/plugins/smooth-scrollbar.min.js') }}"></script>
     <!-- Material Dashboard JS -->
     <script src="{{ asset('material-dashboard-master/assets/js/material-dashboard.min.js') }}"></script>
-    
+
     <script>
         var win = navigator.platform.indexOf('Win') > -1;
         if (win && document.querySelector('#sidenav-scrollbar')) {

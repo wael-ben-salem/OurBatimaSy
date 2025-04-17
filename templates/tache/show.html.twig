@@ -1,46 +1,75 @@
-{% extends 'base.html.twig' %}
+{% extends 'base_backOffice.html.twig' %}
 
-{% block title %}Tache{% endblock %}
+{% block title %}Détails Tâche{% endblock %}
+
+{% block breadcrumb %}Détails Tâche{% endblock %}
 
 {% block body %}
-    <h1>Tache</h1>
-
-    <table class="table">
-        <tbody>
-        <tr>
-            <th>IdTache</th>
-            <td>{{ tache.idTache }}</td>
-        </tr>
-        <tr>
-            <th>Description</th>
-            <td>{{ tache.description }}</td>
-        </tr>
-        <tr>
-            <th>DateDebut</th>
-            <td>{{ tache.dateDebut ? tache.dateDebut|date('Y-m-d') : '' }}</td>
-        </tr>
-        <tr>
-            <th>DateFin</th>
-            <td>{{ tache.dateFin ? tache.dateFin|date('Y-m-d') : '' }}</td>
-        </tr>
-        <tr>
-            <th>Etat</th>
-            <td>{{ tache.etat }}</td>
-        </tr>
-        <tr>
-            <th>Artisan</th>
-            <td>{{ tache.artisan }}</td>
-        </tr>
-        <tr>
-            <th>Projet</th>
-            <td>{{ tache.idProjet }}</td>
-        </tr>
-        </tbody>
-    </table>
-
-    <a href="{{ path('app_tache_index') }}">back to list</a>
-
-    <a href="{{ path('app_tache_edit', {'idTache': tache.idTache}) }}">edit</a>
-
-    {{ include('tache/_delete_form.html.twig') }}
+    <div class="row">
+        <div class="col-12">
+            <div class="card my-4">
+                <div class="card-header p-0 position-relative mt-n4 mx-3 z-index-2">
+                    <div class="bg-gradient-dark shadow-dark border-radius-lg pt-4 pb-3 d-flex justify-content-between align-items-center">
+                        <h6 class="text-white text-capitalize ps-3">Détails de la Tâche</h6>
+                        <div>
+                            <a href="{{ path('app_tache_edit', {'idTache': tache.idTache}) }}" class="btn btn-sm btn-light me-2">
+                                <i class="material-symbols-rounded me-1">edit</i>
+                                Modifier
+                            </a>
+                            <form method="post" action="{{ path('app_tache_delete', {'idTache': tache.idTache}) }}" class="d-inline" onsubmit="return confirm('Êtes-vous sûr de vouloir supprimer cette tâche?');">
+                                <input type="hidden" name="_token" value="{{ csrf_token('delete' ~ tache.idTache) }}">
+                                <button class="btn btn-sm btn-danger me-2">
+                                    <i class="material-symbols-rounded me-1">delete</i>
+                                    Supprimer
+                                </button>
+                            </form>
+                            <a href="{{ path('app_tache_index') }}" class="btn btn-sm btn-secondary">
+                                <i class="material-symbols-rounded me-1">arrow_back</i>
+                                Retour
+                            </a>
+                        </div>
+                    </div>
+                </div>
+                <div class="card-body px-0 pb-2">
+                    <div class="table-responsive p-4">
+                        <table class="table align-items-center mb-0">
+                            <tbody>
+                            <tr>
+                                <th class="text-uppercase text-secondary text-xxs font-weight-bolder opacity-7">Description</th>
+                                <td class="px-4">{{ tache.description }}</td>
+                            </tr>
+                            <tr>
+                                <th class="text-uppercase text-secondary text-xxs font-weight-bolder opacity-7">Dates</th>
+                                <td class="px-4">
+                                        <span class="badge badge-sm bg-gradient-dark">
+                                            {{ tache.dateDebut|date('d/m/Y') }}
+                                        </span> →
+                                    <span class="badge badge-sm bg-gradient-secondary">
+                                            {{ tache.dateFin ? tache.dateFin|date('d/m/Y') : '─' }}
+                                        </span>
+                                </td>
+                            </tr>
+                            <tr>
+                                <th class="text-uppercase text-secondary text-xxs font-weight-bolder opacity-7">État</th>
+                                <td class="px-4">
+                                        <span class="status-badge bg-{{ tache.etat|lower|replace({' ': '-', 'é': 'e'}) }}">
+                                            {{ tache.etat }}
+                                        </span>
+                                </td>
+                            </tr>
+                            <tr>
+                                <th class="text-uppercase text-secondary text-xxs font-weight-bolder opacity-7">Artisan</th>
+                                <td class="px-4">{{ tache.artisan }}</td>
+                            </tr>
+                            <tr>
+                                <th class="text-uppercase text-secondary text-xxs font-weight-bolder opacity-7">Projet</th>
+                                <td class="px-4">{{ tache.idProjet }}</td>
+                            </tr>
+                            </tbody>
+                        </table>
+                    </div>
+                </div>
+            </div>
+        </div>
+    </div>
 {% endblock %}

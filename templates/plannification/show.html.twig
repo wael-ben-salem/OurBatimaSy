@@ -1,57 +1,91 @@
-{% extends 'base.html.twig' %}
+{% extends 'base_backOffice.html.twig' %}
 
-{% block title %}Plannification{% endblock %}
+{% block title %}Détails Plannification{% endblock %}
+
+{% block breadcrumb %}Détails Plannification{% endblock %}
 
 {% block body %}
-    <h1>Plannification</h1>
+    <div class="row">
+        <div class="col-12">
+            <div class="card my-4">
+                <div class="card-header p-0 position-relative mt-n4 mx-3 z-index-2">
+                    <div class="bg-gradient-dark shadow-dark border-radius-lg pt-4 pb-3 d-flex justify-content-between align-items-center">
+                        <h6 class="text-white text-capitalize ps-3">Détails de la Plannification</h6>
+                        <div>
+                            <a href="{{ path('app_plannification_edit', {'idPlannification': plannification.idPlannification}) }}" class="btn btn-sm btn-light me-2">
+                                <i class="material-symbols-rounded me-1">edit</i>
+                                Modifier
+                            </a>
+                            <form method="post" action="{{ path('app_plannification_delete', {'idPlannification': plannification.idPlannification}) }}" class="d-inline" onsubmit="return confirm('Êtes-vous sûr de vouloir supprimer cette plannification?');">
+                                <input type="hidden" name="_token" value="{{ csrf_token('delete' ~ plannification.idPlannification) }}">
+                                <button class="btn btn-sm btn-danger me-2">
+                                    <i class="material-symbols-rounded me-1">delete</i>
+                                    Supprimer
+                                </button>
+                            </form>
+                            <button type="button" class="btn btn-sm btn-primary me-2" data-bs-toggle="modal" data-bs-target="#contactModal">
+                                <i class="material-symbols-rounded me-1">chat</i>
+                                Contact Assigner
+                            </button>
+                            <a href="{{ path('app_plannification_index') }}" class="btn btn-sm btn-secondary">
+                                <i class="material-symbols-rounded me-1">arrow_back</i>
+                                Retour
+                            </a>
+                        </div>
+                    </div>
+                </div>
+                <div class="card-body px-0 pb-2">
+                    <div class="table-responsive p-4">
+                        <table class="table align-items-center mb-0">
+                            <tbody>
+                            <tr>
+                                <th class="text-uppercase text-secondary text-xxs font-weight-bolder opacity-7">Priorité</th>
+                                <td class="px-4">{{ plannification.priorite }}</td>
+                            </tr>
+                            <tr>
+                                <th class="text-uppercase text-secondary text-xxs font-weight-bolder opacity-7">Date planifiée</th>
+                                <td class="px-4">
+                                        <span class="badge badge-sm bg-gradient-dark">
+                                            {{ plannification.datePlanifiee|date('d/m/Y') }}
+                                        </span>
+                                </td>
+                            </tr>
+                            <tr>
+                                <th class="text-uppercase text-secondary text-xxs font-weight-bolder opacity-7">Heures</th>
+                                <td class="px-4">
+                                        <span class="badge badge-sm bg-gradient-info">
+                                            {{ plannification.heureDebut ? plannification.heureDebut|date('H:i') : '─' }}
+                                        </span> →
+                                    <span class="badge badge-sm bg-gradient-secondary">
+                                            {{ plannification.heureFin ? plannification.heureFin|date('H:i') : '─' }}
+                                        </span>
+                                </td>
+                            </tr>
+                            <tr>
+                                <th class="text-uppercase text-secondary text-xxs font-weight-bolder opacity-7">Remarques</th>
+                                <td class="px-4">{{ plannification.remarques }}</td>
+                            </tr>
+                            <tr>
+                                <th class="text-uppercase text-secondary text-xxs font-weight-bolder opacity-7">Statut</th>
+                                <td class="px-4">
+                                        <span class="status-badge bg-{{ plannification.statut|lower|replace({' ': '-'}) }}">
+                                            {{ plannification.statut }}
+                                        </span>
+                                </td>
+                            </tr>
+                            <tr>
+                                <th class="text-uppercase text-secondary text-xxs font-weight-bolder opacity-7">Tâche associée</th>
+                                <td class="px-4">{{ plannification.idTache.description }}</td>
+                            </tr>
+                            </tbody>
+                        </table>
+                    </div>
+                </div>
+            </div>
+        </div>
+    </div>
 
-    <table class="table">
-        <tbody>
-        <tr>
-            <th>Id</th>
-            <td>{{ plannification.idPlannification }}</td>
-        </tr>
-        <tr>
-            <th>Priorité</th>
-            <td>{{ plannification.priorite }}</td>
-        </tr>
-        <tr>
-            <th>Date planifiée</th>
-            <td>{{ plannification.datePlanifiee|date('Y-m-d') }}</td>
-        </tr>
-        <tr>
-            <th>Heure début</th>
-            <td>{{ plannification.heureDebut ? plannification.heureDebut|date('H:i') : '' }}</td>
-        </tr>
-        <tr>
-            <th>Heure fin</th>
-            <td>{{ plannification.heureFin ? plannification.heureFin|date('H:i') : '' }}</td>
-        </tr>
-        <tr>
-            <th>Remarques</th>
-            <td>{{ plannification.remarques }}</td>
-        </tr>
-        <tr>
-            <th>Statut</th>
-            <td>{{ plannification.statut }}</td>
-        </tr>
-        <tr>
-            <th>Tâche associée</th>
-            <td>{{ plannification.idTache.description }}</td>
-        </tr>
-        </tbody>
-    </table>
-
-    <a href="{{ path('app_plannification_index') }}">Retour à la liste</a>
-    <a href="{{ path('app_plannification_edit', {'idPlannification': plannification.idPlannification}) }}">Modifier</a>
-    {{ include('plannification/_delete_form.html.twig') }}
-
-    {# ✅ Bootstrap 5 Modal Trigger #}
-    <button type="button" class="btn btn-primary mt-4" data-bs-toggle="modal" data-bs-target="#contactModal">
-        Contact Assigner
-    </button>
-
-    {# ✅ Modal Bootstrap 5 #}
+    {# ✅ Modal Bootstrap 5 - Preserved exactly as you had it #}
     <div class="modal fade" id="contactModal" tabindex="-1" aria-labelledby="contactModalLabel" aria-hidden="true">
         <div class="modal-dialog modal-dialog-centered">
             <div class="modal-content">
