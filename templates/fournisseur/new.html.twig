@@ -1,0 +1,53 @@
+{% extends 'base_backOffice.html.twig' %}
+
+{% block title %}Créer un nouveau Fournisseur{% endblock %}
+
+{% block stylesheets %}
+  {{ parent() }}
+  <style>
+    .card {
+      border-radius: 12px;
+      box-shadow: 0 4px 20px 0 rgba(0, 0, 0, 0.14), 
+                  0 7px 10px -5px rgba(0, 0, 0, 0.4);
+    }
+    .form-group {
+      margin-bottom: 1.5rem;
+    }
+    .form-control {
+      border-radius: 8px;
+      padding: 10px 15px;
+      border: 1px solid #d2d6da;
+      transition: all 0.3s;
+    }
+    .form-control:focus {
+      border-color: #9c27b0;
+      box-shadow: 0 0 0 2px rgba(156, 39, 176, 0.1);
+    }
+  </style>
+{% endblock %}
+
+{% block body %}
+<div class="container-fluid py-4">
+  <div class="row">
+    <div class="col-12">
+      <div class="card my-4">
+        <div class="card-header p-0 position-relative mt-n4 mx-3 z-index-2">
+          <div class="bg-gradient-lilac shadow-lilac border-radius-lg pt-4 pb-3">
+            <h6 class="text-white text-capitalize ps-3">
+              <i class="material-symbols-rounded me-2">add_circle</i>
+              Créer un nouveau Fournisseur
+            </h6>
+          </div>
+        </div>
+        <div class="card-body px-4 pb-2">
+          {{ include('fournisseur/_form.html.twig') }}
+          <a href="{{ path('app_fournisseur_index') }}" class="btn btn-outline-secondary mt-3">
+            <i class="material-symbols-rounded me-1">arrow_back</i>
+            Retour à la liste
+          </a>
+        </div>
+      </div>
+    </div>
+  </div>
+</div>
+{% endblock %}

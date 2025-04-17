@@ -198,13 +198,13 @@
                 </div>
               </div>
               <div class="col-md-6">
-  <div class="form-group">
-    <label class="form-label">Date de création</label>
-    <input type="text" class="form-control" readonly 
-           value="{{ projet.datecreation ? projet.datecreation|date('d/m/Y H:i') : '' }}">
-    <small class="form-text">Date de création du projet</small>
-  </div>
-</div>
+                <div class="form-group">
+                  <label class="form-label">Date de création</label>
+                  <input type="text" class="form-control" readonly 
+                         value="{{ projet.datecreation ? projet.datecreation|date('d/m/Y H:i') : '' }}">
+                  <small class="form-text">Date de création du projet</small>
+                </div>
+              </div>
             </div>
 
             <div class="form-group">
@@ -246,10 +246,12 @@
               <div class="col-md-6">
                 <div class="form-group">
                   {{ form_label(form.nomClient) }}
+                  {% set clientEmail = projet.idClient ? projet.idClient.client.email : '' %}
                   {{ form_widget(form.nomClient, {
                     'attr': {
                       'class': 'form-control' ~ (form.nomClient.vars.errors|length ? ' is-invalid' : ''),
-                      'placeholder': 'email@client.com'
+                      'placeholder': 'email@client.com',
+                      'value': clientEmail
                     }
                   }) }}
                   {{ form_errors(form.nomClient) }}
