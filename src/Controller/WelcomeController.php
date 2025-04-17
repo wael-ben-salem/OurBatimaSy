@@ -6,6 +6,7 @@ namespace App\Controller;
 use Symfony\Bundle\FrameworkBundle\Controller\AbstractController;
 use Symfony\Component\HttpFoundation\Response;
 use Symfony\Component\Routing\Annotation\Route;
+use Symfony\Component\Security\Http\Attribute\IsGranted;
 
 class WelcomeController extends AbstractController
 {
@@ -27,6 +28,15 @@ class WelcomeController extends AbstractController
             'user' => $this->getUser()
         ]);
     }
+
+    #[Route('/welcomeFront', name: 'app_welcomeFront')]
+    public function indexFront(): Response
+    {
+        return $this->render('welcomeFront/index.html.twig', [
+            'user' => $this->getUser()
+        ]);
+    }
+
     #[Route('/about', name: 'about')]
     public function about(): Response
     {
