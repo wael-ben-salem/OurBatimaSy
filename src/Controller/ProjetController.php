@@ -71,7 +71,7 @@ public function new(Request $request, EntityManagerInterface $entityManager): Re
                         $projet->setIdClient($client);
                     }
                 } else {
-                    $this->addFlash('error', 'No user account with client role found with this email.');
+                    $this->addFlash('error', 'Aucun compte utilisateur avec le rôle client n\'a été trouvé avec cet e-mail.');
                     return $this->redirectToRoute('app_projet_new');
                 }
             }
@@ -82,7 +82,7 @@ public function new(Request $request, EntityManagerInterface $entityManager): Re
             $this->addFlash('success', 'Project successfully created.');
             return $this->redirectToRoute('app_projet_index', [], Response::HTTP_SEE_OTHER);
         } else {
-            $this->addFlash('error', 'Please correct the errors in the form.');
+            $this->addFlash('error', 'Veuillez vérifier à nouveau les champs.');
         }
     }
 
@@ -143,7 +143,7 @@ public function edit(Request $request, Projet $projet, EntityManagerInterface $e
                             $projet->setIdClient($client);
                         }
                     } else {
-                        $this->addFlash('error', 'No user account with client role found with this email.');
+                        $this->addFlash('error', 'Aucun compte utilisateur avec le rôle client n\'a été trouvé avec cet e-mail.');
                         return $this->redirectToRoute('app_projet_edit', ['idProjet' => $projet->getIdProjet()]);
                     }
                 }
@@ -156,7 +156,7 @@ public function edit(Request $request, Projet $projet, EntityManagerInterface $e
             $this->addFlash('success', 'Project updated successfully.');
             return $this->redirectToRoute('app_projet_show', ['idProjet' => $projet->getIdProjet()], Response::HTTP_SEE_OTHER);
         } else {
-            $this->addFlash('error', 'Veuillez corriger les erreurs dans le formulaire.');
+            $this->addFlash('error', 'Veuillez vérifier à nouveau les champs.');
         }
     }
 
@@ -234,7 +234,7 @@ public function frontNew(Request $request, EntityManagerInterface $entityManager
                     $projet->setIdClient($client);
                 }
             } else {
-                $this->addFlash('error', 'No user account with client role found with this email.');
+                $this->addFlash('error', 'Aucun compte utilisateur avec le rôle client n\'a été trouvé avec cet e-mail.');
                 return $this->redirectToRoute('app_projet_front_new');
             }
         }

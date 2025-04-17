@@ -65,7 +65,7 @@ final class EtapeprojetController extends AbstractController
                 $this->addFlash('success', 'L\'étape du projet a été mise à jour avec succès.');
                 return $this->redirectToRoute('app_etapeprojet_show', ['idEtapeprojet' => $etapeprojet->getIdEtapeprojet()]);
             } else {
-                $this->addFlash('error', 'Veuillez corriger les erreurs dans le formulaire.');
+                $this->addFlash('error', 'Veuillez vérifier à nouveau les champs.');
             }
         }
 

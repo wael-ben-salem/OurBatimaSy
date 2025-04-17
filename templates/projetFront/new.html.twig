@@ -97,6 +97,11 @@
                 align-self: flex-end;
             }
         }
+        
+        /* Add this if you're not using Bootstrap */
+        .d-none {
+            display: none !important;
+        }
     </style>
 {% endblock %}
 
@@ -283,27 +288,7 @@
                         </div>
 
                         <div class="row">
-                            <div class="col-md-6">
-                                <div class="form-group {% if form.idEquipe.vars.errors|length %}field-with-errors{% endif %}">
-                                    {{ form_label(form.idEquipe) }}
-                                    {{ form_widget(form.idEquipe, {
-                                        'attr': {
-                                            'class': 'form-control',
-                                            'placeholder': 'Sélectionnez une équipe'
-                                        }
-                                    }) }}
-                                    <small class="form-text">Équipe en charge du projet</small>
-                                    {% if form.idEquipe.vars.errors %}
-                                        <div class="invalid-feedback">
-                                            <i class="fas fa-exclamation-circle me-1"></i>
-                                            {% for error in form.idEquipe.vars.errors %}
-                                                {{ error.message }}
-                                            {% endfor %}
-                                        </div>
-                                    {% endif %}
-                                </div>
-                            </div>
-                            <div class="col-md-6">
+                            <div class="col-md-12">
                                 <div class="form-group {% if form.nomClient.vars.errors|length %}field-with-errors{% endif %}">
                                     {{ form_label(form.nomClient) }}
                                     {{ form_widget(form.nomClient, {
@@ -335,6 +320,9 @@
                                 Retour à la liste
                             </a>
                         </div>
+
+                        {# Hidden idEquipe field #}
+                        {{ form_widget(form.idEquipe, {'attr': {'class': 'd-none'}}) }}
 
                     {{ form_end(form) }}
                 </div>

@@ -38,6 +38,30 @@
         form .form-group ~ .form-group {
             display: none;
         }
+        
+        /* Error styling - added from first template */
+        .is-invalid {
+            border-color: #dc3545 !important;
+        }
+        .is-invalid:focus {
+            border-color: #dc3545 !important;
+            box-shadow: 0 0 0 0.25rem rgba(220,53,69,.25) !important;
+        }
+        .form-error-message {
+            color: #dc3545;
+            font-size: 0.875rem;
+            margin-top: 0.25rem;
+            display: block;
+        }
+        .form-error-icon {
+            color: #dc3545;
+            margin-right: 0.25rem;
+        }
+        .alert-danger {
+            color: #dc3545;
+            background-color: #f8d7da;
+            border-color: #f5c6cb;
+        }
     </style>
 {% endblock %}
 
@@ -69,17 +93,34 @@
                         <p class="text-muted">Remplissez les détails ci-dessous pour ajouter un nouveau terrain</p>
                     </div>
                     
-                    {{ form_start(form, {'render_rest': false}) }}  {# Add render_rest: false #}
+                    {# Flash messages #}
+                    {% for message in app.flashes('error') %}
+                        <div class="alert alert-danger alert-dismissible fade show" style="color:rgb(0, 0, 0); background-color: white; border-color: #dc3545;">
+                            <i class="fas fa-exclamation-circle me-2"></i>
+                            {{ message }}
+                            <button type="button" class="btn-close" data-bs-dismiss="alert" aria-label="Close"></button>
+                        </div>
+                    {% endfor %}
+                    
+                    {{ form_start(form, {'render_rest': false}) }}
                         <div class="row">
                             <div class="col-md-6">
                                 <div class="form-group">
                                     {{ form_label(form.emplacement, 'Emplacement') }}
                                     {{ form_widget(form.emplacement, {
                                         'attr': {
-                                            'class': 'form-control',
+                                            'class': 'form-control' ~ (form.emplacement.vars.errors|length ? ' is-invalid' : ''),
                                             'placeholder': 'Ex: Sousse, Tunis'
                                         }
                                     }) }}
+                                    {% if form.emplacement.vars.errors|length %}
+                                        <div class="form-error-message">
+                                            <i class="fas fa-exclamation-circle form-error-icon"></i>
+                                            {% for error in form.emplacement.vars.errors %}
+                                                <span>{{ error.message }}</span>
+                                            {% endfor %}
+                                        </div>
+                                    {% endif %}
                                 </div>
                             </div>
                             <div class="col-md-6">
@@ -88,12 +129,20 @@
                                     <div class="input-group">
                                         {{ form_widget(form.superficie, {
                                             'attr': {
-                                                'class': 'form-control',
+                                                'class': 'form-control' ~ (form.superficie.vars.errors|length ? ' is-invalid' : ''),
                                                 'placeholder': 'Surface en mètres carrés'
                                             }
                                         }) }}
                                         <span class="input-group-text">m²</span>
                                     </div>
+                                    {% if form.superficie.vars.errors|length %}
+                                        <div class="form-error-message">
+                                            <i class="fas fa-exclamation-circle form-error-icon"></i>
+                                            {% for error in form.superficie.vars.errors %}
+                                                <span>{{ error.message }}</span>
+                                            {% endfor %}
+                                        </div>
+                                    {% endif %}
                                 </div>
                             </div>
                         </div>
@@ -104,10 +153,18 @@
                                     {{ form_label(form.caracteristiques, 'Caractéristiques') }}
                                     {{ form_widget(form.caracteristiques, {
                                         'attr': {
-                                            'class': 'form-control',
+                                            'class': 'form-control' ~ (form.caracteristiques.vars.errors|length ? ' is-invalid' : ''),
                                             'placeholder': 'Ex: Plat, en pente, arboré'
                                         }
                                     }) }}
+                                    {% if form.caracteristiques.vars.errors|length %}
+                                        <div class="form-error-message">
+                                            <i class="fas fa-exclamation-circle form-error-icon"></i>
+                                            {% for error in form.caracteristiques.vars.errors %}
+                                                <span>{{ error.message }}</span>
+                                            {% endfor %}
+                                        </div>
+                                    {% endif %}
                                 </div>
                             </div>
                             <div class="col-md-6">
@@ -115,10 +172,18 @@
                                     {{ form_label(form.detailsgeo, 'Détails Géographiques') }}
                                     {{ form_widget(form.detailsgeo, {
                                         'attr': {
-                                            'class': 'form-control',
+                                            'class': 'form-control' ~ (form.detailsgeo.vars.errors|length ? ' is-invalid' : ''),
                                             'placeholder': 'Ex: Proche de la mer, zone urbaine'
                                         }
                                     }) }}
+                                    {% if form.detailsgeo.vars.errors|length %}
+                                        <div class="form-error-message">
+                                            <i class="fas fa-exclamation-circle form-error-icon"></i>
+                                            {% for error in form.detailsgeo.vars.errors %}
+                                                <span>{{ error.message }}</span>
+                                            {% endfor %}
+                                        </div>
+                                    {% endif %}
                                 </div>
                             </div>
                         </div>
@@ -131,7 +196,7 @@
                                 <i class="fas fa-arrow-left me-1"></i> Retour au Projet
                             </a>
                         </div>
-                    {{ form_end(form, {'render_rest': false}) }}  {# Add render_rest: false here too #}
+                    {{ form_end(form, {'render_rest': false}) }}
                 </div>
             </div>
         </div>

@@ -66,7 +66,7 @@ class TerrainType extends AbstractType
                 'attr' => [
                     'placeholder' => 'Pente, orientation, particularités...'
                 ],
-                'required' => false, // Make this field optional
+                'required' => false,
             ])
         ;
     }
@@ -75,6 +75,11 @@ class TerrainType extends AbstractType
     {
         $resolver->setDefaults([
             'data_class' => Terrain::class,
+            'validation_groups' => ['Default'],
+            'attr' => [
+                'novalidate' => 'novalidate',
+                'class' => 'needs-validation'
+            ]
         ]);
     }
 }

@@ -66,7 +66,7 @@ final class TerrainController extends AbstractController
                 $this->addFlash('success', 'Terrain modifié avec succès.');
                 return $this->redirectToRoute('app_terrain_show', ['idTerrain' => $terrain->getIdTerrain()]);
             } else {
-                $this->addFlash('error', 'Veuillez corriger les erreurs dans le formulaire.');
+                $this->addFlash('error', 'Veuillez vérifier à nouveau les champs.');
             }
         }
 
