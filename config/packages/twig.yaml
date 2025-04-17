@@ -3,8 +3,6 @@ twig:
     file_name_pattern: '*.twig'
     globals:
         # Your existing globals here (if any)
-    paths:
-        '%kernel.project_dir%/templates/bundles/MaterialDashboard': MaterialDashboard
 
 when@test:
     twig:

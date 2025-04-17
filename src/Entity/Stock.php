@@ -32,9 +32,9 @@ class Stock
     private $emplacement;
 
     /**
-     * @var string
+     * @var \DateTime
      */
-    #[ORM\Column(name: 'dateCreation', type: 'string', length: 20, nullable: false)]
+    #[ORM\Column(name: 'dateCreation', type: 'datetime', nullable: false)]
     private $datecreation;
 
     public function getId(): ?int
@@ -66,17 +66,25 @@ class Stock
         return $this;
     }
 
-    public function getDatecreation(): ?string
+    public function getDatecreation(): ?\DateTime
     {
         return $this->datecreation;
     }
 
-    public function setDatecreation(string $datecreation): static
+    public function setDatecreation(\DateTime $datecreation): static
     {
         $this->datecreation = $datecreation;
 
         return $this;
     }
 
-
+    public function toArray(): array
+    {
+        return [
+            'id' => $this->getId(),
+            'nom' => $this->getNom(),
+            'emplacement' => $this->getEmplacement(),
+            'datecreation' => $this->getDatecreation()->format('Y-m-d H:i:s'),
+        ];
+    }
 }

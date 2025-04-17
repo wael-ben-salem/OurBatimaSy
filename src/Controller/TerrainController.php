@@ -60,15 +60,19 @@ final class TerrainController extends AbstractController
         $form = $this->createForm(TerrainType::class, $terrain);
         $form->handleRequest($request);
 
-        if ($form->isSubmitted() && $form->isValid()) {
-            $entityManager->flush();
-
-            return $this->redirectToRoute('app_terrain_index', [], Response::HTTP_SEE_OTHER);
+        if ($form->isSubmitted()) {
+            if ($form->isValid()) {
+                $entityManager->flush();
+                $this->addFlash('success', 'Terrain modifié avec succès.');
+                return $this->redirectToRoute('app_terrain_show', ['idTerrain' => $terrain->getIdTerrain()]);
+            } else {
+                $this->addFlash('error', 'Veuillez vérifier à nouveau les champs.');
+            }
         }
 
         return $this->render('terrain/edit.html.twig', [
             'terrain' => $terrain,
-            'form' => $form,
+            'form' => $form->createView(),
         ]);
     }
 
@@ -82,4 +86,28 @@ final class TerrainController extends AbstractController
 
         return $this->redirectToRoute('app_terrain_index', [], Response::HTTP_SEE_OTHER);
     }
+    //front office
+    #[Route('/front/newterrain', name: 'app_terrain_front_new', methods: ['GET', 'POST'])]
+    public function frontNew(Request $request, EntityManagerInterface $entityManager): Response
+    {
+        $terrain = new Terrain();
+        $form = $this->createForm(TerrainType::class, $terrain);
+        $form->handleRequest($request);
+
+        if ($form->isSubmitted() && $form->isValid()) {
+            $entityManager->persist($terrain);
+            $entityManager->flush();
+            
+            $this->addFlash('success', 'Terrain ajouté avec succès. Sélectionnez-le dans le champ "emplacement".');
+            return $this->redirectToRoute('app_terrain_front_new');
+        }
+
+        return $this->render('terrainFront/new.html.twig', [
+            'terrain' => $terrain,
+            'form' => $form,
+        ]);
+    }
+
+
+
 }

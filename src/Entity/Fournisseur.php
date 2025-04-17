@@ -55,6 +55,11 @@ class Fournisseur
         return $this->fournisseurId;
     }
 
+    public function getId(): ?int
+    {
+        return $this->fournisseurId;
+    }
+
     public function getNom(): ?string
     {
         return $this->nom;

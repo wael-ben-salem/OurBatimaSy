@@ -4,6 +4,7 @@
 
 {% block stylesheets %}
   {{ parent() }}
+  <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.0.0/css/all.min.css">
   <style>
     .card {
       border-radius: 12px;
@@ -37,6 +38,37 @@
       background-color: #f8f9fa;
       border: 1px solid #d2d6da;
     }
+    .bg-gradient-primary {
+      background: linear-gradient(195deg, #e91e63, #c2185b);
+    }
+    .shadow-primary {
+      box-shadow: 0 4px 20px 0 rgba(233, 30, 99, 0.14), 
+                  0 7px 10px -5px rgba(233, 30, 99, 0.4);
+    }
+    
+    /* Error styling */
+    .is-invalid {
+      border-color: #dc3545 !important;
+    }
+    .is-invalid:focus {
+      border-color: #dc3545 !important;
+      box-shadow: 0 0 0 0.25rem rgba(220,53,69,.25) !important;
+    }
+    .form-error-message {
+      color: #dc3545;
+      font-size: 0.875rem;
+      margin-top: 0.25rem;
+      display: block;
+    }
+    .form-error-icon {
+      color: #dc3545;
+      margin-right: 0.25rem;
+    }
+    .alert-danger {
+      color: #dc3545;
+      background-color: #f8d7da;
+      border-color: #f5c6cb;
+    }
   </style>
 {% endblock %}
 
@@ -57,17 +89,19 @@
           {# Flash messages #}
           {% for message in app.flashes('success') %}
             <div class="alert alert-success alert-dismissible fade show">
+              <i class="material-symbols-rounded me-2">check_circle</i>
               {{ message }}
               <button type="button" class="btn-close" data-bs-dismiss="alert" aria-label="Close"></button>
             </div>
           {% endfor %}
 
-          {% for message in app.flashes('error') %}
-            <div class="alert alert-danger alert-dismissible fade show">
-              {{ message }}
-              <button type="button" class="btn-close" data-bs-dismiss="alert" aria-label="Close"></button>
-            </div>
-          {% endfor %}
+{% for message in app.flashes('error') %}
+  <div class="alert alert-danger alert-dismissible fade show" style="color:rgb(0, 0, 0); background-color: white; border-color: #dc3545;">
+    <i class="fas fa-exclamation-circle me-2"></i>
+    {{ message }}
+    <button type="button" class="btn-close" data-bs-dismiss="alert" aria-label="Close"></button>
+  </div>
+{% endfor %}
 
           {{ form_start(form, {'attr': {'class': 'form-horizontal'}}) }}
 
@@ -77,10 +111,18 @@
                   {{ form_label(form.nomprojet) }}
                   {{ form_widget(form.nomprojet, {
                     'attr': {
-                      'class': 'form-control',
+                      'class': 'form-control' ~ (form.nomprojet.vars.errors|length ? ' is-invalid' : ''),
                       'placeholder': 'Ex: Villa moderne à Sousse'
                     }
                   }) }}
+                  {% if form.nomprojet.vars.errors|length %}
+                    <div class="form-error-message">
+                      <i class="fas fa-exclamation-circle form-error-icon"></i>
+                      {% for error in form.nomprojet.vars.errors %}
+                        <span>{{ error.message }}</span>
+                      {% endfor %}
+                    </div>
+                  {% endif %}
                   <small class="form-text">Entrez un nom descriptif pour votre projet</small>
                 </div>
               </div>
@@ -89,10 +131,18 @@
                   {{ form_label(form.type) }}
                   {{ form_widget(form.type, {
                     'attr': {
-                      'class': 'form-control',
+                      'class': 'form-control' ~ (form.type.vars.errors|length ? ' is-invalid' : ''),
                       'placeholder': 'Sélectionnez le type de projet'
                     }
                   }) }}
+                  {% if form.type.vars.errors|length %}
+                    <div class="form-error-message">
+                      <i class="fas fa-exclamation-circle form-error-icon"></i>
+                      {% for error in form.type.vars.errors %}
+                        <span>{{ error.message }}</span>
+                      {% endfor %}
+                    </div>
+                  {% endif %}
                   <small class="form-text">Choisissez le type de construction</small>
                 </div>
               </div>
@@ -104,10 +154,18 @@
                   {{ form_label(form.stylearch) }}
                   {{ form_widget(form.stylearch, {
                     'attr': {
-                      'class': 'form-control',
+                      'class': 'form-control' ~ (form.stylearch.vars.errors|length ? ' is-invalid' : ''),
                       'placeholder': 'Ex: Moderne, Classique, Méditerranéen'
                     }
                   }) }}
+                  {% if form.stylearch.vars.errors|length %}
+                    <div class="form-error-message">
+                      <i class="fas fa-exclamation-circle form-error-icon"></i>
+                      {% for error in form.stylearch.vars.errors %}
+                        <span>{{ error.message }}</span>
+                      {% endfor %}
+                    </div>
+                  {% endif %}
                   <small class="form-text">Décrivez le style architectural</small>
                 </div>
               </div>
@@ -117,12 +175,20 @@
                   <div class="input-group">
                     {{ form_widget(form.budget, {
                       'attr': {
-                        'class': 'form-control',
+                        'class': 'form-control' ~ (form.budget.vars.errors|length ? ' is-invalid' : ''),
                         'placeholder': 'Ex: 250000'
                       }
                     }) }}
                     <span class="input-group-text">TND</span>
                   </div>
+                  {% if form.budget.vars.errors|length %}
+                    <div class="form-error-message">
+                      <i class="fas fa-exclamation-circle form-error-icon"></i>
+                      {% for error in form.budget.vars.errors %}
+                        <span>{{ error.message }}</span>
+                      {% endfor %}
+                    </div>
+                  {% endif %}
                   <small class="form-text">Estimation du budget total</small>
                 </div>
               </div>
@@ -132,10 +198,18 @@
               {{ form_label(form.etat) }}
               {{ form_widget(form.etat, {
                 'attr': {
-                  'class': 'form-control',
+                  'class': 'form-control' ~ (form.etat.vars.errors|length ? ' is-invalid' : ''),
                   'placeholder': 'Sélectionnez l\'état du projet'
                 }
               }) }}
+              {% if form.etat.vars.errors|length %}
+                <div class="form-error-message">
+                  <i class="fas fa-exclamation-circle form-error-icon"></i>
+                  {% for error in form.etat.vars.errors %}
+                    <span>{{ error.message }}</span>
+                  {% endfor %}
+                </div>
+              {% endif %}
               <small class="form-text">État actuel du projet</small>
             </div>
 
@@ -145,10 +219,18 @@
                   {{ form_label(form.idTerrain) }}
                   {{ form_widget(form.idTerrain, {
                     'attr': {
-                      'class': 'form-control',
+                      'class': 'form-control' ~ (form.idTerrain.vars.errors|length ? ' is-invalid' : ''),
                       'placeholder': 'Sélectionnez un terrain'
                     }
                   }) }}
+                  {% if form.idTerrain.vars.errors|length %}
+                    <div class="form-error-message">
+                      <i class="fas fa-exclamation-circle form-error-icon"></i>
+                      {% for error in form.idTerrain.vars.errors %}
+                        <span>{{ error.message }}</span>
+                      {% endfor %}
+                    </div>
+                  {% endif %}
                   <small class="form-text">Terrain associé à ce projet</small>
                 </div>
                 <div class="ms-3" style="margin-top: 28px;">
@@ -166,10 +248,18 @@
                   {{ form_label(form.idEquipe) }}
                   {{ form_widget(form.idEquipe, {
                     'attr': {
-                      'class': 'form-control',
+                      'class': 'form-control' ~ (form.idEquipe.vars.errors|length ? ' is-invalid' : ''),
                       'placeholder': 'Sélectionnez une équipe'
                     }
                   }) }}
+                  {% if form.idEquipe.vars.errors|length %}
+                    <div class="form-error-message">
+                      <i class="fas fa-exclamation-circle form-error-icon"></i>
+                      {% for error in form.idEquipe.vars.errors %}
+                        <span>{{ error.message }}</span>
+                      {% endfor %}
+                    </div>
+                  {% endif %}
                   <small class="form-text">Équipe en charge du projet</small>
                 </div>
               </div>
@@ -178,11 +268,19 @@
                   {{ form_label(form.nomClient) }}
                   {{ form_widget(form.nomClient, {
                     'attr': {
-                      'class': 'form-control',
-                      'placeholder': 'Nom du client principal'
+                      'class': 'form-control' ~ (form.nomClient.vars.errors|length ? ' is-invalid' : ''),
+                      'placeholder': 'exemple@domaine.com'
                     }
                   }) }}
-                  <small class="form-text">Client associé à ce projet</small>
+                  {% if form.nomClient.vars.errors|length %}
+                    <div class="form-error-message">
+                      <i class="fas fa-exclamation-circle form-error-icon"></i>
+                      {% for error in form.nomClient.vars.errors %}
+                        <span>{{ error.message }}</span>
+                      {% endfor %}
+                    </div>
+                  {% endif %}
+                  <small class="form-text">Email du client associé</small>
                 </div>
               </div>
             </div>
