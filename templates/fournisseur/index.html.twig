@@ -1,43 +1,99 @@
-{% extends 'base.html.twig' %}
+{% extends 'base_backOffice.html.twig' %}
 
-{% block title %}Fournisseur index{% endblock %}
+{% block title %}Liste des Fournisseurs{% endblock %}
+
+{% block stylesheets %}
+  {{ parent() }}
+  <style>
+    .card {
+      border-radius: 12px;
+      box-shadow: 0 4px 20px 0 rgba(0, 0, 0, 0.14), 
+                  0 7px 10px -5px rgba(0, 0, 0, 0.4);
+    }
+    .avatar-sm {
+      width: 36px;
+      height: 36px;
+      display: flex;
+      align-items: center;
+      justify-content: center;
+    }
+    .badge-sm {
+      font-size: 0.65rem;
+      padding: 0.35em 0.65em;
+    }
+    .text-truncate {
+      white-space: nowrap;
+      overflow: hidden;
+      text-overflow: ellipsis;
+      max-width: 150px;
+      display: inline-block;
+    }
+  </style>
+{% endblock %}
 
 {% block body %}
-    <h1>Fournisseur index</h1>
-
-    <table class="table">
-        <thead>
-            <tr>
-                <th>FournisseurId</th>
-                <th>Nom</th>
-                <th>Prenom</th>
-                <th>Email</th>
-                <th>NumeroDeTelephone</th>
-                <th>Adresse</th>
-                <th>actions</th>
-            </tr>
-        </thead>
-        <tbody>
-        {% for fournisseur in fournisseurs %}
-            <tr>
-                <td>{{ fournisseur.fournisseurId }}</td>
-                <td>{{ fournisseur.nom }}</td>
-                <td>{{ fournisseur.prenom }}</td>
-                <td>{{ fournisseur.email }}</td>
-                <td>{{ fournisseur.numeroDeTelephone }}</td>
-                <td>{{ fournisseur.adresse }}</td>
+<div class="row">
+  <div class="col-12">
+    <div class="card my-4">
+      <div class="card-header p-0 position-relative mt-n4 mx-3 z-index-2">
+        <div class="bg-gradient-dark shadow-dark border-radius-lg pt-4 pb-3 d-flex justify-content-between align-items-center">
+          <h6 class="text-white text-capitalize ps-3">Liste des Fournisseurs</h6>
+          <a href="{{ path('app_fournisseur_new') }}" class="btn btn-sm btn-light me-3">
+            <i class="material-symbols-rounded me-1">add</i>
+            Nouveau Fournisseur
+          </a>
+        </div>
+      </div>
+      <div class="card-body px-0 pb-2">
+        <div class="table-responsive p-0">
+          <table class="table align-items-center justify-content-center mb-0">
+            <thead>
+              <tr>
+                <th class="text-uppercase text-secondary text-xxs font-weight-bolder opacity-7">Nom</th>
+                <th class="text-uppercase text-secondary text-xxs font-weight-bolder opacity-7">Prénom</th>
+                <th class="text-uppercase text-secondary text-xxs font-weight-bolder opacity-7">Email</th>
+                <th class="text-uppercase text-secondary text-xxs font-weight-bolder opacity-7">Téléphone</th>
+                <th class="text-uppercase text-secondary text-xxs font-weight-bolder opacity-7">Adresse</th>
+                <th class="text-uppercase text-secondary text-xxs font-weight-bolder opacity-7 text-center">Actions</th>
+              </tr>
+            </thead>
+            <tbody>
+              {% for fournisseur in fournisseurs %}
+              <tr>
                 <td>
-                    <a href="{{ path('app_fournisseur_show', {'fournisseurId': fournisseur.fournisseurId}) }}">show</a>
-                    <a href="{{ path('app_fournisseur_edit', {'fournisseurId': fournisseur.fournisseurId}) }}">edit</a>
+                  <p class="text-sm font-weight-bold mb-0">{{ fournisseur.nom }}</p>
                 </td>
-            </tr>
-        {% else %}
-            <tr>
-                <td colspan="7">no records found</td>
-            </tr>
-        {% endfor %}
-        </tbody>
-    </table>
-
-    <a href="{{ path('app_fournisseur_new') }}">Create new</a>
+                <td>
+                  <p class="text-sm font-weight-bold mb-0">{{ fournisseur.prenom }}</p>
+                </td>
+                <td>
+                  <p class="text-sm font-weight-bold mb-0">{{ fournisseur.email }}</p>
+                </td>
+                <td>
+                  <p class="text-sm font-weight-bold mb-0">{{ fournisseur.numeroDeTelephone }}</p>
+                </td>
+                <td>
+                  <p class="text-sm font-weight-bold mb-0">{{ fournisseur.adresse }}</p>
+                </td>
+                <td class="text-center align-middle">
+                  <a href="{{ path('app_fournisseur_show', {'fournisseurId': fournisseur.fournisseurId}) }}" class="text-secondary font-weight-bold text-xs" data-toggle="tooltip" title="Voir détails">
+                    <i class="material-symbols-rounded">visibility</i>
+                  </a>
+                  <a href="{{ path('app_fournisseur_edit', {'fournisseurId': fournisseur.fournisseurId}) }}" class="text-secondary font-weight-bold text-xs ms-2" data-toggle="tooltip" title="Modifier">
+                    <i class="material-symbols-rounded">edit</i>
+                  </a>
+                </td>
+              </tr>
+              {% else %}
+              <tr>
+                <td colspan="6" class="text-center">Aucun fournisseur trouvé</td>
+              </tr>
+              {% endfor %}
+            </tbody>
+          </table>
+        </div>
+      </div>
+    </div>
+  </div>
+</div>
 {% endblock %}
