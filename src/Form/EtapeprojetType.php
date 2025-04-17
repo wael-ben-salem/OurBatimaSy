@@ -36,10 +36,15 @@ class EtapeprojetType extends AbstractType
             ])
             ->add('description', TextareaType::class, [
                 'label' => 'Description détaillée',
-                'required' => false,
+                'required' => true, 
                 'constraints' => [
+                    new Assert\NotBlank([ 
+                        'message' => 'La description est obligatoire'
+                    ]),
                     new Assert\Length([
+                        'min' => 5, 
                         'max' => 500,
+                        'minMessage' => 'La description doit contenir au moins {{ limit }} caractères',
                         'maxMessage' => 'La description ne peut pas dépasser {{ limit }} caractères'
                     ])
                 ],
