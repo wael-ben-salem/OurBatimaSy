@@ -1,4 +1,4 @@
-<aside class="sidenav navbar navbar-vertical navbar-expand-xs border-radius-lg fixed-start ms-2 bg-white my-2" id="sidenav-main">
+ <aside class="sidenav navbar navbar-vertical navbar-expand-xs border-radius-lg fixed-start ms-2 bg-white my-2" id="sidenav-main">
   <div class="sidenav-header">
     <i class="fas fa-times p-3 cursor-pointer text-dark opacity-5 position-absolute end-0 top-0 d-none d-xl-none" aria-hidden="true" id="iconSidenav"></i>
     <a class="navbar-brand px-4 py-3 m-0" href="{{ path('app_home') }}">
@@ -30,6 +30,7 @@
           <span class="nav-link-text ms-1">Projets</span>
         </a>
       </li>
+      
       <li class="nav-item">
         <a class="nav-link {{ current_route starts with 'app_terrain_' ? 'active bg-gradient-dark text-white' : 'text-dark' }}" href="{{ path('app_terrain_index') }}">
           <i class="material-symbols-rounded opacity-5">landscape</i>
@@ -40,6 +41,28 @@
         <a class="nav-link {{ current_route starts with 'app_etapeprojet_' ? 'active bg-gradient-dark text-white' : 'text-dark' }}" href="{{ path('app_etapeprojet_index') }}">
           <i class="material-symbols-rounded opacity-5">list_alt</i>
           <span class="nav-link-text ms-1">Étapes des projets</span>
+        </a>
+      </li>
+
+      <li class="nav-item">
+        <a class="nav-link {{ current_route starts with 'app_stock_index' ? 'active bg-gradient-dark text-white' : 'text-dark' }}" href="{{ path('app_stock_index') }}">
+          <i class="material-symbols-rounded opacity-5">table_view</i>
+          <span class="nav-link-text ms-1">stock</span>
+        </a>
+      </li>
+
+
+      <li class="nav-item">
+        <a class="nav-link {{ current_route starts with 'app_fournisseur_index' ? 'active bg-gradient-dark text-white' : 'text-dark' }}" href="{{ path('app_fournisseur_index') }}">
+          <i class="material-symbols-rounded opacity-5">table_view</i>
+          <span class="nav-link-text ms-1">fournisseur</span>
+        </a>
+      </li>
+
+      <li class="nav-item">
+        <a class="nav-link {{ current_route starts with 'app_article_index' ? 'active bg-gradient-dark text-white' : 'text-dark' }}" href="{{ path('app_article_index') }}">
+          <i class="material-symbols-rounded opacity-5">table_view</i>
+          <span class="nav-link-text ms-1">Article</span>
         </a>
       </li>
       <!-- Add other menu items as needed -->

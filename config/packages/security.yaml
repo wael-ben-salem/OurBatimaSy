@@ -32,11 +32,10 @@ security:
     access_control:
         - { path: ^/register, roles: PUBLIC_ACCESS }
         - { path: ^/login, roles: PUBLIC_ACCESS }
-
-
         - { path: ^/welcome, roles: [ROLE_ARTISAN, ROLE_CONSTRUCTEUR, ROLE_ADMIN, ROLE_GESTIONNAIRESTOCK] }
         - { path: ^/tache, roles: ROLE_CONSTRUCTEUR }  # Fixed this line
         - {path: ^/plannification, roles: [ROLE_ARTISAN, ROLE_CLIENT]} # Fixed this line
+
 
 
  
