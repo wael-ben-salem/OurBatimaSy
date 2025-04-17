@@ -1,9 +1,10 @@
-{# templates/welcome/index.html.twig #}
 {% extends 'base.html.twig' %}
 
 {% block title %}Welcome{% endblock %}
 
 {% block body %}
     <h1>Welcome {{ user.email }}!</h1>
-    <p>Your roles: {{ user.roles|join(', ') }}</p>
+    <p>Your roles: 
+        {{ user.roles|filter(role => role != 'ROLE_CLIENT')|join(', ') }}
+    </p>
 {% endblock %}

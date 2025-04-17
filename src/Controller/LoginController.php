@@ -14,25 +14,33 @@ class LoginController extends AbstractController
     #[Route('/login', name: 'app_login')]
     public function index(AuthenticationUtils $authenticationUtils, Request $request): Response
     {
+        // If user is already logged in, redirect based on role
         if ($this->getUser()) {
-            return $this->redirectToRoute('app_welcome');
+            return $this->redirectBasedOnRole();
         }
     
         $error = $authenticationUtils->getLastAuthenticationError();
         $lastUsername = $authenticationUtils->getLastUsername();
     
+        // Handle AJAX login requests
         if ($request->isXmlHttpRequest()) {
             if ($error) {
                 return new JsonResponse([
                     'success' => false,
                     'error' => $error->getMessageKey(),
-                    'redirect' => false // Ajout explicite
+                    'redirect' => false
                 ], 401);
             }
     
+            // For AJAX success, return the appropriate redirect URL
+            $user = $this->getUser();
+            $redirectRoute = in_array('ROLE_CLIENT', $user->getRoles()) 
+                ? 'app_welcomeFront' 
+                : 'app_welcome';
+    
             return new JsonResponse([
                 'success' => true,
-                'redirect' => $this->generateUrl('app_welcome')
+                'redirect' => $this->generateUrl($redirectRoute)
             ]);
         }
     
@@ -45,5 +53,20 @@ class LoginController extends AbstractController
     public function logout(): void
     {
         throw new \LogicException('This method can be blank - it will be intercepted by the logout key on your firewall.');
+    }
+
+    private function redirectBasedOnRole(): Response
+    {
+        $user = $this->getUser();
+        
+        if (!$user) {
+            return $this->redirectToRoute('app_login');
+        }
+        
+        if (in_array('ROLE_CLIENT', $user->getRoles())) {
+            return $this->redirectToRoute('app_welcomeFront');
+        }
+        
+        return $this->redirectToRoute('app_welcome');
     }
 }
