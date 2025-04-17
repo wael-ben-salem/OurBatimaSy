@@ -150,6 +150,36 @@
 
                     {{ form_start(form, {'attr': {'class': 'form-horizontal' ~ (app.request.method == 'POST' ? ' form-submitted' : '')}}) }}
 
+                        {# TERRAIN FIELD MOVED TO TOP #}
+                        <div class="form-group {% if form.idTerrain.vars.errors|length %}field-with-errors{% endif %}">
+                            <div class="row align-items-center">
+                                <div class="col-md-8">
+                                    {{ form_label(form.idTerrain) }}
+                                    {{ form_widget(form.idTerrain, {
+                                        'attr': {
+                                            'class': 'form-control',
+                                            'placeholder': 'Sélectionnez un terrain'
+                                        }
+                                    }) }}
+                                    {% if form.idTerrain.vars.errors %}
+                                        <div class="invalid-feedback">
+                                            <i class="fas fa-exclamation-circle me-1"></i>
+                                            {% for error in form.idTerrain.vars.errors %}
+                                                {{ error.message }}
+                                            {% endfor %}
+                                        </div>
+                                    {% endif %}
+                                </div>
+                                <div class="col-md-4 terrain-button-container">
+                                    <a href="{{ path('app_terrain_front_new') }}" class="btn btn-primary w-100">
+                                        <i class="fas fa-plus me-1"></i>
+                                        Ajouter un terrain
+                                    </a>
+                                </div>
+                            </div>
+                            <small class="form-text">Terrain associé à ce projet</small>
+                        </div>
+
                         <div class="row">
                             <div class="col-md-6">
                                 <div class="form-group {% if form.nomprojet.vars.errors|length %}field-with-errors{% endif %}">
@@ -256,35 +286,6 @@
                                     {% endfor %}
                                 </div>
                             {% endif %}
-                        </div>
-
-                        <div class="form-group {% if form.idTerrain.vars.errors|length %}field-with-errors{% endif %}">
-                            <div class="row align-items-center">
-                                <div class="col-md-8">
-                                    {{ form_label(form.idTerrain) }}
-                                    {{ form_widget(form.idTerrain, {
-                                        'attr': {
-                                            'class': 'form-control',
-                                            'placeholder': 'Sélectionnez un terrain'
-                                        }
-                                    }) }}
-                                    {% if form.idTerrain.vars.errors %}
-                                        <div class="invalid-feedback">
-                                            <i class="fas fa-exclamation-circle me-1"></i>
-                                            {% for error in form.idTerrain.vars.errors %}
-                                                {{ error.message }}
-                                            {% endfor %}
-                                        </div>
-                                    {% endif %}
-                                </div>
-                                <div class="col-md-4 terrain-button-container">
-                                    <a href="{{ path('app_terrain_front_new') }}" class="btn btn-primary w-100">
-                                        <i class="fas fa-plus me-1"></i>
-                                        Ajouter un terrain
-                                    </a>
-                                </div>
-                            </div>
-                            <small class="form-text">Terrain associé à ce projet</small>
                         </div>
 
                         <div class="row">

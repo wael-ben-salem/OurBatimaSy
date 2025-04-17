@@ -1,9 +1,11 @@
 {% extends 'base_backOffice.html.twig' %}
 
-{% block title %}Modifier Terrain{% endblock %} {# Removed ID from title #}
+{% block title %}Modifier Terrain{% endblock %}
 
 {% block stylesheets %}
   {{ parent() }}
+  <link rel="stylesheet" href="https://fonts.googleapis.com/css2?family=Material+Symbols+Rounded:opsz,wght,FILL,GRAD@24,400,0,0" />
+  <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.0.0/css/all.min.css">
   <style>
     .card {
       border-radius: 12px;
@@ -40,12 +42,29 @@
     .bg-gradient-success {
       background: linear-gradient(195deg, #4CAF50 0%, #2E7D32 100%);
     }
+    
+    /* Error styling */
     .is-invalid {
-      border-color: #dc3545;
+      border-color: #dc3545 !important;
     }
-    .invalid-feedback {
+    .is-invalid:focus {
+      border-color: #dc3545 !important;
+      box-shadow: 0 0 0 0.25rem rgba(220,53,69,.25) !important;
+    }
+    .form-error-message {
       color: #dc3545;
       font-size: 0.875rem;
+      margin-top: 0.25rem;
+      display: block;
+    }
+    .form-error-icon {
+      color: #dc3545;
+      margin-right: 0.25rem;
+    }
+    .alert-danger {
+      color: #dc3545;
+      background-color: #f8d7da;
+      border-color: #f5c6cb;
     }
   </style>
 {% endblock %}
@@ -59,7 +78,7 @@
           <div class="bg-gradient-success shadow-success border-radius-lg pt-4 pb-3">
             <h6 class="text-white text-capitalize ps-3">
               <i class="material-symbols-rounded me-2">edit</i>
-              Modifier le Terrain {# Removed ID from header #}
+              Modifier le Terrain
             </h6>
           </div>
         </div>
@@ -74,8 +93,8 @@
           {% endfor %}
 
           {% for message in app.flashes('error') %}
-            <div class="alert alert-danger alert-dismissible fade show">
-              <i class="material-symbols-rounded me-2">error</i>
+            <div class="alert alert-danger alert-dismissible fade show" style="color:rgb(0, 0, 0); background-color: white; border-color: #dc3545;">
+              <i class="fas fa-exclamation-circle me-2"></i>
               {{ message }}
               <button type="button" class="btn-close" data-bs-dismiss="alert" aria-label="Close"></button>
             </div>
@@ -93,7 +112,18 @@
                       'placeholder': 'Ex: Quartier résidentiel, Sousse'
                     }
                   }) }}
-                  {{ form_errors(form.emplacement) }}
+                  {% if form.emplacement.vars.errors|length %}
+                    <div class="form-error-message">
+                      <i class="fas fa-exclamation-circle form-error-icon"></i>
+                      {% for error in form.emplacement.vars.errors %}
+                        {% if error.message == 'This value should not be blank.' %}
+                          <span>L'emplacement est obligatoire</span>
+                        {% else %}
+                          <span>{{ error.message }}</span>
+                        {% endif %}
+                      {% endfor %}
+                    </div>
+                  {% endif %}
                   <small class="form-text">Localisation du terrain</small>
                 </div>
               </div>
@@ -109,7 +139,20 @@
                     }) }}
                     <span class="input-group-text">m²</span>
                   </div>
-                  {{ form_errors(form.superficie) }}
+                  {% if form.superficie.vars.errors|length %}
+                    <div class="form-error-message">
+                      <i class="fas fa-exclamation-circle form-error-icon"></i>
+                      {% for error in form.superficie.vars.errors %}
+                        {% if error.message == 'This value should not be blank.' %}
+                          <span>La superficie est obligatoire</span>
+                        {% elseif error.message == 'This value should be of type numeric.' %}
+                          <span>Doit être un nombre</span>
+                        {% else %}
+                          <span>{{ error.message }}</span>
+                        {% endif %}
+                      {% endfor %}
+                    </div>
+                  {% endif %}
                   <small class="form-text">Superficie totale du terrain</small>
                 </div>
               </div>
@@ -125,7 +168,18 @@
                       'placeholder': 'Ex: Terrain plat avec vue mer'
                     }
                   }) }}
-                  {{ form_errors(form.caracteristiques) }}
+                  {% if form.caracteristiques.vars.errors|length %}
+                    <div class="form-error-message">
+                      <i class="fas fa-exclamation-circle form-error-icon"></i>
+                      {% for error in form.caracteristiques.vars.errors %}
+                        {% if error.message == 'This value should not be blank.' %}
+                          <span>Les caractéristiques sont obligatoires</span>
+                        {% else %}
+                          <span>{{ error.message }}</span>
+                        {% endif %}
+                      {% endfor %}
+                    </div>
+                  {% endif %}
                   <small class="form-text">Description des caractéristiques</small>
                 </div>
               </div>
@@ -138,7 +192,14 @@
                       'placeholder': 'Ex: Coordonnées GPS, pente, etc.'
                     }
                   }) }}
-                  {{ form_errors(form.detailsgeo) }}
+                  {% if form.detailsgeo.vars.errors|length %}
+                    <div class="form-error-message">
+                      <i class="fas fa-exclamation-circle form-error-icon"></i>
+                      {% for error in form.detailsgeo.vars.errors %}
+                        <span>{{ error.message }}</span>
+                      {% endfor %}
+                    </div>
+                  {% endif %}
                   <small class="form-text">Détails géographiques</small>
                 </div>
               </div>

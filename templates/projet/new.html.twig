@@ -95,15 +95,45 @@
             </div>
           {% endfor %}
 
-{% for message in app.flashes('error') %}
-  <div class="alert alert-danger alert-dismissible fade show" style="color:rgb(0, 0, 0); background-color: white; border-color: #dc3545;">
-    <i class="fas fa-exclamation-circle me-2"></i>
-    {{ message }}
-    <button type="button" class="btn-close" data-bs-dismiss="alert" aria-label="Close"></button>
-  </div>
-{% endfor %}
+          {% for message in app.flashes('error') %}
+            <div class="alert alert-danger alert-dismissible fade show" style="color:rgb(0, 0, 0); background-color: white; border-color: #dc3545;">
+              <i class="fas fa-exclamation-circle me-2"></i>
+              {{ message }}
+              <button type="button" class="btn-close" data-bs-dismiss="alert" aria-label="Close"></button>
+            </div>
+          {% endfor %}
 
           {{ form_start(form, {'attr': {'class': 'form-horizontal'}}) }}
+
+            {# TERRAIN FIELD MOVED TO TOP #}
+            <div class="form-group">
+              <div class="d-flex align-items-center">
+                <div class="flex-grow-1">
+                  {{ form_label(form.idTerrain) }}
+                  {{ form_widget(form.idTerrain, {
+                    'attr': {
+                      'class': 'form-control' ~ (form.idTerrain.vars.errors|length ? ' is-invalid' : ''),
+                      'placeholder': 'Sélectionnez un terrain'
+                    }
+                  }) }}
+                  {% if form.idTerrain.vars.errors|length %}
+                    <div class="form-error-message">
+                      <i class="fas fa-exclamation-circle form-error-icon"></i>
+                      {% for error in form.idTerrain.vars.errors %}
+                        <span>{{ error.message }}</span>
+                      {% endfor %}
+                    </div>
+                  {% endif %}
+                  <small class="form-text">Terrain associé à ce projet</small>
+                </div>
+                <div class="ms-3" style="margin-top: 28px;">
+                  <a href="{{ path('app_terrain_new') }}" class="btn btn-sm btn-primary">
+                    <i class="material-symbols-rounded me-1">add</i>
+                    Ajouter un terrain
+                  </a>
+                </div>
+              </div>
+            </div>
 
             <div class="row">
               <div class="col-md-6">
@@ -211,35 +241,6 @@
                 </div>
               {% endif %}
               <small class="form-text">État actuel du projet</small>
-            </div>
-
-            <div class="form-group">
-              <div class="d-flex align-items-center">
-                <div class="flex-grow-1">
-                  {{ form_label(form.idTerrain) }}
-                  {{ form_widget(form.idTerrain, {
-                    'attr': {
-                      'class': 'form-control' ~ (form.idTerrain.vars.errors|length ? ' is-invalid' : ''),
-                      'placeholder': 'Sélectionnez un terrain'
-                    }
-                  }) }}
-                  {% if form.idTerrain.vars.errors|length %}
-                    <div class="form-error-message">
-                      <i class="fas fa-exclamation-circle form-error-icon"></i>
-                      {% for error in form.idTerrain.vars.errors %}
-                        <span>{{ error.message }}</span>
-                      {% endfor %}
-                    </div>
-                  {% endif %}
-                  <small class="form-text">Terrain associé à ce projet</small>
-                </div>
-                <div class="ms-3" style="margin-top: 28px;">
-                  <a href="{{ path('app_terrain_new') }}" class="btn btn-sm btn-primary">
-                    <i class="material-symbols-rounded me-1">add</i>
-                    Ajouter un terrain
-                  </a>
-                </div>
-              </div>
             </div>
 
             <div class="row">
