@@ -1,42 +1,73 @@
-{% extends 'base.html.twig' %}
+{% extends 'base_backOffice.html.twig' %}
 
-{% block title %}Fournisseur{% endblock %}
+{% block title %}Détails du Fournisseur{% endblock %}
+
+{% block stylesheets %}
+  {{ parent() }}
+  <style>
+    .card {
+      border-radius: 12px;
+      box-shadow: 0 4px 20px 0 rgba(0, 0, 0, 0.14), 
+                  0 7px 10px -5px rgba(0, 0, 0, 0.4);
+    }
+    .table th {
+      width: 30%;
+    }
+  </style>
+{% endblock %}
 
 {% block body %}
-    <h1>Fournisseur</h1>
-
-    <table class="table">
-        <tbody>
-            <tr>
-                <th>FournisseurId</th>
-                <td>{{ fournisseur.fournisseurId }}</td>
-            </tr>
-            <tr>
+<div class="container-fluid py-4">
+  <div class="row">
+    <div class="col-12">
+      <div class="card my-4">
+        <div class="card-header p-0 position-relative mt-n4 mx-3 z-index-2">
+          <div class="bg-gradient-dark shadow-dark border-radius-lg pt-4 pb-3">
+            <h6 class="text-white text-capitalize ps-3">
+              <i class="material-symbols-rounded me-2">person</i>
+              Détails du Fournisseur
+            </h6>
+          </div>
+        </div>
+        <div class="card-body px-4 pb-2">
+          <table class="table">
+            <tbody>
+              <tr>
                 <th>Nom</th>
                 <td>{{ fournisseur.nom }}</td>
-            </tr>
-            <tr>
-                <th>Prenom</th>
+              </tr>
+              <tr>
+                <th>Prénom</th>
                 <td>{{ fournisseur.prenom }}</td>
-            </tr>
-            <tr>
+              </tr>
+              <tr>
                 <th>Email</th>
                 <td>{{ fournisseur.email }}</td>
-            </tr>
-            <tr>
-                <th>NumeroDeTelephone</th>
+              </tr>
+              <tr>
+                <th>Téléphone</th>
                 <td>{{ fournisseur.numeroDeTelephone }}</td>
-            </tr>
-            <tr>
+              </tr>
+              <tr>
                 <th>Adresse</th>
                 <td>{{ fournisseur.adresse }}</td>
-            </tr>
-        </tbody>
-    </table>
-
-    <a href="{{ path('app_fournisseur_index') }}">back to list</a>
-
-    <a href="{{ path('app_fournisseur_edit', {'fournisseurId': fournisseur.fournisseurId}) }}">edit</a>
-
-    {{ include('fournisseur/_delete_form.html.twig') }}
+              </tr>
+            </tbody>
+          </table>
+          <div class="btn-action-group">
+            <a href="{{ path('app_fournisseur_index') }}" class="btn btn-outline-secondary">
+              <i class="material-symbols-rounded me-1">arrow_back</i>
+              Retour à la liste
+            </a>
+            <a href="{{ path('app_fournisseur_edit', {'fournisseurId': fournisseur.fournisseurId}) }}" class="btn btn-outline-primary">
+              <i class="material-symbols-rounded me-1">edit</i>
+              Modifier
+            </a>
+            {{ include('fournisseur/_delete_form.html.twig') }}
+          </div>
+        </div>
+      </div>
+    </div>
+  </div>
+</div>
 {% endblock %}

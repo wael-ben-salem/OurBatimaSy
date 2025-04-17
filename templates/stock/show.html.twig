@@ -1,34 +1,79 @@
-{% extends 'base.html.twig' %}
+{% extends 'base_backOffice.html.twig' %}
 
 {% block title %}Stock{% endblock %}
 
+{% block stylesheets %}
+  {{ parent() }}
+  <link rel="stylesheet" href="https://fonts.googleapis.com/css?family=Inter:300,400,500,600,700,900" />
+  <link rel="stylesheet" href="https://fonts.googleapis.com/css2?family=Material+Symbols+Rounded:opsz,wght,FILL,GRAD@24,400,0,0" />
+  <style>
+    .card {
+      border-radius: 12px;
+      box-shadow: 0 4px 20px 0 rgba(0, 0, 0, 0.14), 
+                  0 7px 10px -5px rgba(0, 0, 0, 0.4);
+    }
+    .btn-action-group {
+      display: flex;
+      gap: 10px;
+      margin-top: 20px;
+    }
+    .table th {
+      width: 30%;
+    }
+  </style>
+{% endblock %}
+
 {% block body %}
-    <h1>Stock</h1>
-
-    <table class="table">
-        <tbody>
-            <tr>
-                <th>Id</th>
-                <td>{{ stock.id }}</td>
-            </tr>
-            <tr>
-                <th>Nom</th>
-                <td>{{ stock.nom }}</td>
-            </tr>
-            <tr>
-                <th>Emplacement</th>
-                <td>{{ stock.emplacement }}</td>
-            </tr>
-            <tr>
-                <th>Datecreation</th>
-                <td>{{ stock.datecreation ? stock.datecreation|date('Y-m-d H:i:s') : '' }}</td>
-            </tr>
-        </tbody>
-    </table>
-
-    <a href="{{ path('app_stock_index') }}">back to list</a>
-
-    <a href="{{ path('app_stock_edit', {'id': stock.id}) }}">edit</a>
-
-    {{ include('stock/_delete_form.html.twig') }}
+<div class="container-fluid py-4">
+  <div class="row">
+    <div class="col-12">
+      <div class="card my-4">
+        <div class="card-header p-0 position-relative mt-n4 mx-3 z-index-2">
+          <div class="bg-gradient-primary shadow-primary border-radius-lg pt-4 pb-3">
+            <h6 class="text-white text-capitalize ps-3">
+              <i class="material-symbols-rounded me-2">inventory</i>
+              Détails du Stock
+            </h6>
+          </div>
+        </div>
+        <div class="card-body px-0 pb-2">
+          <div class="table-responsive p-3">
+            <table class="table align-items-center mb-0">
+              <tbody>
+                <tr>
+                  <th class="text-uppercase text-secondary text-xs font-weight-bolder opacity-7">Id</th>
+                  <td class="text-sm font-weight-bold">{{ stock.id }}</td>
+                </tr>
+                <tr>
+                  <th class="text-uppercase text-secondary text-xs font-weight-bolder opacity-7">Nom</th>
+                  <td class="text-sm">{{ stock.nom }}</td>
+                </tr>
+                <tr>
+                  <th class="text-uppercase text-secondary text-xs font-weight-bolder opacity-7">Emplacement</th>
+                  <td class="text-sm">{{ stock.emplacement }}</td>
+                </tr>
+                <tr>
+                  <th class="text-uppercase text-secondary text-xs font-weight-bolder opacity-7">Date de création</th>
+                  <td class="text-sm">{{ stock.datecreation ? stock.datecreation|date('d/m/Y H:i') : '' }}</td>
+                </tr>
+              </tbody>
+            </table>
+          </div>
+          
+          <div class="ps-3 btn-action-group">
+            <a class="btn btn-outline-secondary" href="{{ path('app_stock_index') }}">
+              <i class="material-symbols-rounded me-1">arrow_back</i>
+              Retour à la liste
+            </a>
+            <a class="btn btn-outline-primary" href="{{ path('app_stock_edit', {'id': stock.id}) }}">
+              <i class="material-symbols-rounded me-1">edit</i>
+              Modifier
+            </a>
+            {{ include('stock/_delete_form.html.twig') }}
+          </div>
+        </div>
+      </div>
+    </div>
+  </div>
+</div>
 {% endblock %}

@@ -10,6 +10,8 @@ use Symfony\Bridge\Doctrine\Form\Type\EntityType;
 use Symfony\Component\Form\AbstractType;
 use Symfony\Component\Form\FormBuilderInterface;
 use Symfony\Component\OptionsResolver\OptionsResolver;
+use Symfony\Component\Form\Extension\Core\Type\FileType;
+use Symfony\Component\Validator\Constraints\File;
 
 class ArticleType extends AbstractType
 {
@@ -19,18 +21,33 @@ class ArticleType extends AbstractType
             ->add('nom')
             ->add('description')
             ->add('prixUnitaire')
-            ->add('photo')
+            ->add('photo', FileType::class, [
+                'label' => 'Photo (Image file)',
+                'mapped' => false,
+                'required' => false,
+                'constraints' => [
+                    new File([
+                        'maxSize' => '2M',
+                        'mimeTypes' => [
+                            'image/jpeg',
+                            'image/png',
+                            'image/gif',
+                        ],
+                        'mimeTypesMessage' => 'Please upload a valid image file',
+                    ])
+                ],
+            ])
             ->add('etapeprojet', EntityType::class, [
                 'class' => Etapeprojet::class,
-'choice_label' => 'id',
+                'choice_label' => 'id',
             ])
             ->add('stock', EntityType::class, [
                 'class' => Stock::class,
-'choice_label' => 'id',
+                'choice_label' => 'id',
             ])
             ->add('fournisseur', EntityType::class, [
                 'class' => Fournisseur::class,
-'choice_label' => 'id',
+                'choice_label' => 'id',
             ])
         ;
     }
