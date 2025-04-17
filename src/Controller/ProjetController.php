@@ -103,71 +103,57 @@ public function new(Request $request, EntityManagerInterface $entityManager): Re
     }
 
     #[Route('/{idProjet}/edit', name: 'app_projet_edit', methods: ['GET', 'POST'])]
-public function edit(Request $request, Projet $projet, EntityManagerInterface $entityManager): Response
-{
-    // Store the original client email before handling the form
-    $originalClientEmail = $projet->getIdClient() ? $projet->getIdClient()->getClient()->getEmail() : null;
+    public function edit(Request $request, Projet $projet, EntityManagerInterface $entityManager): Response
+    {
+        // Store the original client before handling the form
+        $originalClient = $projet->getIdClient();
+        
+        $form = $this->createForm(ProjetType::class, $projet);
+        $form->handleRequest($request);
     
-    $form = $this->createForm(ProjetType::class, $projet);
-    $form->handleRequest($request);
-
-    if ($form->isSubmitted()) {
-        if ($form->isValid()) {
+        if ($form->isSubmitted() && $form->isValid()) {
             $emailClient = $form->get('nomClient')->getData();
             
-            // Handle client association
-            if (!empty($emailClient)) {
-                // Only search for client if email changed
-                if ($emailClient !== $originalClientEmail) {
-                    // First check if a Utilisateur exists with this email and has role 'Client'
+            // Only process client if email changed or was removed
+            if ($emailClient !== ($originalClient ? $originalClient->getClient()->getEmail() : null)) {
+                if (!empty($emailClient)) {
                     $utilisateur = $entityManager->getRepository(Utilisateur::class)
                         ->findOneBy([
                             'email' => $emailClient,
                             'role' => 'Client'
                         ]);
-
-                    if ($utilisateur) {
-                        // Then find the Client associated with this Utilisateur
-                        $client = $entityManager->getRepository(Client::class)
-                            ->findOneBy(['client' => $utilisateur]);
-
-                        if ($client) {
-                            $projet->setIdClient($client);
-                        } else {
-                            // Create a new Client if one doesn't exist
-                            $client = new Client();
-                            $client->setClient($utilisateur);
-                            $entityManager->persist($client);
-                            $entityManager->flush();
-                            
-                            $projet->setIdClient($client);
-                        }
-                    } else {
-                        $this->addFlash('error', 'Aucun compte utilisateur avec le rôle client n\'a été trouvé avec cet e-mail.');
+    
+                    if (!$utilisateur) {
+                        $this->addFlash('error', 'Aucun compte utilisateur avec le rôle client trouvé avec cet e-mail.');
                         return $this->redirectToRoute('app_projet_edit', ['idProjet' => $projet->getIdProjet()]);
                     }
+    
+                    $client = $entityManager->getRepository(Client::class)
+                        ->findOneBy(['client' => $utilisateur]);
+    
+                    if (!$client) {
+                        $client = new Client();
+                        $client->setClient($utilisateur);
+                        $entityManager->persist($client);
+                        // Don't flush yet - wait for the main flush
+                    }
+    
+                    $projet->setIdClient($client);
+                } else {
+                    $projet->setIdClient(null);
                 }
-            } else {
-                // If email field is empty, remove client association
-                $projet->setIdClient(null);
             }
-
+    
             $entityManager->flush();
-            $this->addFlash('success', 'Project updated successfully.');
-            return $this->redirectToRoute('app_projet_show', ['idProjet' => $projet->getIdProjet()], Response::HTTP_SEE_OTHER);
-        } else {
-            $this->addFlash('error', 'Veuillez vérifier à nouveau les champs.');
+            $this->addFlash('success', 'Projet mis à jour avec succès.');
+            return $this->redirectToRoute('app_projet_show', ['idProjet' => $projet->getIdProjet()]);
         }
+    
+        return $this->render('projet/edit.html.twig', [
+            'projet' => $projet,
+            'form' => $form->createView(),
+        ]);
     }
-
-    // Pre-fill the client email in the form
-    $form->get('nomClient')->setData($originalClientEmail);
-
-    return $this->render('projet/edit.html.twig', [
-        'projet' => $projet,
-        'form' => $form->createView(),
-    ]);
-}
 
     #[Route('/{idProjet}', name: 'app_projet_delete', methods: ['POST'])]
     public function delete(Request $request, Projet $projet, EntityManagerInterface $entityManager): Response
