@@ -30,3 +30,8 @@ services:
     App\Repository\CustomReclamationRepository:
         arguments:
             $connection: '@doctrine.dbal.default_connection'
+
+    App\Repository\CustomUtilisateurRepository:
+        arguments:
+            $connection: '@doctrine.dbal.default_connection'
+            $passwordHasher: '@security.user_password_hasher'

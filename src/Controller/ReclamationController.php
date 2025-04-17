@@ -11,6 +11,7 @@ use Symfony\Component\Form\Extension\Core\Type\TextType;
 use Symfony\Component\HttpFoundation\Request;
 use Symfony\Component\HttpFoundation\Response;
 use Symfony\Component\Routing\Attribute\Route;
+use Symfony\Component\Security\Http\Attribute\IsGranted;
 
 #[Route('/reclamation')]
 final class ReclamationController extends AbstractController{
@@ -30,6 +31,8 @@ final class ReclamationController extends AbstractController{
     }
 
     #[Route('/new', name: 'app_reclamation_new', methods: ['GET', 'POST'])]
+    #[IsGranted('ROLE_USER')]
+    #[IsGranted('!ROLE_ADMIN', message: 'Admins cannot create reclamations')]
     public function new(Request $request, EntityManagerInterface $entityManager): Response
     {
         // Get users for the dropdown without using Doctrine entities
@@ -112,6 +115,7 @@ final class ReclamationController extends AbstractController{
     }
 
     #[Route('/{id}/edit', name: 'app_reclamation_edit', methods: ['GET', 'POST'])]
+    #[IsGranted('ROLE_USER')]
     public function edit(Request $request, EntityManagerInterface $entityManager, int $id): Response
     {
         // Use a custom query to fetch a single reclamation
@@ -157,6 +161,7 @@ final class ReclamationController extends AbstractController{
     }
 
     #[Route('/{id}', name: 'app_reclamation_delete', methods: ['POST'])]
+    #[IsGranted('ROLE_USER')]
     public function delete(Request $request, EntityManagerInterface $entityManager, int $id): Response
     {
         if ($this->isCsrfTokenValid('delete'.$id, $request->getPayload()->getString('_token'))) {

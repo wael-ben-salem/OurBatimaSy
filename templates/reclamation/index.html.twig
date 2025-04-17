@@ -5,6 +5,12 @@
 {% block body %}
     <h1>Reclamation index</h1>
 
+    <div class="navigation mb-4">
+        <a href="{{ path('app_reponse_index') }}" class="btn btn-primary">Go to Responses</a>
+        <a href="{{ path('app_debug_roles') }}" class="btn btn-info">Debug Roles</a>
+        <a href="{{ path('app_logout') }}" class="btn btn-danger">Logout</a>
+    </div>
+
     <table class="table">
         <thead>
             <tr>
@@ -35,5 +41,7 @@
         </tbody>
     </table>
 
-    <a href="{{ path('app_reclamation_new') }}">Create new</a>
+    {% if not is_granted('ROLE_ADMIN') %}
+        <a href="{{ path('app_reclamation_new') }}" class="btn btn-success">Create new</a>
+    {% endif %}
 {% endblock %}

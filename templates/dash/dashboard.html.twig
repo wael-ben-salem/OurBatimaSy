@@ -55,15 +55,15 @@
           </a>
         </li>
         <li class="nav-item">
-          <a class="nav-link text-dark" href="../pages/tables.html">
-            <i class="material-symbols-rounded opacity-5">table_view</i>
-            <span class="nav-link-text ms-1">Tables</span>
+          <a class="nav-link text-dark" href="{{ path('app_reponse_index') }}">
+            <i class="material-symbols-rounded opacity-5">question_answer</i>
+            <span class="nav-link-text ms-1">Responses</span>
           </a>
         </li>
         <li class="nav-item">
-          <a class="nav-link text-dark" href="../pages/billing.html">
-            <i class="material-symbols-rounded opacity-5">receipt_long</i>
-            <span class="nav-link-text ms-1">Billing</span>
+          <a class="nav-link text-dark" href="{{ path('app_reclamation_index') }}">
+            <i class="material-symbols-rounded opacity-5">report_problem</i>
+            <span class="nav-link-text ms-1">Reclamations</span>
           </a>
         </li>
         <li class="nav-item">
@@ -226,8 +226,9 @@
               </ul>
             </li>
             <li class="nav-item d-flex align-items-center">
-              <a href="../pages/sign-in.html" class="nav-link text-body font-weight-bold px-0">
-                <i class="material-symbols-rounded">account_circle</i>
+              <a href="{{ path('app_logout') }}" class="nav-link text-body font-weight-bold px-0">
+                <i class="material-symbols-rounded">logout</i>
+                <span class="d-sm-inline d-none">Logout</span>
               </a>
             </li>
           </ul>
@@ -238,9 +239,9 @@
     <div class="container-fluid py-2">
       <div class="row">
         <div class="ms-3">
-          <h3 class="mb-0 h4 font-weight-bolder">Dashboard</h3>
+          <h3 class="mb-0 h4 font-weight-bolder">Welcome, {{ user.prenom }} {{ user.nom }}</h3>
           <p class="mb-4">
-            Check the sales, value and bounce rate by country.
+            You are logged in as: {{ user.role }}
           </p>
         </div>
         <div class="col-xl-3 col-sm-6 mb-xl-0 mb-4">

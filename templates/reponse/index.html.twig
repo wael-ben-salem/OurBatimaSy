@@ -5,6 +5,12 @@
 {% block body %}
     <h1>Reponse index</h1>
 
+    <div class="navigation mb-4">
+        <a href="{{ path('app_reclamation_index') }}" class="btn btn-primary">Back to Reclamations</a>
+        <a href="{{ path('app_debug_roles') }}" class="btn btn-info">Debug Roles</a>
+        <a href="{{ path('app_logout') }}" class="btn btn-danger">Logout</a>
+    </div>
+
     <table class="table">
         <thead>
             <tr>
@@ -24,6 +30,13 @@
                 <td>{{ reponse.date ? reponse.date|date('Y-m-d') : '' }}</td>
                 <td>
                     <a href="{{ path('app_reponse_show', {'id': reponse.id}) }}">show</a>
+                    {% if is_granted('ROLE_ADMIN') %}
+                        <a href="{{ path('app_reponse_edit', {'id': reponse.id}) }}">edit</a>
+                        <form method="post" action="{{ path('app_reponse_delete', {'id': reponse.id}) }}" style="display: inline-block">
+                            <input type="hidden" name="_token" value="{{ csrf_token('delete' ~ reponse.id) }}">
+                            <button class="btn btn-link p-0 m-0" onclick="return confirm('Are you sure you want to delete this item?');">delete</button>
+                        </form>
+                    {% endif %}
                 </td>
             </tr>
         {% else %}
@@ -34,5 +47,7 @@
         </tbody>
     </table>
 
-    {# "Create new" link removed #}
+    {% if is_granted('ROLE_ADMIN') %}
+        <a href="{{ path('app_reponse_new') }}">Create new</a>
+    {% endif %}
 {% endblock %}

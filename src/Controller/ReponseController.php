@@ -11,6 +11,7 @@ use Symfony\Bundle\FrameworkBundle\Controller\AbstractController;
 use Symfony\Component\HttpFoundation\Request;
 use Symfony\Component\HttpFoundation\Response;
 use Symfony\Component\Routing\Attribute\Route;
+use Symfony\Component\Security\Http\Attribute\IsGranted;
 
 #[Route('/reponse')]
 final class ReponseController extends AbstractController{
@@ -23,6 +24,7 @@ final class ReponseController extends AbstractController{
     }
 
     #[Route('/new', name: 'app_reponse_new', methods: ['GET', 'POST'])]
+    #[IsGranted('ROLE_ADMIN', message: 'Only administrators can create responses')]
     public function new(Request $request, EntityManagerInterface $entityManager): Response
     {
         $reponse = new Reponse();
@@ -55,6 +57,7 @@ final class ReponseController extends AbstractController{
     }
 
     #[Route('/{id}/edit', name: 'app_reponse_edit', methods: ['GET', 'POST'])]
+    #[IsGranted('ROLE_ADMIN', message: 'Only administrators can edit responses')]
     public function edit(Request $request, Reponse $reponse, EntityManagerInterface $entityManager): Response
     {
         $form = $this->createForm(Reponse1Type::class, $reponse);
@@ -74,6 +77,7 @@ final class ReponseController extends AbstractController{
     }
 
     #[Route('/{id}', name: 'app_reponse_delete', methods: ['POST'])]
+    #[IsGranted('ROLE_ADMIN', message: 'Only administrators can delete responses')]
     public function delete(Request $request, Reponse $reponse, EntityManagerInterface $entityManager): Response
     {
         if ($this->isCsrfTokenValid('delete'.$reponse->getId(), $request->getPayload()->getString('_token'))) {
