@@ -41,7 +41,7 @@ class Projet
     #[ORM\Column(name: 'dateCreation', type: 'datetime', nullable: false)]
     private $datecreation;
 
-    #[ORM\Column(name: 'nomProjet', type: 'string', length: 30, nullable: false)]
+    #[ORM\Column(name: 'nomProjet', type: 'string', length: 30, nullable: true)]
     private $nomprojet;
 
     #[ORM\JoinColumn(name: 'Id_terrain', referencedColumnName: 'Id_terrain')]
