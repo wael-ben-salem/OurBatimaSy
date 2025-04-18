@@ -7,7 +7,7 @@
   <style>
     .card {
       border-radius: 12px;
-      box-shadow: 0 4px 20px 0 rgba(0, 0, 0, 0.14),
+      box-shadow: 0 4px 20px 0 rgba(0, 0, 0, 0.14), 
                   0 7px 10px -5px rgba(0, 0, 0, 0.4);
     }
     .avatar-sm {
@@ -50,6 +50,7 @@
                   <th class="text-uppercase text-secondary text-xxs font-weight-bolder opacity-7">Description</th>
                   <th class="text-uppercase text-secondary text-xxs font-weight-bolder opacity-7 text-center">Statut</th>
                   <th class="text-uppercase text-secondary text-xxs font-weight-bolder opacity-7 text-center">Date</th>
+                  <th class="text-uppercase text-secondary text-xxs font-weight-bolder opacity-7 text-center">Réclamation</th>
                   <th class="text-uppercase text-secondary text-xxs font-weight-bolder opacity-7 text-center">Actions</th>
                 </tr>
               </thead>
@@ -80,6 +81,15 @@
                     <p class="text-sm font-weight-bold mb-0">{{ reponse.date ? reponse.date|date('Y-m-d') : '' }}</p>
                   </td>
                   <td class="text-center align-middle">
+                    {% if reponse.reclamation_id %}
+                      <a href="{{ path('app_reclamation_show', {'id': reponse.reclamation_id}) }}" class="text-primary text-sm font-weight-bold">
+                        #{{ reponse.reclamation_id }}
+                      </a>
+                    {% else %}
+                      <span class="text-muted text-sm">-</span>
+                    {% endif %}
+                  </td>
+                  <td class="text-center align-middle">
                     <a href="{{ path('app_reponse_show', {'id': reponse.id}) }}" class="text-secondary font-weight-bold text-xs" data-toggle="tooltip" title="Voir">
                       <i class="material-symbols-rounded">visibility</i>
                     </a>
@@ -98,7 +108,7 @@
                 </tr>
                 {% else %}
                 <tr>
-                  <td colspan="4" class="text-center py-4">
+                  <td colspan="5" class="text-center py-4">
                     <i class="material-symbols-rounded opacity-50">question_answer</i>
                     <p class="text-sm text-secondary mt-2">Aucune réponse enregistrée</p>
                   </td>

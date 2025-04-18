@@ -50,12 +50,18 @@ class Reponse1Type extends AbstractType
                     new NotNull(['message' => 'Please select a date'])
                 ]
             ])
-            // Temporarily disable the id_Reclamation field to avoid database column mismatch
-            // ->add('id_Reclamation', EntityType::class, [
-            //     'class' => Reclamation::class,
-            //     'choice_label' => 'id',
-            //     'multiple' => true,
-            // ])
+            ->add('id_Reclamation', EntityType::class, [
+                'class' => Reclamation::class,
+                'choice_label' => function(Reclamation $reclamation) {
+                    return sprintf('#%d - %s', $reclamation->getId(), substr($reclamation->getDescription(), 0, 30));
+                },
+                'label' => 'Réclamation associée',
+                'placeholder' => 'Choisir une réclamation',
+                'required' => true,
+                'constraints' => [
+                    new NotBlank(['message' => 'Veuillez sélectionner une réclamation'])
+                ]
+            ])
         ;
     }
 

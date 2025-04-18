@@ -68,6 +68,19 @@
                 <div class="field-label">Date</div>
                 <div class="field-value">{{ reponse.date ? reponse.date|date('Y-m-d') : '' }}</div>
               </div>
+              
+              <div class="field-container">
+                <div class="field-label">Réclamation associée</div>
+                <div class="field-value">
+                  {% if reponse.reclamation_id %}
+                    <a href="{{ path('app_reclamation_show', {'id': reponse.reclamation_id}) }}" class="text-primary">
+                      #{{ reponse.reclamation_id }} - {{ reponse.reclamation_description|length > 50 ? reponse.reclamation_description|slice(0, 50) ~ '...' : reponse.reclamation_description }}
+                    </a>
+                  {% else %}
+                    <span class="text-muted">Aucune réclamation associée</span>
+                  {% endif %}
+                </div>
+              </div>
             </div>
           </div>
           

@@ -3,8 +3,6 @@
 namespace App\Entity;
 
 use App\Repository\ReponseRepository;
-use Doctrine\Common\Collections\ArrayCollection;
-use Doctrine\Common\Collections\Collection;
 use Doctrine\DBAL\Types\Types;
 use Doctrine\ORM\Mapping as ORM;
 
@@ -26,14 +24,16 @@ class Reponse
     private ?\DateTimeInterface $date = null;
 
     /**
-     * @var Collection<int, Reclamation>
+     * @var Reclamation
      */
-    #[ORM\ManyToMany(targetEntity: Reclamation::class)]
-    private Collection $id_Reclamation;
+    #[ORM\ManyToOne(targetEntity: Reclamation::class)]
+    #[ORM\JoinColumn(name: "id_Reclamation", referencedColumnName: "id", nullable: false)]
+    private ?Reclamation $id_Reclamation = null;
 
     public function __construct()
     {
-        $this->id_Reclamation = new ArrayCollection();
+        // Initialize with current date
+        $this->date = new \DateTime();
     }
 
     public function getId(): ?int
@@ -77,26 +77,14 @@ class Reponse
         return $this;
     }
 
-    /**
-     * @return Collection<int, Reclamation>
-     */
-    public function getIdReclamation(): Collection
+    public function getIdReclamation(): ?Reclamation
     {
         return $this->id_Reclamation;
     }
 
-    public function addIdReclamation(Reclamation $idReclamation): static
+    public function setIdReclamation(?Reclamation $idReclamation): static
     {
-        if (!$this->id_Reclamation->contains($idReclamation)) {
-            $this->id_Reclamation->add($idReclamation);
-        }
-
-        return $this;
-    }
-
-    public function removeIdReclamation(Reclamation $idReclamation): static
-    {
-        $this->id_Reclamation->removeElement($idReclamation);
+        $this->id_Reclamation = $idReclamation;
 
         return $this;
     }
