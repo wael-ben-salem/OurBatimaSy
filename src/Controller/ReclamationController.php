@@ -2,27 +2,27 @@
 
 namespace App\Controller;
 
-
-use Doctrine\ORM\EntityManagerInterface;
 use Symfony\Bundle\FrameworkBundle\Controller\AbstractController;
-use Symfony\Component\Form\Extension\Core\Type\ChoiceType;
-use Symfony\Component\Form\Extension\Core\Type\DateType;
-use Symfony\Component\Form\Extension\Core\Type\TextType;
-use Symfony\Component\Form\Extension\Core\Type\TextareaType;
 use Symfony\Component\HttpFoundation\Request;
 use Symfony\Component\HttpFoundation\Response;
 use Symfony\Component\Routing\Attribute\Route;
 use Symfony\Component\Security\Http\Attribute\IsGranted;
+use Doctrine\ORM\EntityManagerInterface;
+use Symfony\Component\Form\Extension\Core\Type\TextareaType;
+use Symfony\Component\Form\Extension\Core\Type\ChoiceType;
+use Symfony\Component\Form\Extension\Core\Type\DateType;
 use Symfony\Component\Validator\Constraints\NotBlank;
 use Symfony\Component\Validator\Constraints\Length;
 use Symfony\Component\Validator\Constraints\NotNull;
+use Symfony\Component\Form\FormError;
 
 #[Route('/reclamation')]
-final class ReclamationController extends AbstractController{
-    #[Route(name: 'app_reclamation_index', methods: ['GET'])]
+class ReclamationController extends AbstractController
+{
+    #[Route('/', name: 'app_reclamation_index', methods: ['GET'])]
     public function index(EntityManagerInterface $entityManager): Response
     {
-        // Use a custom query to fetch reclamations
+        // Use a custom query to fetch all reclamations
         $conn = $entityManager->getConnection();
         $sql = 'SELECT * FROM reclamation';
         $stmt = $conn->prepare($sql);
@@ -41,6 +41,7 @@ final class ReclamationController extends AbstractController{
         if ($this->isGranted('ROLE_ADMIN')) {
             throw $this->createAccessDeniedException('Admins cannot create reclamations');
         }
+
         // Get users for the dropdown without using Doctrine entities
         $conn = $entityManager->getConnection();
         $sql = 'SELECT id, nom, prenom FROM utilisateur';
@@ -58,15 +59,21 @@ final class ReclamationController extends AbstractController{
         $form = $this->createFormBuilder()
             ->add('description', TextareaType::class, [
                 'constraints' => [
-                    new NotBlank(['message' => 'Please enter a description']),
+                    new NotBlank([
+                        'message' => 'Ce champ est obligatoire',
+                    ]),
                     new Length([
                         'min' => 10,
-                        'minMessage' => 'Your description should be at least {{ limit }} characters',
+                        'minMessage' => 'Votre description doit contenir au moins {{ limit }} caractères',
                         'max' => 1000,
-                        'maxMessage' => 'Your description cannot be longer than {{ limit }} characters'
+                        'maxMessage' => 'Votre description ne peut pas dépasser {{ limit }} caractères'
                     ])
                 ],
-                'attr' => ['rows' => 5]
+                'attr' => [
+                    'rows' => 5,
+                    'class' => 'form-control'
+                ],
+                'label' => 'Description'
             ])
             ->add('statut', ChoiceType::class, [
                 'choices' => [
@@ -76,28 +83,72 @@ final class ReclamationController extends AbstractController{
                     'Closed' => 'Closed'
                 ],
                 'constraints' => [
-                    new NotBlank(['message' => 'Please select a status'])
-                ]
+                    new NotBlank([
+                        'message' => 'Veuillez sélectionner un statut'
+                    ])
+                ],
+                'attr' => [
+                    'class' => 'form-control'
+                ],
+                'label' => 'Statut'
             ])
             ->add('date', DateType::class, [
                 'widget' => 'single_text',
                 'data' => new \DateTime(),
                 'constraints' => [
-                    new NotNull(['message' => 'Please select a date'])
-                ]
+                    new NotNull([
+                        'message' => 'Veuillez sélectionner une date'
+                    ])
+                ],
+                'attr' => [
+                    'class' => 'form-control'
+                ],
+                'label' => 'Date'
             ])
             ->add('Utilisateur_id', ChoiceType::class, [
-                'label' => 'User',
+                'label' => 'Utilisateur',
                 'choices' => $userChoices,
-                'placeholder' => 'Choose a user',
-                'required' => true,
+                'placeholder' => 'Choisir un utilisateur',
+                'required' => false,
                 'constraints' => [
-                    new NotBlank(['message' => 'Please select a user'])
+                    new NotBlank([
+                        'message' => 'Veuillez sélectionner un utilisateur'
+                    ])
+                ],
+                'attr' => [
+                    'class' => 'form-control'
                 ]
             ])
             ->getForm();
 
         $form->handleRequest($request);
+
+        // Custom validation
+        if ($form->isSubmitted()) {
+            $data = $form->getData();
+
+            // Validate description
+            if (empty($data['description'])) {
+                $form->get('description')->addError(new FormError('Ce champ est obligatoire'));
+            } elseif (strlen($data['description']) < 10) {
+                $form->get('description')->addError(new FormError('Votre description doit contenir au moins 10 caractères'));
+            }
+
+            // Validate status
+            if (empty($data['statut'])) {
+                $form->get('statut')->addError(new FormError('Veuillez sélectionner un statut'));
+            }
+
+            // Validate date
+            if (empty($data['date'])) {
+                $form->get('date')->addError(new FormError('Veuillez sélectionner une date'));
+            }
+
+            // Validate user
+            if (empty($data['Utilisateur_id'])) {
+                $form->get('Utilisateur_id')->addError(new FormError('Veuillez sélectionner un utilisateur'));
+            }
+        }
 
         if ($form->isSubmitted() && $form->isValid()) {
             $data = $form->getData();
@@ -168,15 +219,21 @@ final class ReclamationController extends AbstractController{
             ->add('description', TextareaType::class, [
                 'data' => $reclamation['description'],
                 'constraints' => [
-                    new NotBlank(['message' => 'Please enter a description']),
+                    new NotBlank([
+                        'message' => 'Ce champ est obligatoire'
+                    ]),
                     new Length([
                         'min' => 10,
-                        'minMessage' => 'Your description should be at least {{ limit }} characters',
+                        'minMessage' => 'Votre description doit contenir au moins {{ limit }} caractères',
                         'max' => 1000,
-                        'maxMessage' => 'Your description cannot be longer than {{ limit }} characters'
+                        'maxMessage' => 'Votre description ne peut pas dépasser {{ limit }} caractères'
                     ])
                 ],
-                'attr' => ['rows' => 5]
+                'attr' => [
+                    'rows' => 5,
+                    'class' => 'form-control'
+                ],
+                'label' => 'Description'
             ])
             ->add('statut', ChoiceType::class, [
                 'data' => $reclamation['statut'],
@@ -187,19 +244,53 @@ final class ReclamationController extends AbstractController{
                     'Closed' => 'Closed'
                 ],
                 'constraints' => [
-                    new NotBlank(['message' => 'Please select a status'])
-                ]
+                    new NotBlank([
+                        'message' => 'Veuillez sélectionner un statut'
+                    ])
+                ],
+                'attr' => [
+                    'class' => 'form-control'
+                ],
+                'label' => 'Statut'
             ])
             ->add('date', DateType::class, [
                 'data' => new \DateTime($reclamation['date']),
                 'widget' => 'single_text',
                 'constraints' => [
-                    new NotNull(['message' => 'Please select a date'])
-                ]
+                    new NotNull([
+                        'message' => 'Veuillez sélectionner une date'
+                    ])
+                ],
+                'attr' => [
+                    'class' => 'form-control'
+                ],
+                'label' => 'Date'
             ])
             ->getForm();
 
         $form->handleRequest($request);
+
+        // Custom validation
+        if ($form->isSubmitted()) {
+            $data = $form->getData();
+
+            // Validate description
+            if (empty($data['description'])) {
+                $form->get('description')->addError(new FormError('Ce champ est obligatoire'));
+            } elseif (strlen($data['description']) < 10) {
+                $form->get('description')->addError(new FormError('Votre description doit contenir au moins 10 caractères'));
+            }
+
+            // Validate status
+            if (empty($data['statut'])) {
+                $form->get('statut')->addError(new FormError('Veuillez sélectionner un statut'));
+            }
+
+            // Validate date
+            if (empty($data['date'])) {
+                $form->get('date')->addError(new FormError('Veuillez sélectionner une date'));
+            }
+        }
 
         if ($form->isSubmitted() && $form->isValid()) {
             $data = $form->getData();

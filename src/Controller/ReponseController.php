@@ -2,22 +2,19 @@
 
 namespace App\Controller;
 
-use App\Entity\Reponse;
-use App\Form\Reponse1Type;
-use App\Repository\ReponseRepository;
-use App\Repository\CustomReclamationRepository;
-use Doctrine\ORM\EntityManagerInterface;
 use Symfony\Bundle\FrameworkBundle\Controller\AbstractController;
 use Symfony\Component\HttpFoundation\Request;
 use Symfony\Component\HttpFoundation\Response;
 use Symfony\Component\Routing\Attribute\Route;
 use Symfony\Component\Security\Http\Attribute\IsGranted;
+use Doctrine\ORM\EntityManagerInterface;
 use Symfony\Component\Form\Extension\Core\Type\TextareaType;
 use Symfony\Component\Form\Extension\Core\Type\ChoiceType;
 use Symfony\Component\Form\Extension\Core\Type\DateType;
 use Symfony\Component\Validator\Constraints\NotBlank;
 use Symfony\Component\Validator\Constraints\Length;
 use Symfony\Component\Validator\Constraints\NotNull;
+use Symfony\Component\Form\FormError;
 
 #[Route('/reponse')]
 final class ReponseController extends AbstractController{
@@ -26,8 +23,8 @@ final class ReponseController extends AbstractController{
     {
         // Use a custom query to fetch all responses with their associated reclamations
         $conn = $entityManager->getConnection();
-        $sql = 'SELECT r.*, rec.description as reclamation_description, rec.id as reclamation_id 
-                FROM reponse r 
+        $sql = 'SELECT r.*, rec.description as reclamation_description, rec.id as reclamation_id
+                FROM reponse r
                 LEFT JOIN reclamation rec ON r.id_Reclamation = rec.id';
         $stmt = $conn->prepare($sql);
         $resultSet = $stmt->executeQuery();
@@ -52,8 +49,8 @@ final class ReponseController extends AbstractController{
         // Create reclamation choices for the form
         $reclamationChoices = [];
         foreach ($reclamations as $reclamation) {
-            $shortDesc = strlen($reclamation['description']) > 30 
-                ? substr($reclamation['description'], 0, 30) . '...' 
+            $shortDesc = strlen($reclamation['description']) > 30
+                ? substr($reclamation['description'], 0, 30) . '...'
                 : $reclamation['description'];
             $reclamationChoices['#' . $reclamation['id'] . ' - ' . $shortDesc] = $reclamation['id'];
         }
@@ -62,15 +59,21 @@ final class ReponseController extends AbstractController{
         $form = $this->createFormBuilder()
             ->add('description', TextareaType::class, [
                 'constraints' => [
-                    new NotBlank(['message' => 'Please enter a description']),
+                    new NotBlank([
+                        'message' => 'Ce champ est obligatoire'
+                    ]),
                     new Length([
                         'min' => 10,
-                        'minMessage' => 'Your description should be at least {{ limit }} characters',
+                        'minMessage' => 'Votre description doit contenir au moins {{ limit }} caractères',
                         'max' => 1000,
-                        'maxMessage' => 'Your description cannot be longer than {{ limit }} characters'
+                        'maxMessage' => 'Votre description ne peut pas dépasser {{ limit }} caractères'
                     ])
                 ],
-                'attr' => ['rows' => 5]
+                'attr' => [
+                    'rows' => 5,
+                    'class' => 'form-control'
+                ],
+                'label' => 'Description'
             ])
             ->add('statut', ChoiceType::class, [
                 'choices' => [
@@ -80,28 +83,72 @@ final class ReponseController extends AbstractController{
                     'Closed' => 'Closed'
                 ],
                 'constraints' => [
-                    new NotBlank(['message' => 'Please select a status'])
-                ]
+                    new NotBlank([
+                        'message' => 'Veuillez sélectionner un statut'
+                    ])
+                ],
+                'attr' => [
+                    'class' => 'form-control'
+                ],
+                'label' => 'Statut'
             ])
             ->add('date', DateType::class, [
                 'widget' => 'single_text',
                 'data' => new \DateTime(),
                 'constraints' => [
-                    new NotNull(['message' => 'Please select a date'])
-                ]
+                    new NotNull([
+                        'message' => 'Veuillez sélectionner une date'
+                    ])
+                ],
+                'attr' => [
+                    'class' => 'form-control'
+                ],
+                'label' => 'Date'
             ])
             ->add('id_Reclamation', ChoiceType::class, [
                 'choices' => $reclamationChoices,
                 'label' => 'Réclamation associée',
                 'placeholder' => 'Choisir une réclamation',
-                'required' => true,
+                'required' => false,
                 'constraints' => [
-                    new NotBlank(['message' => 'Veuillez sélectionner une réclamation'])
+                    new NotBlank([
+                        'message' => 'Veuillez sélectionner une réclamation'
+                    ])
+                ],
+                'attr' => [
+                    'class' => 'form-control'
                 ]
             ])
             ->getForm();
 
         $form->handleRequest($request);
+
+        // Custom validation
+        if ($form->isSubmitted()) {
+            $data = $form->getData();
+
+            // Validate description
+            if (empty($data['description'])) {
+                $form->get('description')->addError(new FormError('Ce champ est obligatoire'));
+            } elseif (strlen($data['description']) < 10) {
+                $form->get('description')->addError(new FormError('Votre description doit contenir au moins 10 caractères'));
+            }
+
+            // Validate status
+            if (empty($data['statut'])) {
+                $form->get('statut')->addError(new FormError('Veuillez sélectionner un statut'));
+            }
+
+            // Validate date
+            if (empty($data['date'])) {
+                $form->get('date')->addError(new FormError('Veuillez sélectionner une date'));
+            }
+
+            // Validate reclamation
+            if (empty($data['id_Reclamation'])) {
+                $form->get('id_Reclamation')->addError(new FormError('Veuillez sélectionner une réclamation'));
+            }
+        }
 
         if ($form->isSubmitted() && $form->isValid()) {
             $data = $form->getData();
@@ -138,8 +185,8 @@ final class ReponseController extends AbstractController{
     {
         // Use a custom query to fetch a single response with its associated reclamation
         $conn = $entityManager->getConnection();
-        $sql = 'SELECT r.*, rec.description as reclamation_description, rec.id as reclamation_id 
-                FROM reponse r 
+        $sql = 'SELECT r.*, rec.description as reclamation_description, rec.id as reclamation_id
+                FROM reponse r
                 LEFT JOIN reclamation rec ON r.id_Reclamation = rec.id
                 WHERE r.id = :id';
         $stmt = $conn->prepare($sql);
@@ -179,8 +226,8 @@ final class ReponseController extends AbstractController{
         // Create reclamation choices for the form
         $reclamationChoices = [];
         foreach ($reclamations as $reclamation) {
-            $shortDesc = strlen($reclamation['description']) > 30 
-                ? substr($reclamation['description'], 0, 30) . '...' 
+            $shortDesc = strlen($reclamation['description']) > 30
+                ? substr($reclamation['description'], 0, 30) . '...'
                 : $reclamation['description'];
             $reclamationChoices['#' . $reclamation['id'] . ' - ' . $shortDesc] = $reclamation['id'];
         }
@@ -190,15 +237,21 @@ final class ReponseController extends AbstractController{
             ->add('description', TextareaType::class, [
                 'data' => $reponse['description'],
                 'constraints' => [
-                    new NotBlank(['message' => 'Please enter a description']),
+                    new NotBlank([
+                        'message' => 'Ce champ est obligatoire'
+                    ]),
                     new Length([
                         'min' => 10,
-                        'minMessage' => 'Your description should be at least {{ limit }} characters',
+                        'minMessage' => 'Votre description doit contenir au moins {{ limit }} caractères',
                         'max' => 1000,
-                        'maxMessage' => 'Your description cannot be longer than {{ limit }} characters'
+                        'maxMessage' => 'Votre description ne peut pas dépasser {{ limit }} caractères'
                     ])
                 ],
-                'attr' => ['rows' => 5]
+                'attr' => [
+                    'rows' => 5,
+                    'class' => 'form-control'
+                ],
+                'label' => 'Description'
             ])
             ->add('statut', ChoiceType::class, [
                 'data' => $reponse['statut'],
@@ -209,29 +262,73 @@ final class ReponseController extends AbstractController{
                     'Closed' => 'Closed'
                 ],
                 'constraints' => [
-                    new NotBlank(['message' => 'Please select a status'])
-                ]
+                    new NotBlank([
+                        'message' => 'Veuillez sélectionner un statut'
+                    ])
+                ],
+                'attr' => [
+                    'class' => 'form-control'
+                ],
+                'label' => 'Statut'
             ])
             ->add('date', DateType::class, [
                 'data' => new \DateTime($reponse['date']),
                 'widget' => 'single_text',
                 'constraints' => [
-                    new NotNull(['message' => 'Please select a date'])
-                ]
+                    new NotNull([
+                        'message' => 'Veuillez sélectionner une date'
+                    ])
+                ],
+                'attr' => [
+                    'class' => 'form-control'
+                ],
+                'label' => 'Date'
             ])
             ->add('id_Reclamation', ChoiceType::class, [
                 'data' => $reponse['id_Reclamation'],
                 'choices' => $reclamationChoices,
                 'label' => 'Réclamation associée',
                 'placeholder' => 'Choisir une réclamation',
-                'required' => true,
+                'required' => false,
                 'constraints' => [
-                    new NotBlank(['message' => 'Veuillez sélectionner une réclamation'])
+                    new NotBlank([
+                        'message' => 'Veuillez sélectionner une réclamation'
+                    ])
+                ],
+                'attr' => [
+                    'class' => 'form-control'
                 ]
             ])
             ->getForm();
 
         $form->handleRequest($request);
+
+        // Custom validation
+        if ($form->isSubmitted()) {
+            $data = $form->getData();
+
+            // Validate description
+            if (empty($data['description'])) {
+                $form->get('description')->addError(new FormError('Ce champ est obligatoire'));
+            } elseif (strlen($data['description']) < 10) {
+                $form->get('description')->addError(new FormError('Votre description doit contenir au moins 10 caractères'));
+            }
+
+            // Validate status
+            if (empty($data['statut'])) {
+                $form->get('statut')->addError(new FormError('Veuillez sélectionner un statut'));
+            }
+
+            // Validate date
+            if (empty($data['date'])) {
+                $form->get('date')->addError(new FormError('Veuillez sélectionner une date'));
+            }
+
+            // Validate reclamation
+            if (empty($data['id_Reclamation'])) {
+                $form->get('id_Reclamation')->addError(new FormError('Veuillez sélectionner une réclamation'));
+            }
+        }
 
         if ($form->isSubmitted() && $form->isValid()) {
             $data = $form->getData();
