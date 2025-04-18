@@ -9,3 +9,48 @@
 
     <a href="{{ path('app_reponse_index') }}">back to list</a>
 {% endblock %}
+
+{% block javascripts %}
+<script>
+    document.addEventListener('DOMContentLoaded', function() {
+        const form = document.querySelector('form');
+        const requiredFields = document.querySelectorAll('[data-required="true"]');
+
+        // Show error messages when field loses focus
+        requiredFields.forEach(field => {
+            field.addEventListener('blur', function() {
+                validateField(field);
+            });
+        });
+
+        // Validate on form submission
+        form.addEventListener('submit', function(event) {
+            let isValid = true;
+
+            requiredFields.forEach(field => {
+                if (!validateField(field)) {
+                    isValid = false;
+                }
+            });
+
+            if (!isValid) {
+                event.preventDefault();
+            }
+        });
+
+        function validateField(field) {
+            const errorMessage = field.nextElementSibling;
+
+            if (field.value.trim() === '') {
+                errorMessage.style.display = 'block';
+                field.classList.add('is-invalid');
+                return false;
+            } else {
+                errorMessage.style.display = 'none';
+                field.classList.remove('is-invalid');
+                return true;
+            }
+        }
+    });
+</script>
+{% endblock %}

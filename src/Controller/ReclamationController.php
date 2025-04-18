@@ -8,10 +8,14 @@ use Symfony\Bundle\FrameworkBundle\Controller\AbstractController;
 use Symfony\Component\Form\Extension\Core\Type\ChoiceType;
 use Symfony\Component\Form\Extension\Core\Type\DateType;
 use Symfony\Component\Form\Extension\Core\Type\TextType;
+use Symfony\Component\Form\Extension\Core\Type\TextareaType;
 use Symfony\Component\HttpFoundation\Request;
 use Symfony\Component\HttpFoundation\Response;
 use Symfony\Component\Routing\Attribute\Route;
 use Symfony\Component\Security\Http\Attribute\IsGranted;
+use Symfony\Component\Validator\Constraints\NotBlank;
+use Symfony\Component\Validator\Constraints\Length;
+use Symfony\Component\Validator\Constraints\NotNull;
 
 #[Route('/reclamation')]
 final class ReclamationController extends AbstractController{
@@ -31,10 +35,12 @@ final class ReclamationController extends AbstractController{
     }
 
     #[Route('/new', name: 'app_reclamation_new', methods: ['GET', 'POST'])]
-    #[IsGranted('ROLE_USER')]
-    #[IsGranted('!ROLE_ADMIN', message: 'Admins cannot create reclamations')]
     public function new(Request $request, EntityManagerInterface $entityManager): Response
     {
+        // Check if the user is an admin
+        if ($this->isGranted('ROLE_ADMIN')) {
+            throw $this->createAccessDeniedException('Admins cannot create reclamations');
+        }
         // Get users for the dropdown without using Doctrine entities
         $conn = $entityManager->getConnection();
         $sql = 'SELECT id, nom, prenom FROM utilisateur';
@@ -50,16 +56,43 @@ final class ReclamationController extends AbstractController{
 
         // Create a form without binding to an entity
         $form = $this->createFormBuilder()
-            ->add('description', TextType::class)
-            ->add('statut', TextType::class)
+            ->add('description', TextareaType::class, [
+                'constraints' => [
+                    new NotBlank(['message' => 'Please enter a description']),
+                    new Length([
+                        'min' => 10,
+                        'minMessage' => 'Your description should be at least {{ limit }} characters',
+                        'max' => 1000,
+                        'maxMessage' => 'Your description cannot be longer than {{ limit }} characters'
+                    ])
+                ],
+                'attr' => ['rows' => 5]
+            ])
+            ->add('statut', ChoiceType::class, [
+                'choices' => [
+                    'New' => 'New',
+                    'In Progress' => 'In Progress',
+                    'Waiting for Response' => 'Waiting for Response',
+                    'Closed' => 'Closed'
+                ],
+                'constraints' => [
+                    new NotBlank(['message' => 'Please select a status'])
+                ]
+            ])
             ->add('date', DateType::class, [
                 'widget' => 'single_text',
-                'data' => new \DateTime()
+                'data' => new \DateTime(),
+                'constraints' => [
+                    new NotNull(['message' => 'Please select a date'])
+                ]
             ])
             ->add('Utilisateur_id', ChoiceType::class, [
                 'choices' => $userChoices,
                 'placeholder' => 'Choose a user',
-                'required' => true
+                'required' => true,
+                'constraints' => [
+                    new NotBlank(['message' => 'Please select a user'])
+                ]
             ])
             ->getForm();
 
@@ -131,9 +164,38 @@ final class ReclamationController extends AbstractController{
 
         // Create a form without binding to an entity
         $form = $this->createFormBuilder()
-            ->add('description', null, ['data' => $reclamation['description']])
-            ->add('statut', null, ['data' => $reclamation['statut']])
-            ->add('date', null, ['data' => $reclamation['date']])
+            ->add('description', TextareaType::class, [
+                'data' => $reclamation['description'],
+                'constraints' => [
+                    new NotBlank(['message' => 'Please enter a description']),
+                    new Length([
+                        'min' => 10,
+                        'minMessage' => 'Your description should be at least {{ limit }} characters',
+                        'max' => 1000,
+                        'maxMessage' => 'Your description cannot be longer than {{ limit }} characters'
+                    ])
+                ],
+                'attr' => ['rows' => 5]
+            ])
+            ->add('statut', ChoiceType::class, [
+                'data' => $reclamation['statut'],
+                'choices' => [
+                    'New' => 'New',
+                    'In Progress' => 'In Progress',
+                    'Waiting for Response' => 'Waiting for Response',
+                    'Closed' => 'Closed'
+                ],
+                'constraints' => [
+                    new NotBlank(['message' => 'Please select a status'])
+                ]
+            ])
+            ->add('date', DateType::class, [
+                'data' => new \DateTime($reclamation['date']),
+                'widget' => 'single_text',
+                'constraints' => [
+                    new NotNull(['message' => 'Please select a date'])
+                ]
+            ])
             ->getForm();
 
         $form->handleRequest($request);
@@ -144,11 +206,14 @@ final class ReclamationController extends AbstractController{
             // Update the reclamation using a direct SQL query
             $sql = 'UPDATE reclamation SET description = :description, statut = :statut, date = :date WHERE id = :id';
             $stmt = $conn->prepare($sql);
+            // Format the date as a string
+            $formattedDate = $data['date'] instanceof \DateTime ? $data['date']->format('Y-m-d') : $data['date'];
+
             $stmt->executeStatement([
                 'id' => $id,
                 'description' => $data['description'],
                 'statut' => $data['statut'],
-                'date' => $data['date'],
+                'date' => $formattedDate,
             ]);
 
             return $this->redirectToRoute('app_reclamation_index', [], Response::HTTP_SEE_OTHER);
