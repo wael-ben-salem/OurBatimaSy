@@ -1,0 +1,143 @@
+
+        <!-- En-tête -->
+        <div class="modal-header bg-gradient-primary text-white">
+            <h5 class="modal-title">
+                <i class="fas fa-user-circle me-2"></i>
+                {{ user.nom|upper }} {{ user.prenom }}
+            </h5>
+            <button type="button" class="btn-close btn-close-white" data-bs-dismiss="modal"></button>
+        </div>
+
+        <!-- Corps -->
+        <div class="modal-body">
+            <div class="row g-4">
+                <!-- Colonne Informations -->
+                <div class="col-md-6">
+                    <div class="card h-100 shadow-sm">
+                        <div class="card-header bg-light">
+                            <h6 class="mb-0"><i class="fas fa-info-circle me-2"></i>Informations de base</h6>
+                        </div>
+                        <div class="card-body">
+                            <dl class="row mb-0">
+                                <dt class="col-sm-4">Nom complet</dt>
+                                <dd class="col-sm-8">{{ user.nom }} {{ user.prenom }}</dd>
+
+                                <dt class="col-sm-4">Email</dt>
+                                <dd class="col-sm-8">
+                                    <a href="mailto:{{ user.email }}" class="text-primary">
+                                        {{ user.email }}
+                                    </a>
+                                </dd>
+
+                              <dt class="col-sm-4">Téléphone</dt>
+<dd class="col-sm-8">
+    <a href="tel:{{ user.telephone }}" class="text-decoration-none">
+        {{ user.telephone|format_telephone }}
+    </a>
+</dd>
+                                <dt class="col-sm-4">Rôle</dt>
+                                <dd class="col-sm-8">
+                                    <span class="badge bg-{{ user.role == 'Client' ? 'info' : 
+                                      user.role == 'Artisan' ? 'warning' : 
+                                      user.role == 'Constructeur' ? 'success' : 'secondary' }} rounded-pill">
+                                        <i class="fas fa-{{ user.role|lower == 'client' ? 'user' : 
+                                          user.role|lower == 'artisan' ? 'tools' : 
+                                          user.role|lower == 'constructeur' ? 'hard-hat' : 'shield-alt' }} me-1"></i>
+                                        {{ user.role }}
+                                    </span>
+                                </dd>
+                            </dl>
+                        </div>
+                    </div>
+                </div>
+
+                <!-- Colonne Spécialités -->
+                <div class="col-md-6">
+                    <div class="card h-100 shadow-sm">
+                        <div class="card-header bg-light">
+                            <h6 class="mb-0"><i class="fas fa-certificate me-2"></i>Spécialisations</h6>
+                        </div>
+                        <div class="card-body">
+                            {% if user.artisan %}
+                                <dl class="row mb-0">
+                                    <dt class="col-sm-5">Spécialité</dt>
+                                    <dd class="col-sm-7">{{ user.artisan.specialite }}</dd>
+
+                                    <dt class="col-sm-5">Taux horaire</dt>
+                                    <dd class="col-sm-7">{{ user.artisan.salaireHeure|format_currency('EUR') }}</dd>
+
+                                   
+                                </dl>
+                            {% elseif user.constructeur %}
+                                <dl class="row mb-0">
+                                    <dt class="col-sm-5">Domaine</dt>
+                                    <dd class="col-sm-7">{{ user.constructeur.specialite }}</dd>
+
+                                    <dt class="col-sm-5">Taux horaire</dt>
+                                    <dd class="col-sm-7">{{ user.constructeur.salaireHeure|format_currency('EUR') }}</dd>
+
+                                    
+                                </dl>
+                            {% else %}
+                                <p class="text-muted mb-0">Aucune spécialisation</p>
+                            {% endif %}
+                        </div>
+                    </div>
+                </div>
+
+                <!-- Carte -->
+                <!-- Modifier la section carte -->
+<div class="col-12">
+    <div class="card shadow-sm">
+        <div class="card-header bg-light">
+            <h6 class="mb-0"><i class="fas fa-map-marker-alt me-2"></i>Localisation</h6>
+        </div>
+        <div class="card-body p-0 position-relative">
+<div class="p-3 border-top" data-address="{{ user.adresse|url_encode }}">
+                <p class="mb-0 text-muted small">
+                    <i class="fas fa-info-circle me-1"></i>
+                    {{ user.adresse|u.truncate(50, '...') }}
+                </p>
+            </div>
+        </div>
+    </div>
+</div>
+
+        <!-- Pied -->
+        <div class="modal-footer">
+            <button type="button" class="btn btn-secondary" data-bs-dismiss="modal">
+                <i class="fas fa-times me-2"></i>Fermer
+            </button>
+        </div>
+   
+
+
+<style>
+.modal-header {
+    border-bottom: 2px solid rgba(255,255,255,0.2);
+}
+
+.card-header {
+    font-weight: 500;
+    letter-spacing: 0.5px;
+}
+
+.dt {
+    color: #6c757d;
+    font-weight: 500;
+}
+
+.dd {
+    color: #495057;
+}
+
+#userMap {
+    min-height: 300px;
+    background: #f8f9fa;
+}
+
+.badge {
+    padding: 0.5em 0.8em;
+    font-size: 0.85em;
+}
+</style>

@@ -66,8 +66,7 @@ class Utilisateur implements UserInterface, PasswordAuthenticatedUserInterface
      * @var string
      */
     #[ORM\Column(name: 'mot_de_passe', type: 'string', length: 255, nullable: false)]
-    private $password;
-
+private string $password;
     /**
      * @var string|null
      */
@@ -165,10 +164,10 @@ class Utilisateur implements UserInterface, PasswordAuthenticatedUserInterface
         return $this->role;
     }
 
-    // src/Entity/Utilisateur.php
     public function setRole(?string $role): static
     {
-        $this->role = strtolower($role);
+        $this->role = $role;
+
         return $this;
     }
 
@@ -286,6 +285,7 @@ private ?Artisan $artisan = null;
 #[ORM\OneToOne(mappedBy: 'constructeur', targetEntity: Constructeur::class)]
 private ?Constructeur $constructeur = null;
 
+
 public function getArtisan(): ?Artisan
 {
     return $this->artisan;
@@ -305,6 +305,32 @@ public function getConstructeur(): ?Constructeur
 public function setConstructeur(?Constructeur $constructeur): static
 {
     $this->constructeur = $constructeur;
+    return $this;
+}
+#[ORM\OneToOne(mappedBy: 'client', targetEntity: Client::class)]
+private ?Client $client = null;
+
+public function getClient(): ?Client
+{
+    return $this->client;
+}
+
+public function setClient(?Client $client): static
+{
+    $this->client = $client;
+    return $this;
+}
+#[ORM\OneToOne(mappedBy: 'gestionnairestock', targetEntity: Gestionnairestock::class)]
+private ?Gestionnairestock $gestionnaireStock = null;
+
+public function getGestionnaireStock(): ?Gestionnairestock
+{
+    return $this->gestionnaireStock;
+}
+
+public function setGestionnaireStock(?Gestionnairestock $gestionnaireStock): static
+{
+    $this->gestionnaireStock = $gestionnaireStock;
     return $this;
 }
 
