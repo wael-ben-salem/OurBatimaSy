@@ -9,6 +9,7 @@ use Symfony\Bundle\FrameworkBundle\Controller\AbstractController;
 use Symfony\Component\HttpFoundation\Request;
 use Symfony\Component\HttpFoundation\Response;
 use Symfony\Component\Routing\Attribute\Route;
+use App\Form\editContartType;
 
 #[Route('/contrat')]
 final class ContratController extends AbstractController
@@ -56,21 +57,25 @@ final class ContratController extends AbstractController
     #[Route('/{idContrat}/edit', name: 'app_contrat_edit', methods: ['GET', 'POST'])]
     public function edit(Request $request, Contrat $contrat, EntityManagerInterface $entityManager): Response
     {
-        $form = $this->createForm(ContratType::class, $contrat);
+        $form = $this->createForm(editContartType::class, $contrat);
         $form->handleRequest($request);
-
-        if ($form->isSubmitted() && $form->isValid()) {
+    
+        if ($form->isSubmitted()) {
             $entityManager->flush();
-
-            return $this->redirectToRoute('app_contrat_index', [], Response::HTTP_SEE_OTHER);
+    
+            // Si c'est une requête AJAX, renvoyer une réponse JSON
+            if ($request->isXmlHttpRequest()) {
+            }
+    
+            return $this->redirectToRoute('app_contrat_index');
         }
-
+    
         return $this->render('contrat/edit.html.twig', [
             'contrat' => $contrat,
-            'form' => $form,
+            'form' => $form->createView(),
         ]);
     }
-
+    
     #[Route('/{idContrat}', name: 'app_contrat_delete', methods: ['POST'])]
     public function delete(Request $request, Contrat $contrat, EntityManagerInterface $entityManager): Response
     {
