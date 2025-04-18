@@ -2,35 +2,96 @@
 
 {% block title %}Reponse{% endblock %}
 
+{% block stylesheets %}
+  {{ parent() }}
+  <style>
+    .card {
+      border-radius: 12px;
+      box-shadow: 0 4px 20px 0 rgba(0, 0, 0, 0.14), 
+                  0 7px 10px -5px rgba(0, 0, 0, 0.4);
+    }
+    .field-container {
+      border: 1px solid #e9ecef;
+      border-radius: 8px;
+      padding: 15px;
+      margin-bottom: 15px;
+      background-color: #f8f9fa;
+    }
+    .field-label {
+      font-weight: 600;
+      color: #344767;
+      margin-bottom: 8px;
+      font-size: 0.875rem;
+      text-transform: uppercase;
+    }
+    .field-value {
+      font-size: 1rem;
+      color: #495057;
+    }
+  </style>
+{% endblock %}
+
 {% block body %}
-    <h1>Reponse</h1>
-
-    <table class="table">
-        <tbody>
-            <tr>
-                <th>Id</th>
-                <td>{{ reponse.id }}</td>
-            </tr>
-            <tr>
-                <th>Description</th>
-                <td>{{ reponse.description }}</td>
-            </tr>
-            <tr>
-                <th>Statut</th>
-                <td>{{ reponse.statut }}</td>
-            </tr>
-            <tr>
-                <th>Date</th>
-                <td>{{ reponse.date ? reponse.date|date('Y-m-d') : '' }}</td>
-            </tr>
-        </tbody>
-    </table>
-
-    <a href="{{ path('app_reponse_index') }}">back to list</a>
-
-    {% if is_granted('ROLE_ADMIN') %}
-        <a href="{{ path('app_reponse_edit', {'id': reponse.id}) }}">edit</a>
-
-        {{ include('reponse/_delete_form.html.twig') }}
-    {% endif %}
+  <div class="row">
+    <div class="col-12">
+      <div class="card my-4">
+        <div class="card-header p-0 position-relative mt-n4 mx-3 z-index-2">
+          <div class="bg-gradient-dark shadow-dark border-radius-lg pt-4 pb-3">
+            <h6 class="text-white text-capitalize ps-3">Détails de la Réponse</h6>
+          </div>
+        </div>
+        <div class="card-body px-4 pb-2">
+          <div class="row">
+            <div class="col-md-12 mb-4">
+              <div class="d-flex align-items-center mb-4">
+                <div class="avatar avatar-lg rounded-circle bg-gradient-dark me-3">
+                  <i class="material-symbols-rounded text-white">question_answer</i>
+                </div>
+                <h4 class="mb-0">Réponse #{{ reponse.id }}</h4>
+              </div>
+              
+              <div class="field-container">
+                <div class="field-label">Description</div>
+                <div class="field-value">{{ reponse.description }}</div>
+              </div>
+              
+              <div class="field-container">
+                <div class="field-label">Statut</div>
+                <div class="field-value">
+                  <span class="badge bg-gradient-{{ reponse.statut == 'Pending' ? 'info' : (reponse.statut == 'In Progress' ? 'warning' : (reponse.statut == 'Resolved' ? 'success' : 'secondary')) }}">
+                    {{ reponse.statut }}
+                  </span>
+                </div>
+              </div>
+              
+              <div class="field-container">
+                <div class="field-label">Date</div>
+                <div class="field-value">{{ reponse.date ? reponse.date|date('Y-m-d') : '' }}</div>
+              </div>
+            </div>
+          </div>
+          
+          <div class="row mt-4">
+            <div class="col-12">
+              <div class="d-flex justify-content-between">
+                <a href="{{ path('app_reponse_index') }}" class="btn btn-outline-secondary">
+                  <i class="material-symbols-rounded me-1">arrow_back</i>
+                  Retour à la liste
+                </a>
+                {% if is_granted('ROLE_ADMIN') %}
+                <div>
+                  <a href="{{ path('app_reponse_edit', {'id': reponse.id}) }}" class="btn btn-outline-info">
+                    <i class="material-symbols-rounded me-1">edit</i>
+                    Modifier
+                  </a>
+                  {{ include('reponse/_delete_form.html.twig') }}
+                </div>
+                {% endif %}
+              </div>
+            </div>
+          </div>
+        </div>
+      </div>
+    </div>
+  </div>
 {% endblock %}

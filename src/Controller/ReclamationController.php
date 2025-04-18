@@ -87,6 +87,7 @@ final class ReclamationController extends AbstractController{
                 ]
             ])
             ->add('Utilisateur_id', ChoiceType::class, [
+                'label' => 'User',
                 'choices' => $userChoices,
                 'placeholder' => 'Choose a user',
                 'required' => true,

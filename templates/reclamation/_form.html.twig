@@ -50,5 +50,8 @@
     </div>
     {% endif %}
 
-    <button class="btn btn-primary mt-3">{{ button_label|default('Save') }}</button>
+    <button class="btn btn-outline-dark mt-3">
+        <i class="material-symbols-rounded me-1">save</i>
+        {{ button_label|default('Enregistrer') }}
+    </button>
 {{ form_end(form) }}

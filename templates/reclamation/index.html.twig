@@ -1,47 +1,129 @@
 {% extends 'base.html.twig' %}
 
-{% block title %}Reclamation index{% endblock %}
+{% block title %}Reclamations{% endblock %}
+
+{% block stylesheets %}
+  {{ parent() }}
+  <style>
+    .card {
+      border-radius: 12px;
+      box-shadow: 0 4px 20px 0 rgba(0, 0, 0, 0.14),
+                  0 7px 10px -5px rgba(0, 0, 0, 0.4);
+    }
+    .avatar-sm {
+      width: 36px;
+      height: 36px;
+      display: flex;
+      align-items: center;
+      justify-content: center;
+    }
+    .text-truncate {
+      white-space: nowrap;
+      overflow: hidden;
+      text-overflow: ellipsis;
+      max-width: 200px;
+      display: inline-block;
+    }
+  </style>
+{% endblock %}
 
 {% block body %}
-    <h1>Reclamation index</h1>
-
-    <div class="navigation mb-4">
-        <a href="{{ path('app_reponse_index') }}" class="btn btn-primary">Go to Responses</a>
-        <a href="{{ path('app_debug_roles') }}" class="btn btn-info">Debug Roles</a>
-        <a href="{{ path('app_logout') }}" class="btn btn-danger">Logout</a>
+  <div class="row">
+    <div class="col-12">
+      <div class="card my-4">
+        <div class="card-header p-0 position-relative mt-n4 mx-3 z-index-2">
+          <div class="bg-gradient-dark shadow-dark border-radius-lg pt-4 pb-3 d-flex justify-content-between align-items-center">
+            <h6 class="text-white text-capitalize ps-3">Reclamations</h6>
+            {% if not is_granted('ROLE_ADMIN') %}
+            <a href="{{ path('app_reclamation_new') }}" class="btn btn-sm btn-light me-3">
+              <i class="material-symbols-rounded me-1">add</i>
+              Nouvelle Reclamation
+            </a>
+            {% endif %}
+          </div>
+        </div>
+        <div class="card-body px-0 pb-2">
+          <div class="table-responsive p-0">
+            <table class="table align-items-center justify-content-center mb-0">
+              <thead>
+                <tr>
+                  <th class="text-uppercase text-secondary text-xxs font-weight-bolder opacity-7">Description</th>
+                  <th class="text-uppercase text-secondary text-xxs font-weight-bolder opacity-7 text-center">Statut</th>
+                  <th class="text-uppercase text-secondary text-xxs font-weight-bolder opacity-7 text-center">Date</th>
+                  <th class="text-uppercase text-secondary text-xxs font-weight-bolder opacity-7 text-center">Actions</th>
+                </tr>
+              </thead>
+              <tbody>
+                {% for reclamation in reclamations %}
+                <tr>
+                  <td>
+                    <div class="d-flex px-2">
+                      <div>
+                        <div class="avatar avatar-sm rounded-circle bg-gradient-dark me-2">
+                          <i class="material-symbols-rounded text-white">report_problem</i>
+                        </div>
+                      </div>
+                      <div class="my-auto">
+                        <h6 class="mb-0 text-sm text-truncate">{{ reclamation.description }}</h6>
+                        <p class="text-xs text-secondary mb-0">
+                          {{ reclamation.date }}
+                        </p>
+                      </div>
+                    </div>
+                  </td>
+                  <td class="text-center align-middle">
+                    <span class="badge bg-gradient-{{ reclamation.statut == 'New' ? 'info' : (reclamation.statut == 'In Progress' ? 'warning' : (reclamation.statut == 'Waiting for Response' ? 'primary' : 'success')) }}">
+                      {{ reclamation.statut }}
+                    </span>
+                  </td>
+                  <td class="text-center align-middle">
+                    <p class="text-sm font-weight-bold mb-0">{{ reclamation.date }}</p>
+                  </td>
+                  <td class="text-center align-middle">
+                    <a href="{{ path('app_reclamation_show', {'id': reclamation.id}) }}" class="text-secondary font-weight-bold text-xs" data-toggle="tooltip" title="Voir">
+                      <i class="material-symbols-rounded">visibility</i>
+                    </a>
+                    <a href="{{ path('app_reclamation_edit', {'id': reclamation.id}) }}" class="text-secondary font-weight-bold text-xs ms-2" data-toggle="tooltip" title="Modifier">
+                      <i class="material-symbols-rounded">edit</i>
+                    </a>
+                  </td>
+                </tr>
+                {% else %}
+                <tr>
+                  <td colspan="4" class="text-center py-4">
+                    <i class="material-symbols-rounded opacity-50">report_problem</i>
+                    <p class="text-sm text-secondary mt-2">Aucune réclamation enregistrée</p>
+                  </td>
+                </tr>
+                {% endfor %}
+              </tbody>
+            </table>
+          </div>
+        </div>
+      </div>
     </div>
+  </div>
 
-    <table class="table">
-        <thead>
-            <tr>
-                <th>Id</th>
-                <th>Description</th>
-                <th>Statut</th>
-                <th>Date</th>
-                <th>actions</th>
-            </tr>
-        </thead>
-        <tbody>
-        {% for reclamation in reclamations %}
-            <tr>
-                <td>{{ reclamation.id }}</td>
-                <td>{{ reclamation.description }}</td>
-                <td>{{ reclamation.statut }}</td>
-                <td>{{ reclamation.date }}</td>
-                <td>
-                    <a href="{{ path('app_reclamation_show', {'id': reclamation.id}) }}">show</a>
-                    <a href="{{ path('app_reclamation_edit', {'id': reclamation.id}) }}">edit</a>
-                </td>
-            </tr>
-        {% else %}
-            <tr>
-                <td colspan="5">no records found</td>
-            </tr>
-        {% endfor %}
-        </tbody>
-    </table>
+  <div class="row mt-4">
+    <div class="col-12 text-center">
+      <a href="{{ path('app_reponse_index') }}" class="btn btn-outline-dark">
+        <i class="material-symbols-rounded me-1">question_answer</i>
+        Voir les Réponses
+      </a>
+      <a href="{{ path('app_logout') }}" class="btn btn-outline-secondary ms-2">
+        <i class="material-symbols-rounded me-1">logout</i>
+        Déconnexion
+      </a>
+    </div>
+  </div>
+{% endblock %}
 
-    {% if not is_granted('ROLE_ADMIN') %}
-        <a href="{{ path('app_reclamation_new') }}" class="btn btn-success">Create new</a>
-    {% endif %}
+{% block javascripts %}
+  {{ parent() }}
+  <script>
+    // Initialize tooltips
+    $(function () {
+      $('[data-toggle="tooltip"]').tooltip();
+    });
+  </script>
 {% endblock %}

@@ -1,15 +1,45 @@
 {% extends 'base.html.twig' %}
 
-{% block title %}Edit Reclamation{% endblock %}
+{% block title %}Modifier Reclamation{% endblock %}
+
+{% block stylesheets %}
+  {{ parent() }}
+  <style>
+    .card {
+      border-radius: 12px;
+      box-shadow: 0 4px 20px 0 rgba(0, 0, 0, 0.14), 
+                  0 7px 10px -5px rgba(0, 0, 0, 0.4);
+    }
+  </style>
+{% endblock %}
 
 {% block body %}
-    <h1>Edit Reclamation</h1>
-
-    {{ include('reclamation/_form.html.twig', {'button_label': 'Update'}) }}
-
-    <a href="{{ path('app_reclamation_index') }}">back to list</a>
-
-    {{ include('reclamation/_delete_form.html.twig') }}
+  <div class="row">
+    <div class="col-12">
+      <div class="card my-4">
+        <div class="card-header p-0 position-relative mt-n4 mx-3 z-index-2">
+          <div class="bg-gradient-dark shadow-dark border-radius-lg pt-4 pb-3">
+            <h6 class="text-white text-capitalize ps-3">Modifier la Réclamation</h6>
+          </div>
+        </div>
+        <div class="card-body px-4 pb-2">
+          {{ include('reclamation/_form.html.twig', {'button_label': 'Mettre à jour'}) }}
+          
+          <div class="row mt-4">
+            <div class="col-12">
+              <div class="d-flex justify-content-between">
+                <a href="{{ path('app_reclamation_index') }}" class="btn btn-outline-secondary">
+                  <i class="material-symbols-rounded me-1">arrow_back</i>
+                  Retour à la liste
+                </a>
+                {{ include('reclamation/_delete_form.html.twig') }}
+              </div>
+            </div>
+          </div>
+        </div>
+      </div>
+    </div>
+  </div>
 {% endblock %}
 
 {% block javascripts %}
@@ -17,32 +47,32 @@
     document.addEventListener('DOMContentLoaded', function() {
         const form = document.querySelector('form');
         const requiredFields = document.querySelectorAll('[data-required="true"]');
-
+        
         // Show error messages when field loses focus
         requiredFields.forEach(field => {
             field.addEventListener('blur', function() {
                 validateField(field);
             });
         });
-
+        
         // Validate on form submission
         form.addEventListener('submit', function(event) {
             let isValid = true;
-
+            
             requiredFields.forEach(field => {
                 if (!validateField(field)) {
                     isValid = false;
                 }
             });
-
+            
             if (!isValid) {
                 event.preventDefault();
             }
         });
-
+        
         function validateField(field) {
             const errorMessage = field.nextElementSibling;
-
+            
             if (field.value.trim() === '') {
                 errorMessage.style.display = 'block';
                 field.classList.add('is-invalid');
