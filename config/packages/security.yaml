@@ -18,7 +18,6 @@ security:
                 login_path: app_login
                 check_path: app_login
                 enable_csrf: true
-                
                 username_parameter: email
                 password_parameter: password
                 success_handler: App\Security\LoginSuccessHandler
@@ -26,15 +25,18 @@ security:
             logout:
                 path: app_logout
                 target: app_login
+
+    role_hierarchy:
+        ROLE_USER: []
+        ROLE_CLIENT: ROLE_USER
+        ROLE_ARTISAN: ROLE_USER
+        ROLE_CONSTRUCTEUR: ROLE_USER
+        ROLE_ADMIN: [ROLE_CLIENT, ROLE_CONSTRUCTEUR, ROLE_ARTISAN]
+
     access_control:
         - { path: ^/register, roles: PUBLIC_ACCESS }
         - { path: ^/login, roles: PUBLIC_ACCESS }
-
-
-        - { path: ^/welcome, roles: [ROLE_USER, ROLE_CLIENT] }
-        - { path: ^/tache, roles: ROLE_CONSTRUCTEUR }  # Fixed this line
-        - {path: ^/plannification, roles: [ROLE_ARTISAN, ROLE_CLIENT]} # Fixed this line
-
- 
-
+        - { path: ^/welcome, roles: ROLE_USER }  # All roles inherit ROLE_USER
+        - { path: ^/tache, roles: ROLE_CONSTRUCTEUR }  # You can add more if needed
+        - { path: ^/plannification, roles: ROLE_USER }  # Since ARTISAN, CONSTRUCTEUR, CLIENT inherit ROLE_USER
 

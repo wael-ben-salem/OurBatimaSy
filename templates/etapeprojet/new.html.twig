@@ -4,6 +4,7 @@
 
 {% block stylesheets %}
   {{ parent() }}
+  <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.0.0/css/all.min.css">
   <style>
     .card {
       border-radius: 12px;
@@ -44,6 +45,27 @@
       box-shadow: 0 4px 20px 0 rgba(156, 39, 176, 0.14), 
                   0 7px 10px -5px rgba(156, 39, 176, 0.4);
     }
+    .invalid-feedback {
+      color: #dc3545;
+      font-size: 0.875em;
+    }
+    .is-invalid {
+      border-color: #dc3545;
+    }
+    .is-invalid:focus {
+      border-color: #dc3545;
+      box-shadow: 0 0 0 0.25rem rgba(220,53,69,.25);
+    }
+    .form-error-message {
+      color: #dc3545;
+      font-size: 0.875rem;
+      margin-top: 0.25rem;
+      display: block;
+    }
+    .form-error-icon {
+      color: #dc3545;
+      margin-right: 0.25rem;
+    }
   </style>
 {% endblock %}
 
@@ -61,7 +83,6 @@
           </div>
         </div>
         <div class="card-body px-4 pb-2">
-          {# Flash messages #}
           {% for message in app.flashes('success') %}
             <div class="alert alert-success alert-dismissible fade show">
               {{ message }}
@@ -84,10 +105,16 @@
                   {{ form_label(form.nometape) }}
                   {{ form_widget(form.nometape, {
                     'attr': {
-                      'class': 'form-control',
+                      'class': 'form-control' ~ (form.nometape.vars.errors|length ? ' is-invalid' : ''),
                       'placeholder': 'Ex: Fondations, Gros œuvre, Finitions'
                     }
                   }) }}
+                  {% if form.nometape.vars.errors|length %}
+                    <div class="form-error-message">
+                      <i class="fas fa-exclamation-circle form-error-icon"></i>
+                      {{ form_errors(form.nometape) }}
+                    </div>
+                  {% endif %}
                   <small class="form-text">Entrez un nom descriptif pour cette étape</small>
                 </div>
               </div>
@@ -96,10 +123,16 @@
                   {{ form_label(form.idProjet) }}
                   {{ form_widget(form.idProjet, {
                     'attr': {
-                      'class': 'form-control',
+                      'class': 'form-control' ~ (form.idProjet.vars.errors|length ? ' is-invalid' : ''),
                       'placeholder': 'Sélectionnez un projet'
                     }
                   }) }}
+                  {% if form.idProjet.vars.errors|length %}
+                    <div class="form-error-message">
+                      <i class="fas fa-exclamation-circle form-error-icon"></i>
+                      {{ form_errors(form.idProjet) }}
+                    </div>
+                  {% endif %}
                   <small class="form-text">Projet associé à cette étape</small>
                 </div>
               </div>
@@ -109,11 +142,17 @@
               {{ form_label(form.description) }}
               {{ form_widget(form.description, {
                 'attr': {
-                  'class': 'form-control',
+                  'class': 'form-control' ~ (form.description.vars.errors|length ? ' is-invalid' : ''),
                   'placeholder': 'Décrivez cette étape en détail',
                   'rows': 3
                 }
               }) }}
+              {% if form.description.vars.errors|length %}
+                <div class="form-error-message">
+                  <i class="fas fa-exclamation-circle form-error-icon"></i>
+                  {{ form_errors(form.description) }}
+                </div>
+              {% endif %}
               <small class="form-text">Description complète de l'étape</small>
             </div>
 
@@ -123,9 +162,15 @@
                   {{ form_label(form.datedebut) }}
                   {{ form_widget(form.datedebut, {
                     'attr': {
-                      'class': 'form-control'
+                      'class': 'form-control' ~ (form.datedebut.vars.errors|length ? ' is-invalid' : '')
                     }
                   }) }}
+                  {% if form.datedebut.vars.errors|length %}
+                    <div class="form-error-message">
+                      <i class="fas fa-exclamation-circle form-error-icon"></i>
+                      {{ form_errors(form.datedebut) }}
+                    </div>
+                  {% endif %}
                   <small class="form-text">Date prévue de début</small>
                 </div>
               </div>
@@ -134,9 +179,15 @@
                   {{ form_label(form.datefin) }}
                   {{ form_widget(form.datefin, {
                     'attr': {
-                      'class': 'form-control'
+                      'class': 'form-control' ~ (form.datefin.vars.errors|length ? ' is-invalid' : '')
                     }
                   }) }}
+                  {% if form.datefin.vars.errors|length %}
+                    <div class="form-error-message">
+                      <i class="fas fa-exclamation-circle form-error-icon"></i>
+                      {{ form_errors(form.datefin) }}
+                    </div>
+                  {% endif %}
                   <small class="form-text">Date prévue de fin</small>
                 </div>
               </div>
@@ -148,9 +199,15 @@
                   {{ form_label(form.statut) }}
                   {{ form_widget(form.statut, {
                     'attr': {
-                      'class': 'form-control'
+                      'class': 'form-control' ~ (form.statut.vars.errors|length ? ' is-invalid' : '')
                     }
                   }) }}
+                  {% if form.statut.vars.errors|length %}
+                    <div class="form-error-message">
+                      <i class="fas fa-exclamation-circle form-error-icon"></i>
+                      {{ form_errors(form.statut) }}
+                    </div>
+                  {% endif %}
                   <small class="form-text">Statut actuel de l'étape</small>
                 </div>
               </div>
@@ -160,12 +217,18 @@
                   <div class="input-group">
                     {{ form_widget(form.montant, {
                       'attr': {
-                        'class': 'form-control',
+                        'class': 'form-control' ~ (form.montant.vars.errors|length ? ' is-invalid' : ''),
                         'placeholder': 'Ex: 50000'
                       }
                     }) }}
                     <span class="input-group-text">TND</span>
                   </div>
+                  {% if form.montant.vars.errors|length %}
+                    <div class="form-error-message">
+                      <i class="fas fa-exclamation-circle form-error-icon"></i>
+                      {{ form_errors(form.montant) }}
+                    </div>
+                  {% endif %}
                   <small class="form-text">Budget alloué à cette étape</small>
                 </div>
               </div>

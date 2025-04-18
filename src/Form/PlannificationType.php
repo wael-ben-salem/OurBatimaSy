@@ -1,6 +1,5 @@
 <?php
 
-// src/Form/PlannificationType.php
 namespace App\Form;
 
 use App\Entity\Plannification;
@@ -26,9 +25,12 @@ class PlannificationType extends AbstractType
                     'Basse' => 'Basse',
                 ],
                 'required' => false,
+                'placeholder' => 'Choisir une priorité',
             ])
             ->add('datePlanifiee', DateType::class, [
                 'widget' => 'single_text',
+                'data' => new \DateTime(), // Set default to today
+                'attr' => ['min' => (new \DateTime())->format('Y-m-d')], // Set min date to today
             ])
             ->add('heureDebut', TimeType::class, [
                 'widget' => 'single_text',
@@ -40,6 +42,7 @@ class PlannificationType extends AbstractType
             ])
             ->add('remarques', TextareaType::class, [
                 'required' => false,
+                'attr' => ['rows' => 5],
             ])
             ->add('statut', ChoiceType::class, [
                 'choices' => [
@@ -49,11 +52,13 @@ class PlannificationType extends AbstractType
                     'Annulé' => 'Annulé',
                 ],
                 'required' => false,
+                'placeholder' => 'Choisir un statut',
             ])
             ->add('idTache', EntityType::class, [
                 'class' => Tache::class,
                 'choice_label' => 'description',
-                'label' => 'Tâche associée'
+                'label' => 'Tâche associée',
+                'placeholder' => 'Sélectionner une tâche',
             ]);
     }
 

@@ -4,8 +4,8 @@
 
 {% block stylesheets %}
   {{ parent() }}
-  <link rel="stylesheet" href="https://fonts.googleapis.com/css?family=Inter:300,400,500,600,700,900" />
   <link rel="stylesheet" href="https://fonts.googleapis.com/css2?family=Material+Symbols+Rounded:opsz,wght,FILL,GRAD@24,400,0,0" />
+  <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.0.0/css/all.min.css">
   <style>
     .card {
       border-radius: 12px;
@@ -37,6 +37,34 @@
       box-shadow: 0 4px 20px 0 rgba(167, 139, 109, 0.14), 
                   0 7px 10px -5px rgba(167, 139, 109, 0.4);
     }
+    
+    /* Error styling */
+    .is-invalid {
+      border-color: #dc3545 !important;
+    }
+    .is-invalid:focus {
+      border-color: #dc3545 !important;
+      box-shadow: 0 0 0 0.25rem rgba(220,53,69,.25) !important;
+    }
+    .form-error-message {
+      color: #dc3545;
+      font-size: 0.875rem;
+      margin-top: 0.25rem;
+      display: block;
+    }
+    .form-error-icon {
+      color: #dc3545;
+      margin-right: 0.25rem;
+    }
+    .alert-danger {
+      color: #dc3545;
+      background-color: #f8d7da;
+      border-color: #f5c6cb;
+    }
+    .input-group-text {
+      background-color: #f8f9fa;
+      border: 1px solid #d2d6da;
+    }
   </style>
 {% endblock %}
 
@@ -54,17 +82,47 @@
           </div>
         </div>
         <div class="card-body px-4 pb-2">
+          {# Flash messages #}
+          {% for message in app.flashes('success') %}
+            <div class="alert alert-success alert-dismissible fade show">
+              <i class="material-symbols-rounded me-2">check_circle</i>
+              {{ message }}
+              <button type="button" class="btn-close" data-bs-dismiss="alert" aria-label="Close"></button>
+            </div>
+          {% endfor %}
+
+          {% for message in app.flashes('error') %}
+            <div class="alert alert-danger alert-dismissible fade show" style="color:rgb(0, 0, 0); background-color: white; border-color: #dc3545;">
+              <i class="fas fa-exclamation-circle me-2"></i>
+              {{ message }}
+              <button type="button" class="btn-close" data-bs-dismiss="alert" aria-label="Close"></button>
+            </div>
+          {% endfor %}
+
           {{ form_start(form, {'attr': {'class': 'form-horizontal'}}) }}
+
             <div class="row">
               <div class="col-md-6">
                 <div class="form-group">
                   {{ form_label(form.nometape) }}
                   {{ form_widget(form.nometape, {
                     'attr': {
-                      'class': 'form-control',
+                      'class': 'form-control' ~ (form.nometape.vars.errors|length ? ' is-invalid' : ''),
                       'placeholder': 'Ex: Fondations, Gros œuvre'
                     }
                   }) }}
+                  {% if form.nometape.vars.errors|length %}
+                    <div class="form-error-message">
+                      <i class="fas fa-exclamation-circle form-error-icon"></i>
+                      {% for error in form.nometape.vars.errors %}
+                        {% if error.message == 'This value should not be blank.' %}
+                          <span>Le nom de l'étape est obligatoire</span>
+                        {% else %}
+                          <span>{{ error.message }}</span>
+                        {% endif %}
+                      {% endfor %}
+                    </div>
+                  {% endif %}
                 </div>
               </div>
               <div class="col-md-6">
@@ -72,9 +130,17 @@
                   {{ form_label(form.idProjet) }}
                   {{ form_widget(form.idProjet, {
                     'attr': {
-                      'class': 'form-control'
+                      'class': 'form-control' ~ (form.idProjet.vars.errors|length ? ' is-invalid' : '')
                     }
                   }) }}
+                  {% if form.idProjet.vars.errors|length %}
+                    <div class="form-error-message">
+                      <i class="fas fa-exclamation-circle form-error-icon"></i>
+                      {% for error in form.idProjet.vars.errors %}
+                        <span>{{ error.message }}</span>
+                      {% endfor %}
+                    </div>
+                  {% endif %}
                 </div>
               </div>
             </div>
@@ -83,10 +149,18 @@
               {{ form_label(form.description) }}
               {{ form_widget(form.description, {
                 'attr': {
-                  'class': 'form-control',
+                  'class': 'form-control' ~ (form.description.vars.errors|length ? ' is-invalid' : ''),
                   'rows': 3
                 }
               }) }}
+              {% if form.description.vars.errors|length %}
+                <div class="form-error-message">
+                  <i class="fas fa-exclamation-circle form-error-icon"></i>
+                  {% for error in form.description.vars.errors %}
+                    <span>{{ error.message }}</span>
+                  {% endfor %}
+                </div>
+              {% endif %}
             </div>
 
             <div class="row">
@@ -95,9 +169,17 @@
                   {{ form_label(form.datedebut) }}
                   {{ form_widget(form.datedebut, {
                     'attr': {
-                      'class': 'form-control'
+                      'class': 'form-control' ~ (form.datedebut.vars.errors|length ? ' is-invalid' : '')
                     }
                   }) }}
+                  {% if form.datedebut.vars.errors|length %}
+                    <div class="form-error-message">
+                      <i class="fas fa-exclamation-circle form-error-icon"></i>
+                      {% for error in form.datedebut.vars.errors %}
+                        <span>{{ error.message }}</span>
+                      {% endfor %}
+                    </div>
+                  {% endif %}
                 </div>
               </div>
               <div class="col-md-6">
@@ -105,9 +187,17 @@
                   {{ form_label(form.datefin) }}
                   {{ form_widget(form.datefin, {
                     'attr': {
-                      'class': 'form-control'
+                      'class': 'form-control' ~ (form.datefin.vars.errors|length ? ' is-invalid' : '')
                     }
                   }) }}
+                  {% if form.datefin.vars.errors|length %}
+                    <div class="form-error-message">
+                      <i class="fas fa-exclamation-circle form-error-icon"></i>
+                      {% for error in form.datefin.vars.errors %}
+                        <span>{{ error.message }}</span>
+                      {% endfor %}
+                    </div>
+                  {% endif %}
                 </div>
               </div>
             </div>
@@ -118,9 +208,17 @@
                   {{ form_label(form.statut) }}
                   {{ form_widget(form.statut, {
                     'attr': {
-                      'class': 'form-control'
+                      'class': 'form-control' ~ (form.statut.vars.errors|length ? ' is-invalid' : '')
                     }
                   }) }}
+                  {% if form.statut.vars.errors|length %}
+                    <div class="form-error-message">
+                      <i class="fas fa-exclamation-circle form-error-icon"></i>
+                      {% for error in form.statut.vars.errors %}
+                        <span>{{ error.message }}</span>
+                      {% endfor %}
+                    </div>
+                  {% endif %}
                 </div>
               </div>
               <div class="col-md-6">
@@ -129,11 +227,25 @@
                   <div class="input-group">
                     {{ form_widget(form.montant, {
                       'attr': {
-                        'class': 'form-control'
+                        'class': 'form-control' ~ (form.montant.vars.errors|length ? ' is-invalid' : '')
                       }
                     }) }}
                     <span class="input-group-text">TND</span>
                   </div>
+                  {% if form.montant.vars.errors|length %}
+                    <div class="form-error-message">
+                      <i class="fas fa-exclamation-circle form-error-icon"></i>
+                      {% for error in form.montant.vars.errors %}
+                        {% if error.message == 'This value should not be blank.' %}
+                          <span>Le montant est obligatoire</span>
+                        {% elseif error.message == 'This value should be of type numeric.' %}
+                          <span>Doit être un nombre</span>
+                        {% else %}
+                          <span>{{ error.message }}</span>
+                        {% endif %}
+                      {% endfor %}
+                    </div>
+                  {% endif %}
                 </div>
               </div>
             </div>
@@ -147,10 +259,39 @@
                 <i class="material-symbols-rounded me-1">arrow_back</i>
                 Retour à la liste
               </a>
-              {{ include('etapeprojet/_delete_form.html.twig') }}
+              <button type="button" class="btn btn-outline-danger" data-bs-toggle="modal" data-bs-target="#deleteModal">
+                <i class="material-symbols-rounded me-1">delete</i>
+                Supprimer
+              </button>
             </div>
+
           {{ form_end(form) }}
         </div>
+      </div>
+    </div>
+  </div>
+</div>
+
+<!-- Delete Confirmation Modal -->
+<div class="modal fade" id="deleteModal" tabindex="-1" role="dialog" aria-labelledby="deleteModalLabel" aria-hidden="true">
+  <div class="modal-dialog" role="document">
+    <div class="modal-content">
+      <div class="modal-header">
+        <h5 class="modal-title" id="deleteModalLabel">Confirmer la suppression</h5>
+        <button type="button" class="btn-close" data-bs-dismiss="modal" aria-label="Close"></button>
+      </div>
+      <div class="modal-body">
+        Êtes-vous sûr de vouloir supprimer définitivement cette étape de projet ? Cette action est irréversible.
+      </div>
+      <div class="modal-footer">
+        <button type="button" class="btn btn-secondary" data-bs-dismiss="modal">Annuler</button>
+        <form action="{{ path('app_etapeprojet_delete', {'idEtapeprojet': etapeprojet.idEtapeprojet}) }}" method="post" class="d-inline">
+          <input type="hidden" name="_token" value="{{ csrf_token('delete' ~ etapeprojet.idEtapeprojet) }}">
+          <button type="submit" class="btn btn-danger">
+            <i class="material-symbols-rounded me-1">delete_forever</i>
+            Confirmer la suppression
+          </button>
+        </form>
       </div>
     </div>
   </div>
@@ -160,8 +301,12 @@
 {% block javascripts %}
   {{ parent() }}
   <script>
-    if (typeof M !== 'undefined') {
-      M.AutoInit();
-    }
+    $(document).ready(function() {
+      // Initialize date pickers if needed
+      $('.datepicker').datepicker({
+        format: 'yyyy-mm-dd',
+        autoclose: true
+      });
+    });
   </script>
 {% endblock %}

@@ -22,10 +22,15 @@ class TacheType extends AbstractType
             ->add('description')
             ->add('dateDebut', DateType::class, [
                 'widget' => 'single_text',
+                'html5' => true,
+                'attr' => [
+                    'min' => (new \DateTime())->format('Y-m-d'),
+                ],
             ])
             ->add('dateFin', DateType::class, [
                 'widget' => 'single_text',
                 'required' => false,
+                'html5' => true,
             ])
             ->add('etat', ChoiceType::class, [
                 'choices' => [

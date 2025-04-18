@@ -3,7 +3,7 @@
 {% block title %}Étape de Projet{% endblock %}
 
 {% block stylesheets %}
-  {{ parent() }}
+  { parent() %}
   <link rel="stylesheet" href="https://fonts.googleapis.com/css?family=Inter:300,400,500,600,700,900" />
   <link rel="stylesheet" href="https://fonts.googleapis.com/css2?family=Material+Symbols+Rounded:opsz,wght,FILL,GRAD@24,400,0,0" />
   <style>
@@ -51,10 +51,6 @@
           <div class="table-responsive p-3">
             <table class="table align-items-center mb-0">
               <tbody>
-                <tr>
-                  <th class="text-uppercase text-secondary text-xs font-weight-bolder opacity-7">ID Étape</th>
-                  <td class="text-sm">{{ etapeprojet.idEtapeprojet }}</td>
-                </tr>
                 <tr>
                   <th class="text-uppercase text-secondary text-xs font-weight-bolder opacity-7">Nom de l'étape</th>
                   <td class="text-sm">{{ etapeprojet.nometape }}</td>
