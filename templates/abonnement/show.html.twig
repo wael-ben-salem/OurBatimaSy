@@ -1,34 +1,95 @@
-{% extends 'base.html.twig' %}
+{% extends 'base_backOffice.html.twig' %}
 
 {% block title %}Abonnement{% endblock %}
 
+{% block stylesheets %}
+  {{ parent() }}
+  <!-- Additional styles specific to this page -->
+  <link rel="stylesheet" href="https://fonts.googleapis.com/css?family=Inter:300,400,500,600,700,900" />
+  <link rel="stylesheet" href="https://fonts.googleapis.com/css2?family=Material+Symbols+Rounded:opsz,wght,FILL,GRAD@24,400,0,0" />
+  <style>
+    .card {
+      border-radius: 12px;
+      box-shadow: 0 4px 20px 0 rgba(0, 0, 0, 0.14), 
+                  0 7px 10px -5px rgba(0, 0, 0, 0.4);
+    }
+    .btn-action-group {
+      display: flex;
+      gap: 10px;
+      margin-top: 20px;
+    }
+    .table th {
+      width: 30%;
+    }
+  </style>
+{% endblock %}
+
 {% block body %}
-    <h1>Abonnement</h1>
-
-    <table class="table">
-        <tbody>
-            
-            <tr>
-                <th>NomAbonnement</th>
-                <td>{{ abonnement.nomAbonnement }}</td>
-            </tr>
-            <tr>
-                <th>Duree</th>
-                <td>{{ abonnement.duree }}</td>
-            </tr>
-            <tr>
-                <th>Prix</th>
-                <td>{{ abonnement.prix }}</td>
-            </tr>
-        </tbody>
-    </table>
-    <div >
-    <a  style="margin-right: 10px;" href="{{ path('app_abonnement_index') }}"><img src="{{ asset('img/reply.png') }}" alt="return" width="30" height="30"></a>
-
-    <a  style="margin-right: 10px;" href="{{ path('app_abonnement_edit', {'idAbonnement': abonnement.idAbonnement}) }}"> <img src="{{ asset('img/edit.png') }}" alt="Edit" width="30" height="30"></a>
-   {{ include('abonnement/_delete_form.html.twig') }}
-   
+<div class="container-fluid py-4">
+  <div class="row">
+    <div class="col-12">
+      <div class="card my-4">
+        <div class="card-header p-0 position-relative mt-n4 mx-3 z-index-2">
+          <div class="bg-gradient-primary shadow-primary border-radius-lg pt-4 pb-3">
+            <h6 class="text-white text-capitalize ps-3">
+              <i class="material-symbols-rounded me-2">subscriptions</i>
+              Détails de l'Abonnement
+            </h6>
+          </div>
+        </div>
+        <div class="card-body px-0 pb-2">
+          <div class="table-responsive p-3">
+            <table class="table align-items-center mb-0">
+              <tbody>
+                <tr>
+                  <th class="text-uppercase text-secondary text-xs font-weight-bolder opacity-7">ID Abonnement</th>
+                  <td class="text-sm">{{ abonnement.idAbonnement }}</td>
+                </tr>
+                <tr>
+                  <th class="text-uppercase text-secondary text-xs font-weight-bolder opacity-7">Nom</th>
+                  <td class="text-sm font-weight-bold">{{ abonnement.nomAbonnement }}</td>
+                </tr>
+                <tr>
+                  <th class="text-uppercase text-secondary text-xs font-weight-bolder opacity-7">Durée</th>
+                  <td class="text-sm">{{ abonnement.duree }}</td>
+                </tr>
+                <tr>
+                  <th class="text-uppercase text-secondary text-xs font-weight-bolder opacity-7">Prix</th>
+                  <td class="text-sm">{{ abonnement.prix }} TND</td>
+                </tr>
+              </tbody>
+            </table>
+          </div>
+          
+          <div class="ps-3 btn-action-group">
+            <a class="btn btn-outline-secondary" href="{{ path('app_abonnement_index') }}">
+              <i class="material-symbols-rounded me-1">arrow_back</i>
+              Retour à la liste
+            </a>
+            <a class="btn btn-outline-primary" href="{{ path('app_abonnement_edit', {'idAbonnement': abonnement.idAbonnement}) }}">
+              <i class="material-symbols-rounded me-1">edit</i>
+              Modifier
+            </a>
+            {{ include('abonnement/_delete_form.html.twig', {
+              'button_class': 'btn btn-outline-danger',
+              'button_icon': 'delete',
+              'button_label': 'Supprimer'
+            }) }}
+          </div>
+        </div>
+      </div>
     </div>
-   
-    
+  </div>
+</div>
+{% endblock %}
+
+{% block javascripts %}
+  {{ parent() }}
+  <!-- Additional scripts specific to this page -->
+  <script>
+    // Initialize Material Dashboard components
+    if (typeof M !== 'undefined') {
+      M.AutoInit();
+    }
+  </script>
 {% endblock %}

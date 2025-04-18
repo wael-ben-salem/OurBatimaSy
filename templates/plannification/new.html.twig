@@ -1,14 +1,134 @@
-{% extends 'base.html.twig' %}
+{% extends 'base_backOffice.html.twig' %}
 
-{% block title %}New Plannification{% endblock %}
+{% block title %}Nouvelle Plannification{% endblock %}
+
+{% block breadcrumb %}Nouvelle Plannification{% endblock %}
 
 {% block body %}
-    <h1>Créer nouvelle plannification</h1>
+    <div class="row">
+        <div class="col-12">
+            <div class="card my-4">
+                <div class="card-header p-0 position-relative mt-n4 mx-3 z-index-2">
+                    <div class="bg-gradient-dark shadow-dark border-radius-lg pt-4 pb-3">
+                        <h6 class="text-white text-capitalize ps-3">Créer une nouvelle Plannification</h6>
+                    </div>
+                </div>
+                <div class="card-body px-0 pb-2">
+                    <div class="px-4 py-3">
+                        {{ form_start(form) }}
+                        <div class="row">
+                            <div class="col-md-12">
+                                {{ form_row(form.idTache, {
+                                    'attr': {'class': 'form-select'},
+                                    'label_attr': {'class': 'form-label'}
+                                }) }}
+                            </div>
+                        </div>
+                        <div class="row">
+                            <div class="col-md-4">
+                                {{ form_row(form.priorite, {
+                                    'attr': {'class': 'form-select'},
+                                    'label_attr': {'class': 'form-label'}
+                                }) }}
+                            </div>
+                            <div class="col-md-4">
+                                {{ form_row(form.datePlanifiee, {
+                                    'attr': {'class': 'form-control'},
+                                    'label_attr': {'class': 'form-label'}
+                                }) }}
+                            </div>
+                            <div class="col-md-4">
+                                {{ form_row(form.statut, {
+                                    'attr': {'class': 'form-select'},
+                                    'label_attr': {'class': 'form-label'}
+                                }) }}
+                            </div>
+                        </div>
+                        <div class="row">
+                            <div class="col-md-6">
+                                {{ form_row(form.heureDebut, {
+                                    'attr': {'class': 'form-control'},
+                                    'label_attr': {'class': 'form-label'}
+                                }) }}
+                            </div>
+                            <div class="col-md-6">
+                                {{ form_row(form.heureFin, {
+                                    'attr': {'class': 'form-control'},
+                                    'label_attr': {'class': 'form-label'}
+                                }) }}
+                            </div>
+                        </div>
+                        <div class="row">
+                            <div class="col-md-12">
+                                {{ form_row(form.remarques, {
+                                    'attr': {'class': 'form-control', 'rows': 3},
+                                    'label_attr': {'class': 'form-label'}
+                                }) }}
+                            </div>
+                        </div>
+                        <div class="mt-4 d-flex justify-content-between">
+                            <button class="btn btn-dark">{{ button_label|default('Créer') }}</button>
+                            <a href="{{ path('app_plannification_index') }}" class="btn btn-secondary">Retour à la liste</a>
+                        </div>
+                        {{ form_end(form) }}
+                    </div>
+                </div>
+            </div>
+        </div>
+    </div>
 
-    {{ form_start(form) }}
-    {{ form_widget(form) }}
-    <button class="btn btn-primary">{{ button_label|default('Enregistrer') }}</button>
-    {{ form_end(form) }}
+    <style>
+        .form-error {
+            color: #dc3545;
+            font-size: 0.875em;
+        }
+        .form-control.is-invalid {
+            border-color: #dc3545;
+        }
+        .select2-container--default .select2-selection--single {
+            height: calc(2.25rem + 8px);
+            border: 1px solid #d2d6da;
+            border-radius: 0.375rem;
+        }
+        .select2-container--default .select2-selection--single .select2-selection__arrow {
+            height: calc(2.25rem + 8px);
+        }
+    </style>
+{% endblock %}
 
-    <a href="{{ path('app_plannification_index') }}">Retour à la liste</a>
+{% block javascripts %}
+    {{ parent() }}
+    <script>
+        document.addEventListener('DOMContentLoaded', function() {
+            // Initialize select2 for task selection
+            $('select').select2({
+                width: '100%',
+                placeholder: 'Sélectionnez une option'
+            });
+
+            // Time validation
+            $('form').on('submit', function(e) {
+                const startTime = $('[name="plannification[heureDebut]"]').val();
+                const endTime = $('[name="plannification[heureFin]"]').val();
+
+                if (startTime && endTime && startTime >= endTime) {
+                    alert('L\'heure de fin doit être après l\'heure de début');
+                    e.preventDefault();
+                    return false;
+                }
+
+                const planDate = new Date($('[name="plannification[datePlanifiee]"]').val());
+                const today = new Date();
+                today.setHours(0, 0, 0, 0);
+
+                if (planDate < today) {
+                    alert('La date planifiée ne peut pas être dans le passé');
+                    e.preventDefault();
+                    return false;
+                }
+
+                return true;
+            });
+        });
+    </script>
 {% endblock %}

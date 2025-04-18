@@ -52,6 +52,11 @@ class Etapeprojet
         return $this->idEtapeprojet;
     }
 
+    public function getId(): ?int
+    {
+        return $this->idEtapeprojet;
+    }
+
     public function getNometape(): ?string
     {
         return $this->nometape;

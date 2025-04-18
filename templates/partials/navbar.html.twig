@@ -1,58 +1,3 @@
-{# templates/partials/navbar.html.twig #}
-
-<!-- Top Bar Start -->
-<div class="top-bar">
-    <div class="container-fluid">
-        <div class="row align-items-center">
-            <div class="col-lg-4 col-md-12">
-                <div class="logo">
-                    <a href="{{ path('home') }}">
-                        <h1>Builderz</h1>
-                    </a>
-                </div>
-            </div>
-            <div class="col-lg-8 col-md-7 d-none d-lg-block">
-                <div class="row">
-                    <div class="col-4">
-                        <div class="top-bar-item">
-                            <div class="top-bar-icon">
-                                <i class="flaticon-calendar"></i>
-                            </div>
-                            <div class="top-bar-text">
-                                <h3>Opening Hour</h3>
-                                <p>Mon - Fri, 8:00 - 9:00</p>
-                            </div>
-                        </div>
-                    </div>
-                    <div class="col-4">
-                        <div class="top-bar-item">
-                            <div class="top-bar-icon">
-                                <i class="flaticon-call"></i>
-                            </div>
-                            <div class="top-bar-text">
-                                <h3>Call Us</h3>
-                                <p>+012 345 6789</p>
-                            </div>
-                        </div>
-                    </div>
-                    <div class="col-4">
-                        <div class="top-bar-item">
-                            <div class="top-bar-icon">
-                                <i class="flaticon-send-mail"></i>
-                            </div>
-                            <div class="top-bar-text">
-                                <h3>Email Us</h3>
-                                <p>info@example.com</p>
-                            </div>
-                        </div>
-                    </div>
-                </div>
-            </div>
-        </div>
-    </div>
-</div>
-<!-- Top Bar End -->
-
 <!-- Nav Bar Start -->
 <div class="nav-bar" id="mainNav">
     <div class="container-fluid">
@@ -68,9 +13,12 @@
                     <a href="{{ path('about') }}" class="nav-item nav-link {% if app.request.attributes.get('_route') == 'about' %}active{% endif %}">About</a>
                     <a href="{{ path('service') }}" class="nav-item nav-link {% if app.request.attributes.get('_route') == 'service' %}active{% endif %}">Service</a>
                     <a href="{{ path('team') }}" class="nav-item nav-link {% if app.request.attributes.get('_route') == 'team' %}active{% endif %}">Team</a>
-                    <a href="{{ path('portfolio') }}" class="nav-item nav-link {% if app.request.attributes.get('_route') == 'portfolio' %}active{% endif %}">Project</a>
+                    <a href="{{ path('app_projet_front_index') }}" class="nav-item nav-link {% if app.request.attributes.get('_route') == 'app_projet_front_index' %}active{% endif %}">Projets</a>
                     <a href="{{ path('contact') }}" class="nav-item nav-link {% if app.request.attributes.get('_route') == 'contact' %}active{% endif %}">Contact</a>
+
+     
                 </div>
+                
                 <div class="ml-auto">
                     <a href="{{ path('app_login') }}" class="nav-item nav-link">Login</a>
                 </div>

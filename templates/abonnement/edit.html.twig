@@ -1,4 +1,4 @@
-{% extends 'base.html.twig' %}
+{% extends 'base_backOffice.html.twig' %}
 
 {% block title %}Modifier Abonnement{% endblock %}
 
@@ -57,7 +57,7 @@
                                 </div>
                             </div>
 
-                            <div class="mb-4">
+                            <div class=" btn-action-group">
                                 {{ form_label(form.prix, null, {'label_attr': {'class': 'form-label'}}) }}
                                 {{ form_widget(form.prix, {
                                     'attr': {
@@ -76,18 +76,26 @@
                                 </div>
                             </div>
 
-                            <div class="d-grid gap-2 d-md-flex justify-content-md-end gap-3">
+                            <div class="btn-action-group">
                                 <a style="margin-right: 10px;" href="{{ path('app_abonnement_index') }}" class="btn btn-outline-secondary">
-                                   <img src="{{ asset('img/reply.png') }}" alt="return" width="30" height="30">
+                                <i class="material-symbols-rounded me-1">arrow_back</i> 
+                                Retour à la liste
+
                                 </a>
-                                <button style="margin-right: 10px;" type="submit" class="btn btn-primary">
-                                    Modifier
+                                <button style="margin-right: 10px;" type="submit" class="btn btn-success">
+                                <i class="material-symbols-rounded me-1">save</i>
+                                    Mettre à jour
                                 </button>
-                            </div>
+                            
                         {{ form_end(form) }}
 
-                        <div class="mt-4 text-end">
-                            {{ include('abonnement/_delete_form.html.twig') }}
+                        <div >
+                          {{ include('abonnement/_delete_form.html.twig', {
+                                'button_class': 'btn btn-outline-danger',
+                                'button_icon': 'delete',
+                                'button_label': 'Supprimer'
+                            }) }}
+                            </div>
                         </div>
                     </div>
                 </div>
@@ -101,5 +109,10 @@
                 min-height: 300px;
             }
         }
+        .btn-action-group {
+      display: flex;
+      gap: 10px;
+      margin-top: 20px;
+    }
     </style>
 {% endblock %}

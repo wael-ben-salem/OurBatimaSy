@@ -1,0 +1,196 @@
+{% extends 'base_backOffice.html.twig' %}
+
+{% block title %}Modifier Contrat{% endblock %}
+
+{% block stylesheets %}
+  {{ parent() }}
+ 
+ <link rel="stylesheet" href="https://fonts.googleapis.com/css?family=Inter:300,400,500,600,700,900" />
+  <link rel="stylesheet" href="https://fonts.googleapis.com/css2?family=Material+Symbols+Rounded:opsz,wght,FILL,GRAD@24,400,0,0" />
+ <style>
+
+
+    .card {
+      border-radius: 12px;
+      box-shadow: 0 4px 20px 0 rgba(0, 0, 0, 0.14), 
+                  0 7px 10px -5px rgba(0, 0, 0, 0.4);
+    }
+    .form-group {
+      margin-bottom: 1.5rem;
+    }
+    .form-control {
+      border-radius: 8px;
+      padding: 10px 15px;
+      border: 1px solid #d2d6da;
+      transition: all 0.3s;
+    }
+    .form-control:focus {
+      border-color: #4CAF50;
+      box-shadow: 0 0 0 2px rgba(76, 175, 80, 0.1);
+    }
+    .form-text {
+      font-size: 0.8rem;
+      color: #6c757d;
+      margin-top: 0.25rem;
+    }
+    .btn-action-group {
+      display: flex;
+      gap: 10px;
+      margin-top: 20px;
+    }
+    .input-group-text {
+      background-color: #f8f9fa;
+      border: 1px solid #d2d6da;
+    }
+    .bg-gradient-primary {
+      background: linear-gradient(195deg, #4CAF50 0%, #2E7D32 100%);
+    }
+    .btn-success {
+      background-color: #4CAF50;
+      border-color: #4CAF50;
+    }
+    .btn-success:hover {
+      background-color: #3d8b40;
+      border-color: #3d8b40;
+    }
+    .datepicker {
+      z-index: 9999 !important;
+    }
+  </style>
+{% endblock %}
+
+{% block body %}
+<div class="container-fluid py-4">
+  <div class="row">
+    <div class="col-12">
+      <div class="card my-4">
+        <div class="card-header p-0 position-relative mt-n4 mx-3 z-index-2">
+          <div class="bg-gradient-primary shadow-primary border-radius-lg pt-4 pb-3">
+            <h6 class="text-white text-capitalize ps-3">
+              <i class="material-symbols-rounded me-2">edit</i>
+              Modifier le Contrat
+            </h6>
+          </div>
+        </div>
+        <div class="card-body px-4 pb-2">
+          {# Flash messages #}
+          {% for message in app.flashes('success') %}
+            <div class="alert alert-success alert-dismissible fade show">
+              {{ message }}
+              <button type="button" class="btn-close" data-bs-dismiss="alert" aria-label="Close"></button>
+            </div>
+          {% endfor %}
+
+          {% for message in app.flashes('error') %}
+            <div class="alert alert-danger alert-dismissible fade show">
+              {{ message }}
+              <button type="button" class="btn-close" data-bs-dismiss="alert" aria-label="Close"></button>
+            </div>
+          {% endfor %}
+
+          {{ form_start(form, {'attr': {'class': 'form-horizontal'}}) }}
+
+
+            <div class="row">
+              <div class="col-md-6">
+                <div class="form-group">
+                  {{ form_label(form.typeContrat) }}
+                  {{ form_widget(form.typeContrat, {
+                    'attr': {
+                      'class': 'form-control'
+                    }
+                  }) }}
+                  <small class="form-text">Sélectionnez le type de contrat</small>
+                </div>
+              </div>
+              <div class="col-md-6">
+                <div class="form-group">
+                  {{ form_label(form.idProjet) }}
+                  {{ form_widget(form.idProjet, {
+                    'attr': {
+                      'class': 'form-control',
+                      'placeholder': 'Sélectionnez un projet'
+                    }
+                  }) }}
+                  <small class="form-text">Projet associé à ce contrat</small>
+                </div>
+              </div>
+            </div>
+
+            <div class="row">
+              <div class="col-md-4">
+                <div class="form-group">
+                  {{ form_label(form.dateDebut) }}
+                  {{ form_widget(form.dateDebut, {
+                    'attr': {
+                      'class': 'form-control datepicker'
+                    }
+                  }) }}
+                  <small class="form-text">Date de début</small>
+                </div>
+              </div>
+              <div class="col-md-4">
+                <div class="form-group">
+                  {{ form_label(form.dateFin) }}
+                  {{ form_widget(form.dateFin, {
+                    'attr': {
+                      'class': 'form-control datepicker'
+                    }
+                  }) }}
+                  <small class="form-text">Date de fin</small>
+                </div>
+              </div>
+              <div class="col-md-4">
+                <div class="form-group">
+                  {{ form_label(form.montantTotal) }}
+                  <div class="input-group">
+                    {{ form_widget(form.montantTotal, {
+                      'attr': {
+                        'class': 'form-control',
+                        'placeholder': 'Ex: 50000'
+                      }
+                    }) }}
+                    <span class="input-group-text">TND</span>
+                  </div>
+                  <small class="form-text">Montant total du contrat</small>
+                </div>
+              </div>
+            </div>
+
+            
+
+            <div class="btn-action-group">
+              <button type="submit" class="btn btn-success">
+                <i class="material-symbols-rounded me-1">save</i>
+                Mettre à jour
+              </button>
+              <a href="{{ path('app_contrat_index') }}" class="btn btn-outline-secondary">
+                <i class="material-symbols-rounded me-1">arrow_back</i>
+                Retour à la liste
+              </a>
+              {{ include('contrat/_delete_form.html.twig',{'button_class': 'btn btn-outline-danger',
+              'button_icon': 'delete',
+              'button_label': 'Supprimer'}) }}
+            </div>
+
+          {{ form_end(form) }}
+        </div>
+      </div>
+    </div>
+  </div>
+</div>
+{% endblock %}
+
+{% block javascripts %}
+  {{ parent() }}
+  <script>
+    $(document).ready(function() {
+      // Initialize datepickers
+      $('.datepicker').datepicker({
+        format: 'yyyy-mm-dd',
+        todayHighlight: true,
+        autoclose: true
+      });
+    });
+  </script>
+{% endblock %}

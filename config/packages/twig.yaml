@@ -10,8 +10,6 @@ twig:
     strict_variables: '%kernel.debug%'
     globals:
         # Your existing globals here (if any)
-    paths:
-        '%kernel.project_dir%/templates/bundles/MaterialDashboard': MaterialDashboard
 
 when@test:
     twig:

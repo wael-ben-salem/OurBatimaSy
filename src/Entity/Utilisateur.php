@@ -335,4 +335,5 @@ public function setGestionnaireStock(?Gestionnairestock $gestionnaireStock): sta
 }
 
 
+
 }

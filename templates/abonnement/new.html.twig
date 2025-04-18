@@ -1,4 +1,4 @@
-{% extends 'base.html.twig' %}
+{% extends 'base_backOffice.html.twig' %}
 
 {% block title %}New Abonnement{% endblock %}
 
@@ -93,9 +93,10 @@
                                <a href="{{ path('app_abonnement_index') }}" class="btn btn-outline-secondary">
                                     ← Retour à la liste
                                 </a>
-                                <button type="submit" class="btn btn-primary">
-                                    Ajouter
-                                </button>
+                               <button type="submit" class="btn btn-success">
+                                    <i class="material-symbols-rounded me-1">save</i>
+                                                  Enregistrer
+                                                     </button>
                             </div>
                         {{ form_end(form) }}
                     </div>

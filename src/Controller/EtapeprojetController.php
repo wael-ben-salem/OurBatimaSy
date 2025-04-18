@@ -59,15 +59,19 @@ final class EtapeprojetController extends AbstractController
         $form = $this->createForm(EtapeprojetType::class, $etapeprojet);
         $form->handleRequest($request);
 
-        if ($form->isSubmitted() && $form->isValid()) {
-            $entityManager->flush();
-
-            return $this->redirectToRoute('app_etapeprojet_index', [], Response::HTTP_SEE_OTHER);
+        if ($form->isSubmitted()) {
+            if ($form->isValid()) {
+                $entityManager->flush();
+                $this->addFlash('success', 'L\'étape du projet a été mise à jour avec succès.');
+                return $this->redirectToRoute('app_etapeprojet_show', ['idEtapeprojet' => $etapeprojet->getIdEtapeprojet()]);
+            } else {
+                $this->addFlash('error', 'Veuillez vérifier à nouveau les champs.');
+            }
         }
 
         return $this->render('etapeprojet/edit.html.twig', [
             'etapeprojet' => $etapeprojet,
-            'form' => $form,
+            'form' => $form->createView(), 
         ]);
     }
 
