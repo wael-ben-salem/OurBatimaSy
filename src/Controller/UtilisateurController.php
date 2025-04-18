@@ -243,7 +243,7 @@ public function delete(
             'message' => 'Utilisateur supprimé avec succès'
         ]);
     } catch (\Exception $e) {
-        return $this->json([
+        return $this->json([    
             'success' => false,
             'message' => 'Erreur lors de la suppression: ' . $e->getMessage()
         ], Response::HTTP_INTERNAL_SERVER_ERROR);
