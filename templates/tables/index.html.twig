@@ -1,7 +1,6 @@
 {% extends 'base_backOffice.html.twig' %}
 
 {% block title %}Utilisateurs{% endblock %}
-
 {% block breadcrumb %}Utilisateurs{% endblock %}
 
 t
@@ -18,32 +17,45 @@ t
       align-items: center;
       justify-content: center;
     }
-
-    .bg-gradient-success { background: linear-gradient(45deg,rgb(39, 223, 82), #20c997); }
-    .bg-gradient-secondary { background: linear-gradient(45deg, #6c757d, #adb5bd); }
-    .bg-gradient-primary { background: linear-gradient(45deg, #007bff, #6610f2); }
-    .bg-gradient-warning { background: linear-gradient(45deg, #ffc107, #fd7e14); }
-
-    .badge-sm {
-      font-size: 0.65rem;
-      padding: 0.35em 0.65em;
-    }
-    
     .nav-tabs .nav-link {
       border: none;
       color: #495057;
       font-weight: 500;
     }
-    
     .nav-tabs .nav-link.active {
       color: #007bff;
       border-bottom: 3px solid #007bff;
       background: transparent;
     }
-    
     .tab-content {
       padding-top: 20px;
     }
+    .loading-spinner {
+      display: none;
+      text-align: center;
+      padding: 20px;
+    }
+   #userMap {
+    height: 300px !important;
+    background: #f8f9fa;
+    z-index: 0;
+}
+
+.leaflet-marker-icon {
+    filter: hue-rotate(200deg) !important; /* Marqueur bleu */
+}
+
+.map-loader {
+    position: absolute;
+    top: 50%;
+    left: 50%;
+    transform: translate(-50%, -50%);
+    z-index: 1000;
+    background: rgba(255,255,255,0.9);
+    padding: 10px 20px;
+    border-radius: 5px;
+    box-shadow: 0 2px 5px rgba(0,0,0,0.1);
+}
   </style>
 {% endblock %}
 
@@ -54,7 +66,7 @@ t
         <div class="card-header p-0 position-relative mt-n4 mx-3 z-index-2">
           <div class="bg-gradient-dark shadow-dark border-radius-lg pt-4 pb-3 d-flex justify-content-between align-items-center">
             <h6 class="text-white text-capitalize ps-3">Gestion des utilisateurs</h6>
-            <a href="{{ path('app_register') }}" class="btn btn-sm btn-light me-3">
+            <a href="{{ path('app_user_add') }}" class="btn btn-sm btn-light me-3">
               <i class="material-symbols-rounded me-1">add</i>
               Nouvel Utilisateur
             </a>
@@ -63,75 +75,253 @@ t
         <div class="card-body px-4 pb-2">
           <!-- Onglets -->
           <ul class="nav nav-tabs" id="userTabs" role="tablist">
-            <li class="nav-item" role="presentation">
-              <button class="nav-link active" id="client-tab" data-bs-toggle="tab" data-bs-target="#client" type="button" role="tab" aria-controls="client" aria-selected="true">
-                Clients
-              </button>
-            </li>
-            <li class="nav-item" role="presentation">
-              <button class="nav-link" id="artisan-tab" data-bs-toggle="tab" data-bs-target="#artisan" type="button" role="tab" aria-controls="artisan" aria-selected="false">
-                Artisans
-              </button>
-            </li>
-            <li class="nav-item" role="presentation">
-              <button class="nav-link" id="constructeur-tab" data-bs-toggle="tab" data-bs-target="#constructeur" type="button" role="tab" aria-controls="constructeur" aria-selected="false">
-                Constructeurs
-              </button>
-            </li>
-            <li class="nav-item" role="presentation">
-              <button class="nav-link" id="gestionnaire-tab" data-bs-toggle="tab" data-bs-target="#gestionnaire" type="button" role="tab" aria-controls="gestionnaire" aria-selected="false">
-                Gestionnaires
-              </button>
-            </li>
+            <li class="nav-item"><button class="nav-link active" data-tab-role="Client" type="button">Clients</button></li>
+            <li class="nav-item"><button class="nav-link" data-tab-role="Artisan" type="button">Artisans</button></li>
+            <li class="nav-item"><button class="nav-link" data-tab-role="Constructeur" type="button">Constructeurs</button></li>
+            <li class="nav-item"><button class="nav-link" data-tab-role="GestionnaireStock" type="button">Gestionnaires</button></li>
           </ul>
-          
-          <!-- Contenu des onglets -->
-          <div class="tab-content" id="userTabsContent">
-            <div class="tab-pane fade show active" id="client" role="tabpanel" aria-labelledby="client-tab">
-              {{ render(controller('App\\Controller\\UtilisateurController::getUsersByRole', {role: 'Client'})) }}
+
+          <div class="tab-content pt-3">
+            <div class="loading-spinner">
+              <div class="spinner-border text-primary" role="status">
+                <span class="visually-hidden">Loading...</span>
+              </div>
             </div>
-            <div class="tab-pane fade" id="artisan" role="tabpanel" aria-labelledby="artisan-tab">
-              {{ render(controller('App\\Controller\\UtilisateurController::getUsersByRole', {role: 'Artisan'})) }}
-            </div>
-            <div class="tab-pane fade" id="constructeur" role="tabpanel" aria-labelledby="constructeur-tab">
-              {{ render(controller('App\\Controller\\UtilisateurController::getUsersByRole', {role: 'Constructeur'})) }}
-            </div>
-            <div class="tab-pane fade" id="gestionnaire" role="tabpanel" aria-labelledby="gestionnaire-tab">
-              {{ render(controller('App\\Controller\\UtilisateurController::getUsersByRole', {role: 'GestionnaireStock'})) }}
+            <div id="dynamicContent">
+              {{ render(controller('App\\Controller\\UtilisateurController::getUsersByRole', { role: 'Client' })) }}
             </div>
           </div>
         </div>
       </div>
     </div>
   </div>
-{% endblock %}
 
+  <!-- Modal -->
+  <div class="modal fade" id="dynamicModal" tabindex="-1" aria-hidden="true">
+    <div class="modal-dialog modal-dialog-centered modal-xl" style="max-width: 50%; max-height: 50vh;">
+      <div class="modal-content" id="modalContent"></div>
+    </div>
+  </div>
+{% endblock %}
 {% block javascripts %}
   {{ parent() }}
+  <script src="https://unpkg.com/leaflet@1.7.1/dist/leaflet.js"></script>
   <script>
-    $(function () {
-      $('[data-toggle="tooltip"]').tooltip();
-      
-      // Chargement initial des clients
-      loadUserTable('Client');
-      
-      // Gestion du changement d'onglet
-      $('button[data-bs-toggle="tab"]').on('shown.bs.tab', function (e) {
-        const target = $(e.target).attr('aria-controls');
-        const roleMap = {
-          'client': 'Client',
-          'artisan': 'Artisan',
-          'constructeur': 'Constructeur',
-          'gestionnaire': 'GestionnaireStock'
-        };
-        loadUserTable(roleMap[target]);
+    document.addEventListener('DOMContentLoaded', function() {
+      // Variables globales
+      const dynamicModal = new bootstrap.Modal(document.getElementById('dynamicModal'));
+      let currentRole = 'Client';
+      let currentPage = 1;
+      let currentLimit = 4;
+      let userMap = null;
+
+      // Initialisation
+      loadUserTable(currentRole, currentPage);
+
+      // Gestion des onglets
+      document.querySelectorAll('[data-tab-role]').forEach(tab => {
+        tab.addEventListener('click', function() {
+          document.querySelectorAll('.nav-link').forEach(link => link.classList.remove('active'));
+          this.classList.add('active');
+          
+          currentRole = this.getAttribute('data-tab-role');
+          currentPage = 1;
+          loadUserTable(currentRole, currentPage);
+        });
       });
-      
-      function loadUserTable(role) {
-        const url = `/tables/role/${role}`;
-        const targetId = `#${role.toLowerCase()}`;
-        
-        $(targetId).load(url + ' ' + targetId + ' > *');
+
+      // Chargement des utilisateurs
+      async function loadUserTable(role, page, limit = 4) {
+        const contentDiv = document.getElementById('dynamicContent');
+        const spinner = document.querySelector('.loading-spinner');
+
+        contentDiv.style.display = 'none';
+        spinner.style.display = 'block';
+
+        try {
+          const response = await fetch(`/tables/role/${role}?page=${page}&limit=${limit}`);
+          if(!response.ok) throw new Error('Erreur réseau');
+          
+          contentDiv.innerHTML = await response.text();
+          attachPaginationHandlers();
+          attachActionHandlers();
+          history.replaceState(null, null, `?page=${page}&limit=${limit}`);
+        } catch (error) {
+          contentDiv.innerHTML = '<div class="alert alert-danger">Erreur de chargement</div>';
+          console.error('Erreur:', error);
+        } finally {
+          spinner.style.display = 'none';
+          contentDiv.style.display = 'block';
+        }
+      }
+
+      // Gestion des actions
+      async function handleAction(action, userId, element) {
+        const modalContent = document.getElementById('modalContent');
+        const modal = bootstrap.Modal.getOrCreateInstance(document.getElementById('dynamicModal'));
+
+        try {
+          switch(action) {
+            case 'view':
+              const response = await fetch(`/utilisateur/${userId}/show`);
+              if (!response.ok) throw new Error('Erreur de chargement');
+              
+              modalContent.innerHTML = await response.text();
+              modal.show();
+              
+              // Initialiser la carte après l'affichage du modal
+              modal._element.addEventListener('shown.bs.modal', function onShown() {
+                initUserMap();
+                modal._element.removeEventListener('shown.bs.modal', onShown);
+              });
+              break;
+
+       // Dans la fonction handleAction, cas 'delete'
+case 'delete':
+    const csrfToken = element.getAttribute('data-csrf-token');
+    
+    const result = await Swal.fire({
+        title: 'Êtes-vous sûr ?',
+        text: "Cette action est irréversible !",
+        icon: 'warning',
+        showCancelButton: true,
+        confirmButtonColor: '#d33',
+        cancelButtonColor: '#3085d6',
+        confirmButtonText: 'Oui, supprimer !',
+        cancelButtonText: 'Annuler'
+    });
+
+    if (result.isConfirmed) {
+        try {
+            const response = await fetch(`/utilisateur/${userId}/delete`, {
+                method: 'POST',
+                headers: {
+                    'Content-Type': 'application/x-www-form-urlencoded',
+                    'X-CSRF-Token': csrfToken
+                },
+                body: `_token=${encodeURIComponent(csrfToken)}`
+            });
+
+            if (!response.ok) {
+                const errorData = await response.json();
+                throw new Error(errorData.message || 'Erreur réseau');
+            }
+
+            const data = await response.json();
+
+            if (data.success) {
+                await Swal.fire(
+                    'Supprimé !',
+                    'L\'utilisateur a été supprimé avec succès.',
+                    'success'
+                );
+                loadUserTable(currentRole, currentPage); // Recharge le tableau dynamiquement
+            } else {
+                throw new Error(data.message || 'Erreur lors de la suppression');
+            }
+        } catch (error) {
+            console.error('Erreur:', error);
+            Swal.fire('Erreur', error.message, 'error');
+        }
+    }
+    break;  
+          }
+        } catch (error) {
+          console.error('Erreur:', error);
+          Swal.fire('Erreur', error.message, 'error');
+        }
+      }
+
+      // Initialisation de la carte
+      function initUserMap() {
+        const mapElement = document.getElementById('userMap');
+        if (!mapElement) return;
+
+        // Nettoyer la carte existante
+        if (userMap) {
+          userMap.remove();
+          userMap = null;
+        }
+
+        const address = document.getElementById('mapAddress')?.dataset.address;
+        if (!address) return;
+
+        // Création de la carte
+        userMap = L.map(mapElement, {
+          zoomControl: true,
+          attributionControl: false
+        }).setView([36.8065, 10.1815], 8);
+
+        // Ajout du loader
+        const loader = document.createElement('div');
+        loader.className = 'map-loader';
+        loader.textContent = 'Chargement de la position...';
+        mapElement.appendChild(loader);
+
+        // Couche de tuiles
+        L.tileLayer('https://{s}.tile.openstreetmap.org/{z}/{x}/{y}.png', {
+          maxZoom: 18,
+          detectRetina: true
+        }).addTo(userMap);
+
+        // Géocodage
+        fetch(`https://nominatim.openstreetmap.org/search?q=${encodeURIComponent(address)}&format=json`)
+          .then(response => response.json())
+          .then(data => {
+            if (data.length > 0) {
+              const [lat, lon] = [parseFloat(data[0].lat), parseFloat(data[0].lon)];
+              
+              userMap.setView([lat, lon], 14);
+              
+              // Marqueur personnalisé bleu
+              const blueIcon = L.icon({
+                iconUrl: 'https://raw.githubusercontent.com/pointhi/leaflet-color-markers/master/img/marker-icon-2x-blue.png',
+                shadowUrl: 'https://cdnjs.cloudflare.com/ajax/libs/leaflet/1.7.1/images/marker-shadow.png',
+                iconSize: [25, 41],
+                iconAnchor: [12, 41],
+                shadowSize: [41, 41]
+              });
+
+              L.marker([lat, lon], { icon: blueIcon })
+                .addTo(userMap)
+                .bindPopup(`<b>${address}</b>`);
+            } else {
+              throw new Error('Adresse non trouvée');
+            }
+          })
+          .catch(error => {
+            console.error('Erreur de géocodage:', error);
+            mapElement.innerHTML = `<div class="alert alert-warning m-3">Impossible de localiser l'adresse</div>`;
+          })
+          .finally(() => {
+            loader.remove();
+            setTimeout(() => userMap.invalidateSize(), 100);
+          });
+      }
+
+      // Attache les gestionnaires d'événements
+      function attachActionHandlers() {
+        document.querySelectorAll('[data-action]').forEach(button => {
+          button.addEventListener('click', function(e) {
+            e.preventDefault();
+            handleAction(this.dataset.action, this.dataset.userId, this);
+          });
+        });
+      }
+
+      function attachPaginationHandlers() {
+        document.querySelectorAll('.pagination a[data-page]').forEach(link => {
+          link.addEventListener('click', function(e) {
+            e.preventDefault();
+            currentPage = parseInt(this.dataset.page);
+            loadUserTable(currentRole, currentPage);
+          });
+        });
+
+        document.querySelector('#limitSelector')?.addEventListener('change', function() {
+          currentLimit = parseInt(this.value);
+          loadUserTable(currentRole, 1, currentLimit);
+        });
       }
     });
   </script>

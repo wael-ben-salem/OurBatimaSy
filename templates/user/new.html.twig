@@ -1,0 +1,399 @@
+{% extends 'base_backOffice.html.twig' %}
+
+{% block title %}Créer un Nouvel Utilisateur{% endblock %}
+
+{% block stylesheets %}
+    {{ parent() }}
+    <link rel="stylesheet" href="https://cdn.jsdelivr.net/npm/intl-tel-input@18.2.1/build/css/intlTelInput.css">
+    <link rel="stylesheet" href="https://unpkg.com/leaflet@1.7.1/dist/leaflet.css" />
+    <link rel="stylesheet" href="https://unpkg.com/leaflet-control-geocoder/dist/Control.Geocoder.css" />
+    <link rel="stylesheet" href="https://cdn.jsdelivr.net/npm/leaflet.locatecontrol/dist/L.Control.Locate.min.css" />
+    <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.4.0/css/all.min.css">
+
+    <style>
+        .form-label {
+            font-weight: 500;
+            margin-bottom: 0.5rem;
+            color: #495057;
+        }
+
+        .form-control {
+            border: 2px solid #dee2e6;
+            border-radius: 8px;
+            padding: 0.75rem 1rem;
+            transition: all 0.3s ease;
+        }
+
+        .form-control:focus {
+            box-shadow: none;
+            border-color: #86b7fe;
+        }
+
+        .is-invalid {
+            border-color: #dc3545 !important;
+            padding-right: calc(1.5em + 1.3rem);
+            background-image: url("data:image/svg+xml,%3csvg xmlns='http://www.w3.org/2000/svg' viewBox='0 0 12 12' width='12' height='12' fill='none' stroke='%23dc3545'%3e%3ccircle cx='6' cy='6' r='4.5'/%3e%3cpath stroke-linejoin='round' d='M5.8 3.6h.4L6 6.5z'/%3e%3ccircle cx='6' cy='8.2' r='.6' fill='%23dc3545' stroke='none'/%3e%3c/svg%3e");
+            background-repeat: no-repeat;
+            background-position: right calc(0.375em + 0.3rem) center;
+            background-size: calc(0.75em + 0.6rem) calc(0.75em + 0.6rem);
+        }
+
+        .is-valid {
+            border-color: #28a745 !important;
+            padding-right: calc(1.5em + 1.3rem);
+            background-image: url("data:image/svg+xml,%3csvg xmlns='http://www.w3.org/2000/svg' viewBox='0 0 8 8'%3e%3cpath fill='%2328a745' d='M2.3 6.73L.6 4.53c-.4-1.04.46-1.4 1.1-.8l1.1 1.4 3.4-3.8c.6-.63 1.6-.27 1.2.7l-4 4.6c-.43.5-.8.4-1.1.1z'/%3e%3c/svg%3e");
+            background-repeat: no-repeat;
+            background-position: right calc(0.375em + 0.3rem) center;
+            background-size: calc(0.75em + 0.6rem) calc(0.75em + 0.6rem);
+        }
+
+        .invalid-feedback {
+            color: #dc3545;
+            font-size: 0.875em;
+            margin-top: 0.25rem;
+        }
+
+        .valid-feedback {
+            display: none;
+            color: #28a745;
+            font-size: 0.875em;
+            margin-top: 0.25rem;
+        }
+
+        .input-group-text {
+            background: #f8f9fa;
+            border: 2px solid #dee2e6;
+            cursor: pointer;
+            transition: all 0.3s;
+        }
+
+        .input-group-text:hover {
+            background: #e9ecef;
+        }
+ #map {
+        height: 400px; /* ou 500px selon ta préférence */
+        width: 100%;
+        border-radius: 10px;
+        margin-top: 10px;
+    }
+
+    .leaflet-container {
+        z-index: 0; /* évite que ça chevauche d'autres éléments */
+    }
+
+        .alert-success {
+            border-left: 4px solid #28a745;
+        }
+
+        .alert-danger {
+            border-left: 4px solid #dc3545;
+        }
+
+        .error-list {
+            list-style: none;
+            padding-left: 0;
+            margin-bottom: 0;
+        }
+    </style>
+{% endblock %}
+
+{% block body %}
+<div class="container-fluid py-4">
+    <div class="row">
+        <div class="col-12">
+            <div class="card my-4">
+                <div class="card-header p-0 mt-n4 mx-3 z-index-2">
+                    <div class="bg-gradient-primary shadow-primary border-radius-lg pt-4 pb-3">
+                        <h6 class="text-white ps-3">
+                            <i class="fa-solid fa-user-plus me-2"></i>
+                            Créer un Nouvel Utilisateur
+                        </h6>
+                    </div>
+                </div>
+                
+                <div class="card-body px-4 pb-2">
+                 {# Alertes #}
+                    {% for message in app.flashes('success') %}
+                        <div class="alert alert-success alert-dismissible fade show d-flex align-items-center mb-4">
+                            <i class="fa-solid fa-circle-check fa-2x me-3"></i>
+                            <div>
+                                <h5 class="alert-heading mb-1">{{ message|raw }}</h5>
+                                <p class="mb-0">Redirection dans 3 secondes...</p>
+                            </div>
+                        </div>
+                    {% endfor %}
+                   {% if form.vars.submitted and not form.vars.valid %}
+                        <div class="alert alert-danger alert-dismissible fade show d-flex align-items-center mb-4">
+                            <i class="fa-solid fa-circle-exclamation fa-2x me-3"></i>
+                            <div>
+                                <h5 class="alert-heading mb-2">Erreurs de validation :</h5>
+                                <ul class="error-list mb-0">
+                                    {% for error in form.vars.errors %}
+                                        <li><i class="fas fa-times-circle me-2"></i>{{ error.message }}</li>
+                                    {% endfor %}
+                                </ul>
+                            </div>
+                        </div>
+                    {% endif %}
+
+                    {{ form_start(form) }}
+
+                    <!-- Map Modal -->
+                    <div class="modal fade" id="mapModal">
+                        <div class="modal-dialog modal-lg">
+                            <div class="modal-content">
+                                <div class="modal-header">
+                                    <h5 class="modal-title"><i class="fa-solid fa-map-location-dot me-2"></i>Sélection d'adresse</h5>
+                                    <button type="button" class="btn-close" data-bs-dismiss="modal"></button>
+                                </div>
+                                <div class="modal-body">
+                                    <div id="map"></div>
+                                    <div class="map-controls mt-3 d-flex gap-2">
+                                        <button type="button" id="locate-me" class="btn btn-primary btn-sm">
+                                            <i class="fa-solid fa-location-crosshairs me-2"></i>Ma position
+                                        </button>
+                                    </div>
+                                </div>
+                            </div>
+                        </div>
+                    </div>
+
+                     <div class="row g-4">
+                        <!-- Nom -->
+                        <div class="col-md-6">
+                            {{ form_label(form.nom, null, {'label_attr': {'class': 'form-label'}}) }}
+                            {{ form_widget(form.nom) }}
+                            <div class="invalid-feedback">{{ form_errors(form.nom)|striptags }}</div>
+                        </div>
+
+                        <!-- Prénom -->
+                        <div class="col-md-6">
+                            {{ form_label(form.prenom, null, {'label_attr': {'class': 'form-label'}}) }}
+                            {{ form_widget(form.prenom) }}
+                            <div class="invalid-feedback">{{ form_errors(form.prenom)|striptags }}</div>
+                        </div>
+
+                        <!-- Email et Mot de passe -->
+                        <div class="col-12">
+                            {{ form_label(form.email, null, {'label_attr': {'class': 'form-label'}}) }}
+                            {{ form_widget(form.email, {'attr': {'class': 'form-control'}}) }}
+                            <div class="invalid-feedback">{{ form_errors(form.email)|striptags }}</div>
+                        </div>
+                        <!-- Mot de passe -->
+                        <div class="col-12">
+                            {{ form_label(form.password) }}
+                            {{ form_widget(form.password) }}
+                            <div class="invalid-feedback">{{ form_errors(form.password)|striptags }}</div>
+                            <small class="form-text text-muted">
+                                Minimum 8 caractères avec 1 majuscule, 1 minuscule et 1 chiffre
+                            </small>
+                        </div>
+                        <!-- Téléphone et Adresse -->
+                         <!-- Téléphone -->
+                        <div class="col-md-6">
+                            <div class="form-group">
+                                {{ form_label(form.telephone) }}
+                                <div class="input-group">
+                                    {{ form_widget(form.telephone, {'attr': {'pattern': '[0-9]*'}}) }}
+                                </div>
+                                <div class="invalid-feedback">{{ form_errors(form.telephone)|striptags }}</div>
+                            </div>
+                        </div>
+                        <div class="col-md-6">
+                            <div class="form-group">
+                                {{ form_label(form.adresse, null, {'label_attr': {'class': 'form-label'}}) }}
+                                <div class="input-group">
+                                    {{ form_widget(form.adresse, {'attr': {'class': 'form-control'}}) }}
+                                    <span class="input-group-text" data-bs-toggle="modal" data-bs-target="#mapModal">
+                                        <i class="fa-solid fa-map-location"></i>
+                                    </span>
+                                </div>
+                                <div class="invalid-feedback">{{ form_errors(form.adresse)|striptags }}</div>
+                            </div>
+                        </div>
+
+                        <!-- Rôle et Champs spécifiques -->
+                        <div class="col-12">
+                            {{ form_label(form.role, null, {'label_attr': {'class': 'form-label'}}) }}
+                            {{ form_widget(form.role, {'attr': {'class': 'form-control'}}) }}
+                        </div>
+
+                        <!-- Champs Artisan/Constructeur -->
+                        <div id="artisan-fields" class="col-12" style="display: none;">
+                            <div class="row g-3 mt-2">
+                                <div class="col-md-6">
+                                    {{ form_row(form.specialiteArtisan, {'label_attr': {'class': 'form-label'}}) }}
+                                </div>
+                                <div class="col-md-6">
+                                    {{ form_row(form.salaireHeureArtisan, {'label_attr': {'class': 'form-label'}}) }}
+                                </div>
+                            </div>
+                        </div>
+
+                        <div id="constructeur-fields" class="col-12" style="display: none;">
+                            <div class="row g-3 mt-2">
+                                <div class="col-md-6">
+                                    {{ form_row(form.specialiteConstructeur, {'label_attr': {'class': 'form-label'}}) }}
+                                </div>
+                                <div class="col-md-6">
+                                    {{ form_row(form.salaireHeureConstructeur, {'label_attr': {'class': 'form-label'}}) }}
+                                </div>
+                            </div>
+                        </div>
+
+                        <!-- Bouton de soumission -->
+                        <div class="col-12 mt-4">
+                            <button type="submit" class="btn btn-primary w-100 py-3">
+                                <i class="fa-solid fa-user-plus me-2"></i>Créer l'utilisateur
+                            </button>
+                        </div>
+                    </div>
+
+                    {{ form_end(form) }}
+                </div>
+            </div>
+        </div>
+    </div>
+</div>
+{% endblock %}
+{% block javascripts %}
+    {{ parent() }}
+    <script src="https://unpkg.com/leaflet@1.7.1/dist/leaflet.js"></script>
+    <script src="https://unpkg.com/leaflet-control-geocoder/dist/Control.Geocoder.js"></script>
+    <script src="https://cdn.jsdelivr.net/npm/intl-tel-input@18.2.1/build/js/intlTelInput.min.js"></script>
+
+    <script>
+        // Variables globales pour la carte
+        let map, marker;
+        let mapInitialized = false;
+
+        // Fonction d'initialisation de la carte
+        function initMap() {
+            if (mapInitialized) return;
+
+            map = L.map('map').setView([33.8869, 9.5375], 6);
+            L.tileLayer('https://{s}.tile.openstreetmap.org/{z}/{x}/{y}.png').addTo(map);
+
+            marker = L.marker([33.8869, 9.5375], { draggable: true }).addTo(map);
+            
+            const geocoder = L.Control.geocoder({
+                defaultMarkGeocode: false,
+                position: 'topleft',
+                placeholder: 'Rechercher un lieu...'
+            }).addTo(map);
+
+            // Mise à jour de l'adresse à partir des coordonnées
+            function updateAddress(lat, lng) {
+                fetch(`https://nominatim.openstreetmap.org/reverse?lat=${lat}&lon=${lng}&format=json`)
+                    .then(res => res.json())
+                    .then(data => {
+                        document.getElementById('utilisateur_adresse').value = data.display_name;
+                    });
+            }
+
+            // Lors d'une recherche manuelle via le champ
+            geocoder.on('markgeocode', e => {
+                marker.setLatLng(e.geocode.center);
+                updateAddress(e.geocode.center.lat, e.geocode.center.lng);
+                map.setView(e.geocode.center, 16);
+            });
+
+            // Clic sur la carte
+            map.on('click', e => {
+                marker.setLatLng(e.latlng);
+                updateAddress(e.latlng.lat, e.latlng.lng);
+            });
+
+            // Drag du marqueur
+            marker.on('dragend', e => {
+                const position = marker.getLatLng();
+                updateAddress(position.lat, position.lng);
+            });
+
+            // Clic sur "Ma position"
+            document.getElementById('locate-me').addEventListener('click', () => {
+                map.locate({ setView: true, maxZoom: 16 });
+            });
+
+            // Quand la position est trouvée
+            map.on('locationfound', e => {
+                const latlng = e.latlng;
+                marker.setLatLng(latlng);
+                map.setView(latlng, 16);
+                updateAddress(latlng.lat, latlng.lng);
+            });
+
+            mapInitialized = true;
+        }
+
+        // Initialiser la carte quand le modal s'ouvre
+        document.getElementById('mapModal').addEventListener('shown.bs.modal', function () {
+            initMap();
+            setTimeout(() => {
+                map.invalidateSize();
+                map.setView(marker.getLatLng(), 16);
+            }, 200);
+        });
+
+        // Validation en temps réel des champs
+        document.querySelectorAll('.form-control').forEach(input => {
+            input.addEventListener('input', function () {
+                this.classList.remove('is-valid', 'is-invalid');
+                if (this.checkValidity()) {
+                    this.classList.add('is-valid');
+                } else if (this.value.length > 0) {
+                    this.classList.add('is-invalid');
+                }
+            });
+        });
+
+        // Gestion dynamique des rôles
+        const roleSelect = document.getElementById('utilisateur_role');
+        const updateRoleFields = () => {
+            document.getElementById('artisan-fields').style.display =
+                roleSelect.value === 'Artisan' ? 'block' : 'none';
+            document.getElementById('constructeur-fields').style.display =
+                roleSelect.value === 'Constructeur' ? 'block' : 'none';
+            
+            // Gestion des champs requis
+            const isArtisan = roleSelect.value === 'Artisan';
+            const isConstructeur = roleSelect.value === 'Constructeur';
+            
+            if (document.getElementById('utilisateur_specialiteArtisan')) {
+                document.getElementById('utilisateur_specialiteArtisan').required = isArtisan;
+                document.getElementById('utilisateur_salaireHeureArtisan').required = isArtisan;
+            }
+            
+            if (document.getElementById('utilisateur_specialiteConstructeur')) {
+                document.getElementById('utilisateur_specialiteConstructeur').required = isConstructeur;
+                document.getElementById('utilisateur_salaireHeureConstructeur').required = isConstructeur;
+            }
+        };
+        roleSelect.addEventListener('change', updateRoleFields);
+        updateRoleFields();
+
+        // Configuration du téléphone
+        const phoneInput = document.querySelector("#utilisateur_telephone");
+        if (phoneInput) {
+            window.intlTelInput(phoneInput, {
+                nationalMode: false,
+                separateDialCode: true,
+                initialCountry: "tn",
+                preferredCountries: ["tn", "fr", "dz", "ma"],
+                utilsScript: "https://cdnjs.cloudflare.com/ajax/libs/intl-tel-input/17.0.19/js/utils.js",
+                customPlaceholder: () => "22123456"
+            });
+
+            phoneInput.addEventListener('input', function () {
+                this.value = this.value.replace(/[^0-9]/g, '');
+            });
+        }
+
+        // Redirection après soumission réussie
+        {% if form.vars.submitted and form.vars.valid %}
+            setTimeout(() => {
+                window.location.href = "{{ path('app_utilisateurs_list') }}";
+            }, 3000);
+        {% endif %}
+    </script>
+{% endblock %}
