@@ -40,6 +40,9 @@ class Contrat
     #[ORM\Column(name: 'date_fin', type: 'date')]
     #[Assert\NotNull(message: "La date de fin est obligatoire")]
     private ?\DateTimeInterface $dateFin = null;
+    
+    
+    
 
     #[ORM\Column(name: 'montant_total', type: 'integer')]
     #[Assert\NotBlank(message: "Le montant total est obligatoire")]
@@ -157,6 +160,7 @@ class Contrat
         if ($file) {
             $this->dateSignature = new \DateTimeImmutable();
         }
+        
     }
 
     public function getSignatureFile(): ?File
@@ -176,4 +180,7 @@ class Contrat
     {
         return $this->typeContrat ?? 'Nouveau Contrat';
     }
+
+
+    
 }
