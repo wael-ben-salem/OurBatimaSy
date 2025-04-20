@@ -204,50 +204,14 @@ public function edit(
     ]);
 }
 #[Route('/utilisateur/{id}/delete', name: 'app_utilisateur_delete', methods: ['POST'])]
-public function delete(
-    Request $request,
-    Utilisateur $utilisateur,
-    EntityManagerInterface $em
-): Response {
-    // Accepter le token depuis POST ou header X-CSRF-TOKEN
-    $submittedToken = $request->request->get('_token') ?? $request->headers->get('X-CSRF-TOKEN');
-
-    if (!$this->isCsrfTokenValid('delete' . $utilisateur->getId(), $submittedToken)) {
-        return $this->json([
-            'success' => false,
-            'message' => 'Token CSRF invalide'
-        ], Response::HTTP_BAD_REQUEST);
+public function delete(Request $request, Utilisateur $utilisateur , EntityManagerInterface $entityManager): Response
+{
+    if ($this->isCsrfTokenValid('delete'.$utilisateur->getId(), $request->getPayload()->getString('_token'))) {
+        $entityManager->remove($utilisateur);
+        $entityManager->flush();
     }
 
-    try {
-        // Suppression des relations
-        if ($utilisateur->getArtisan()) {
-            $em->remove($utilisateur->getArtisan());
-        }
-        if ($utilisateur->getConstructeur()) {
-            $em->remove($utilisateur->getConstructeur());
-        }
-        if ($utilisateur->getClient()) {
-            $em->remove($utilisateur->getClient());
-        }
-        if ($utilisateur->getGestionnaireStock()) {
-            $em->remove($utilisateur->getGestionnaireStock());
-        }
-
-        // Suppression de l'utilisateur
-        $em->remove($utilisateur);
-        $em->flush();
-
-        return $this->json([
-            'success' => true,
-            'message' => 'Utilisateur supprimé avec succès'
-        ]);
-    } catch (\Exception $e) {
-        return $this->json([    
-            'success' => false,
-            'message' => 'Erreur lors de la suppression: ' . $e->getMessage()
-        ], Response::HTTP_INTERNAL_SERVER_ERROR);
-    }
+    return $this->redirectToRoute('app_tables', [], Response::HTTP_SEE_OTHER);
 }
 
 

@@ -206,4 +206,8 @@ class Projet
 
         return $this;
     }
+    public function __toString(): string
+{
+    return $this->nom ?? 'Projet'; // ou tout autre champ lisible
+}
 }

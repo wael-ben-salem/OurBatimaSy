@@ -102,7 +102,7 @@ class ProjetType extends AbstractType
             ])
             ->add('idEquipe', EntityType::class, [
                 'class' => Equipe::class,
-                'choice_label' => 'nomEquipe',
+                'choice_label' => 'nom',
                 'required' => false,
                 'placeholder' => 'Pas d\'équipe',
                 'label' => 'Équipe responsable',

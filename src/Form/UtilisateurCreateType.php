@@ -41,9 +41,13 @@ class UtilisateurCreateType extends AbstractType
                 'label' => 'Prénom *',
                 'constraints' => [
                     new NotBlank(['message' => 'Veuillez entrer votre prénom']),
+                    new Length([
+                        'min' => 3,
+                        'minMessage' => 'Le prénom doit contenir au moins {{ limit }} caractères'
+                    ]),
                     new Regex([
-                        'pattern' => '/^[a-zA-ZÀ-ÿ\s\-]{6,}$/u',
-                        'message' => 'Le prénom doit contenir au moins 6 caractères alphabétiques'
+                        'pattern' => '/^[a-zA-ZÀ-ÿ\s\-]+$/u',
+                        'message' => 'Le prénom ne doit contenir que des lettres'
                     ])
                 ],
                 'attr' => ['class' => 'form-control']
@@ -52,13 +56,18 @@ class UtilisateurCreateType extends AbstractType
                 'label' => 'Nom *',
                 'constraints' => [
                     new NotBlank(['message' => 'Veuillez entrer votre nom']),
+                    new Length([
+                        'min' => 3,
+                        'minMessage' => 'Le nom doit contenir au moins {{ limit }} caractères'
+                    ]),
                     new Regex([
-                        'pattern' => '/^[a-zA-ZÀ-ÿ\s\-]{6,}$/u',
-                        'message' => 'Le nom doit contenir au moins 6 caractères alphabétiques'
+                        'pattern' => '/^[a-zA-ZÀ-ÿ\s\-]+$/u',
+                        'message' => 'Le nom ne doit contenir que des lettres'
                     ])
                 ],
                 'attr' => ['class' => 'form-control']
             ])
+            
             ->add('telephone', TelType::class, [
                 'label' => 'Téléphone *',
                 'constraints' => [

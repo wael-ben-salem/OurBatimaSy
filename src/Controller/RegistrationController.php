@@ -3,7 +3,6 @@
 namespace App\Controller;
 
 use App\Entity\Utilisateur;
-use App\Entity\Constructeur; // Changed from Artisan to Constructeur
 use App\Form\RegistrationFormType;
 use Doctrine\ORM\EntityManagerInterface;
 use Symfony\Bundle\FrameworkBundle\Controller\AbstractController;
@@ -22,28 +21,19 @@ class RegistrationController extends AbstractController
         $form->handleRequest($request);
 
         if ($form->isSubmitted() && $form->isValid()) {
-            // Hash the plain password
-            $user->setPassword(
-                $passwordHasher->hashPassword(
-                    $user,
-                    $form->get('plainPassword')->getData()
-                )
+            // Hasher le mot de passe à partir du champ `plainPassword`
+            $hashedPassword = $passwordHasher->hashPassword(
+                $user,
+                $form->get('plainPassword')->getData()
             );
+            $user->setPassword($hashedPassword);
 
-            // Set default role to constructeur
-            $user->setRole('constructeur');
+            // Définir un rôle par défaut s’il n’a pas été défini dans le formulaire
+            if (!$user->getRole()) {
+                $user->setRole('Client');
+            }
 
-            // Persist the user first
             $entityManager->persist($user);
-
-            // Create and associate Constructeur entity
-            $constructeur = new Constructeur();
-            $constructeur->setConstructeur($user); // Make sure this matches your Constructeur entity's method
-            $constructeur->setSpecialite('Default Speciality'); // Set default or get from form
-            $constructeur->setSalaireHeure('0.00'); // Default value
-
-            $entityManager->persist($constructeur);
-
             $entityManager->flush();
 
             return $this->redirectToRoute('app_welcome');

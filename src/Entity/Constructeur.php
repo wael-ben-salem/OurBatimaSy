@@ -62,15 +62,12 @@ class Constructeur
         return $this->constructeur;
     }
 
-    public function setConstructeur(?Utilisateur $utilisateur): static
+    public function setConstructeur(?Utilisateur $constructeur): static
     {
-        $this->constructeur = $utilisateur;
-        if ($utilisateur !== null && $utilisateur->getConstructeur() !== $this) {
-            $utilisateur->setConstructeur($this);
-        }
+        $this->constructeur = $constructeur;
+
         return $this;
     }
-    
 
 
 }

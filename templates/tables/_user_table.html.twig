@@ -76,14 +76,7 @@
             <a href="{{ path('app_user_edit', {'id': user.id}) }}" class="text-secondary font-weight-bold text-xs ms-2" data-toggle="tooltip" title="Edit">
               <i class="material-symbols-rounded">edit</i>
             </a>
-     <button class="btn btn-link text-danger font-weight-bold text-xs ms-2"
-        data-action="delete"
-        data-user-id="{{ user.id }}"
-        data-csrf-token="{{ csrf_token('delete' ~ user.id) }}"
-        data-toggle="tooltip"
-        title="Supprimer l'utilisateur">
-    <i class="material-symbols-rounded">delete</i>
-</button>
+   
 
           </td>
         </tr>
@@ -126,3 +119,48 @@
     </nav>
   </div>
 </div>
+<script>
+document.addEventListener('DOMContentLoaded', function () {
+    // Lorsque le bouton supprimer est cliqué
+    document.querySelectorAll('[data-action="delete"]').forEach(function (btn) {
+        btn.addEventListener('click', function () {
+            // Récupérer l'id de l'utilisateur et le token CSRF
+            const userId = btn.dataset.userId;
+            const csrfToken = btn.dataset.csrfToken;
+
+            // Mettre à jour les valeurs du formulaire caché avec l'id et le token
+            document.getElementById('delete-form-id').value = userId;
+            document.getElementById('delete-form-token').value = csrfToken;
+
+            // Afficher la modale
+            const deleteModal = new bootstrap.Modal(document.getElementById('deleteModal'));
+            deleteModal.show();
+        });
+    });
+
+    // Lorsque l'utilisateur confirme la suppression
+    document.getElementById('confirmDeleteButton').addEventListener('click', function () {
+        const form = document.getElementById('delete-form');
+        const userId = document.getElementById('delete-form-id').value;
+
+        // Effectuer l'appel AJAX pour supprimer l'utilisateur
+        fetch(`/utilisateur/${userId}/delete`, {
+            method: 'POST',
+            headers: {
+                'Content-Type': 'application/x-www-form-urlencoded',
+            },
+            body: new URLSearchParams(new FormData(form)),
+        })
+        .then(response => response.json())  // Réponse JSON pour mieux gérer le retour
+        .then(data => {
+            if (data.success) {
+                // Si la suppression est réussie, fermer la modale et recharger la page (ou mettre à jour l'interface)
+                location.reload();
+            } else {
+                alert("Une erreur est survenue !");
+            }
+        })
+        .catch(error => console.error('Erreur:', error));
+    });
+});
+</script>
