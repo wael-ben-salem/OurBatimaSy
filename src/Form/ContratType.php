@@ -32,7 +32,7 @@ class ContratType extends AbstractType
               
               
                 'attr' => ['class' => 'form-control',
-                'placeholder' => 'selectioner type contrat'
+                'placeholder' => 'selectioner type contrat '
 
                 ]
                 ])

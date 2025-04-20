@@ -49,20 +49,19 @@
           <table class="table align-items-center justify-content-center mb-0">
             <thead>
               <tr>
-                <th class="text-uppercase text-secondary text-xxs font-weight-bolder opacity-7">Id</th>
                 <th class="text-uppercase text-secondary text-xxs font-weight-bolder opacity-7">Nom</th>
                 <th class="text-uppercase text-secondary text-xxs font-weight-bolder opacity-7">Description</th>
                 <th class="text-uppercase text-secondary text-xxs font-weight-bolder opacity-7">Prix Unitaire</th>
                 <th class="text-uppercase text-secondary text-xxs font-weight-bolder opacity-7">Photo</th>
+                <th class="text-uppercase text-secondary text-xxs font-weight-bolder opacity-7">Étape de Projet</th>
+                <th class="text-uppercase text-secondary text-xxs font-weight-bolder opacity-7">Stock</th>
+                <th class="text-uppercase text-secondary text-xxs font-weight-bolder opacity-7">Fournisseur</th>
                 <th class="text-uppercase text-secondary text-xxs font-weight-bolder opacity-7 text-center">Actions</th>
               </tr>
             </thead>
             <tbody>
               {% for article in articles %}
               <tr>
-                <td>
-                  <p class="text-sm font-weight-bold mb-0">{{ article.id }}</p>
-                </td>
                 <td>
                   <div class="d-flex px-2">
                     <div>
@@ -88,6 +87,15 @@
                     <p class="text-sm font-weight-bold mb-0">Aucune photo</p>
                   {% endif %}
                 </td>
+                <td>
+                  <p class="text-sm font-weight-bold mb-0">{{ article.etapeprojet ? article.etapeprojet.nometape : 'Non défini' }}</p>
+                </td>
+                <td>
+                  <p class="text-sm font-weight-bold mb-0">{{ article.stock ? article.stock.nom : 'Non défini' }}</p>
+                </td>
+                <td>
+                  <p class="text-sm font-weight-bold mb-0">{{ article.fournisseur ? article.fournisseur.nom : 'Non défini' }}</p>
+                </td>
                 <td class="text-center align-middle">
                   <a href="{{ path('app_article_show', {'id': article.id}) }}" class="text-secondary font-weight-bold text-xs" data-toggle="tooltip" title="Voir détails">
                     <i class="material-symbols-rounded">visibility</i>
@@ -100,7 +108,7 @@
               </tr>
               {% else %}
               <tr>
-                <td colspan="6" class="text-center">Aucun article trouvé</td>
+                <td colspan="8" class="text-center">Aucun article trouvé</td>
               </tr>
               {% endfor %}
             </tbody>

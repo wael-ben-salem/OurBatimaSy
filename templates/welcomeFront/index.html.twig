@@ -6,7 +6,7 @@
     <meta name="description" content="Our Batima - Votre partenaire de confiance pour tous vos projets de construction">
     <meta property="og:title" content="Our Batima - Accueil">
     <meta property="og:description" content="Votre partenaire de confiance pour tous vos projets de construction">
-    <meta property="og:image" content="{{ absolute_url(asset('img/hero.jpg')) }}">
+    <meta property="og:image" content="{{ absolute_url(asset('img/ksks.png')) }}">
 {% endblock %}
 
 {% block stylesheets %}
@@ -70,7 +70,7 @@
     {# Welcome message for logged in users #}
     {% if user %}
         <div class="alert alert-info text-center mb-0">
-            Bienvenue, {{ utilisateur.nom }} {{ utilisateur.prenom }}! <a href="{{ path('app_logout') }}" class="float-right">Déconnexion</a>
+            Bienvenue, {{ user.nom }} {{ user.prenom }}! <a href="{{ path('app_logout') }}" class="float-right">Déconnexion</a>
         </div>
     {% endif %}
 
@@ -100,7 +100,7 @@
                 </div>
                 <div class="col-lg-6 d-none d-lg-block">
                     <div class="hero-image">
-                        <img src="{{ asset('img/hero.jpg') }}" alt="Projet de construction moderne" class="img-fluid rounded shadow" loading="lazy">
+                        <img src="{{ asset('img/ksks.png') }}" alt="Projet de construction moderne" class="img-fluid rounded shadow" loading="lazy">
                     </div>
                 </div>
             </div>

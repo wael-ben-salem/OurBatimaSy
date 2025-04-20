@@ -57,16 +57,59 @@
           </div>
         </div>
         <div class="card-body px-4 pb-2">
-          <form method="post" enctype="multipart/form-data">
-            {{ form_start(form) }}
-            {{ form_widget(form) }}
+          <form method="post" enctype="multipart/form-data" novalidate>
+            {{ form_start(form, {'attr': {'novalidate': 'novalidate'}}) }}
+            
+            <!-- General Information Section -->
+            <h5 class="text-secondary">Informations Générales</h5>
             <div class="form-group">
-              <label for="photoFile">Photo</label>
-              <input type="file" id="photoFile" name="photoFile" class="form-control">
+              {{ form_label(form.nom) }}
+              {{ form_widget(form.nom, {'attr': {'class': 'form-control'}}) }}
+              {{ form_errors(form.nom) }}
             </div>
-            <button type="submit" class="btn btn-primary">Créer</button>
+            <div class="form-group">
+              {{ form_label(form.description) }}
+              {{ form_widget(form.description, {'attr': {'class': 'form-control'}}) }}
+              {{ form_errors(form.description) }}
+            </div>
+            <div class="form-group">
+              {{ form_label(form.prixUnitaire) }}
+              {{ form_widget(form.prixUnitaire, {'attr': {'class': 'form-control'}}) }}
+              {{ form_errors(form.prixUnitaire) }}
+            </div>
+
+            <!-- Associations Section -->
+            <h5 class="text-secondary mt-4">Associations</h5>
+            <div class="form-group">
+              {{ form_label(form.etapeprojet) }}
+              {{ form_widget(form.etapeprojet, {'attr': {'class': 'form-control'}}) }}
+              {{ form_errors(form.etapeprojet) }}
+            </div>
+            <div class="form-group">
+              {{ form_label(form.stock) }}
+              {{ form_widget(form.stock, {'attr': {'class': 'form-control'}}) }}
+              {{ form_errors(form.stock) }}
+            </div>
+            <div class="form-group">
+              {{ form_label(form.fournisseur) }}
+              {{ form_widget(form.fournisseur, {'attr': {'class': 'form-control'}}) }}
+              {{ form_errors(form.fournisseur) }}
+            </div>
+
+            <!-- Photo Upload Section -->
+            <h5 class="text-secondary mt-4">Photo</h5>
+            <div class="form-group">
+              {{ form_label(form.photoFile) }}
+              {{ form_widget(form.photoFile, {'attr': {'class': 'form-control'}}) }}
+              {{ form_errors(form.photoFile) }}
+            </div>
+
+            <!-- Submit Button -->
+            <button type="submit" class="btn btn-primary mt-4">Créer</button>
             {{ form_end(form) }}
           </form>
+
+          <!-- Back to List Button -->
           <a href="{{ path('app_article_index') }}" class="btn btn-outline-secondary mt-3">
             <i class="material-symbols-rounded me-1">arrow_back</i>
             Retour à la liste

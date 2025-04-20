@@ -4,4 +4,6 @@ vich_uploader:
     signature_images:  # Unique name for this mapping
       uri_prefix: /signatures  # Public URL path
       upload_destination: '%kernel.project_dir%/public/signatures'  # Where files are stored
-      namer: Vich\UploaderBundle\Naming\UniqidNamer  # Generates unique filenames
+      namer: Vich\UploaderBundle\Naming\UniqidNamer  # Generates unique filenames 
+      delete_on_update: true   # Automatically deletes old file when updating
+      delete_on_remove: true 

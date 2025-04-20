@@ -15,7 +15,11 @@
                     <a href="{{ path('team') }}" class="nav-item nav-link {% if app.request.attributes.get('_route') == 'team' %}active{% endif %}">Team</a>
                     <a href="{{ path('app_projet_front_index') }}" class="nav-item nav-link {% if app.request.attributes.get('_route') == 'app_projet_front_index' %}active{% endif %}">Projets</a>
                     <a href="{{ path('contact') }}" class="nav-item nav-link {% if app.request.attributes.get('_route') == 'contact' %}active{% endif %}">Contact</a>
+                    <a href="{{ path('contact') }}" class="nav-item nav-link {% if app.request.attributes.get('_route') == 'contact' %}active{% endif %}">Contact</a>
+
+     
                 </div>
+                
                 <div class="ml-auto">
                     <a href="{{ path('app_login') }}" class="nav-item nav-link">Login</a>
                 </div>

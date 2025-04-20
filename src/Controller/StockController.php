@@ -40,7 +40,7 @@ final class StockController extends AbstractController{
 
         return $this->render('stock/new.html.twig', [
             'stock' => $stock,
-            'form' => $form,
+            'form' => $form->createView(),
         ]);
     }
 

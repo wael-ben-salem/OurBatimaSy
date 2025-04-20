@@ -1,15 +1,39 @@
-{% extends 'dash/basedash.html.twig' %}
-
-{% block body %}
-<div class="container mt-5">
-  <h3>Détails de l'utilisateur</h3>
-  <ul>
-    <li><strong>Nom:</strong> {{ utilisateur.nom }}</li>
-    <li><strong>Prénom:</strong> {{ utilisateur.prenom }}</li>
-    <li><strong>Email:</strong> {{ utilisateur.email }}</li>
-    <li><strong>Téléphone:</strong> {{ utilisateur.telephone }}</li>
-    <li><strong>Statut:</strong> {{ utilisateur.statut }}</li>
-    {# Ajoute spécialité et salaire si Artisan ou Constructeur #}
-  </ul>
+<div class="modal fade" id="showUserModal" tabindex="-1" aria-hidden="true">
+  <div class="modal-dialog modal-dialog-centered modal-lg">
+    <div class="modal-content">
+      <div class="modal-header bg-gradient-primary text-white">
+        <h5 class="modal-title">Détails de {{ user.nom }} {{ user.prenom }}</h5>
+        <button type="button" class="btn-close text-white" data-bs-dismiss="modal" aria-label="Close"></button>
+      </div>
+      <div class="modal-body">
+        <div class="row">
+          <div class="col-md-6">
+            <p><strong>Nom :</strong> {{ user.nom }}</p>
+            <p><strong>Prénom :</strong> {{ user.prenom }}</p>
+            <p><strong>Email :</strong> {{ user.email }}</p>
+            <p><strong>Téléphone :</strong> {{ user.telephone }}</p>
+          </div>
+          <div class="col-md-6">
+            <p><strong>Rôle :</strong> 
+              <span class="badge bg-{{ user.role == 'Client' ? 'info' : 
+                                    user.role == 'Artisan' ? 'warning' : 
+                                    user.role == 'Constructeur' ? 'success' : 'secondary' }}">
+                {{ user.role }}
+              </span>
+            </p>
+            {% if user.artisan %}
+              <p><strong>Spécialité :</strong> {{ user.artisan.specialite }}</p>
+              <p><strong>Salaire/h :</strong> {{ user.artisan.salaireHeure }} €</p>
+            {% elseif user.constructeur %}
+              <p><strong>Spécialité :</strong> {{ user.constructeur.specialite }}</p>
+              <p><strong>Salaire/h :</strong> {{ user.constructeur.salaireHeure }} €</p>
+            {% endif %}
+          </div>
+        </div>
+      </div>
+      <div class="modal-footer">
+        <button type="button" class="btn btn-secondary" data-bs-dismiss="modal">Fermer</button>
+      </div>
+    </div>
+  </div>
 </div>
-{% endblock %}

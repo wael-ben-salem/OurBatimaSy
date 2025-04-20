@@ -3,7 +3,6 @@
 namespace App\Controller;
 
 use App\Entity\Utilisateur;
-use App\Entity\Artisan;
 use App\Form\RegistrationFormType;
 use Doctrine\ORM\EntityManagerInterface;
 use Symfony\Bundle\FrameworkBundle\Controller\AbstractController;
@@ -29,22 +28,12 @@ class RegistrationController extends AbstractController
             );
             $user->setPassword($hashedPassword);
 
-            // Définir le rôle par défaut
-            $user->setRole('artisan');
-
-            // Persister l'utilisateur
-            $entityManager->persist($user);
-
-            // Si le rôle est artisan, créer un objet Artisan lié
-            if ($user->getRole() === 'artisan') {
-                $artisan = new Artisan();
-                $artisan->setArtisan($user);
-                $artisan->setSpecialite('Default Specialite');
-                $artisan->setSalaireHeure('0.00');
-                $entityManager->persist($artisan);
+            // Définir un rôle par défaut s’il n’a pas été défini dans le formulaire
+            if (!$user->getRole()) {
+                $user->setRole('Client');
             }
 
-            // Sauvegarder dans la base de données
+            $entityManager->persist($user);
             $entityManager->flush();
 
             return $this->redirectToRoute('app_welcome');
