@@ -20,6 +20,7 @@ class ProjetType extends AbstractType
         $builder
             ->add('nomprojet', null, [
                 'label' => 'Nom du projet',
+                'required' => true, 
                 'constraints' => [
                     new Assert\NotBlank([
                         'message' => 'Le nom du projet est obligatoire'
