@@ -9,6 +9,7 @@ use Doctrine\DBAL\Types\Types;
 use Doctrine\ORM\Mapping as ORM;
 use Doctrine\Common\Collections\ArrayCollection;
 use Doctrine\Common\Collections\Collection;
+use Symfony\Component\Validator\Constraints as Assert;
 
 /**
  * Projet
@@ -42,7 +43,8 @@ class Projet
     private $datecreation;
 
     #[ORM\Column(name: 'nomProjet', type: 'string', length: 30, nullable: true)]
-    private $nomprojet;
+    #[Assert\NotBlank(message: "Le nom du projet est obligatoire")]
+    private ?string $nomprojet = null;
 
     #[ORM\JoinColumn(name: 'Id_terrain', referencedColumnName: 'Id_terrain')]
     #[ORM\ManyToOne(targetEntity: Terrain::class)]
@@ -137,7 +139,6 @@ class Projet
     public function setNomprojet(string $nomprojet): static
     {
         $this->nomprojet = $nomprojet;
-
         return $this;
     }
 

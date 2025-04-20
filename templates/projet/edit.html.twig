@@ -177,24 +177,24 @@
 
             <div class="row">
               <div class="col-md-6">
-                <div class="form-group">
-                  {{ form_label(form.nomprojet) }}
-                  {{ form_widget(form.nomprojet, {
-                    'attr': {
-                      'class': 'form-control' ~ (form.nomprojet.vars.errors|length ? ' is-invalid' : ''),
-                      'placeholder': 'Ex: Villa moderne à Sousse',
-                      'value': projet.nomprojet ?? 'Nouveau Projet'
-                    }
-                  }) }}
-                  {% if form.nomprojet.vars.errors|length %}
-                    <div class="form-error-message">
-                      <i class="fas fa-exclamation-circle form-error-icon"></i>
-                      {% for error in form.nomprojet.vars.errors %}
-                        <span>{{ error.message }}</span>
-                      {% endfor %}
-                    </div>
-                  {% endif %}
-                </div>
+<div class="form-group">
+    {{ form_label(form.nomprojet) }}
+    {{ form_widget(form.nomprojet, {
+        'attr': {
+            'class': 'form-control' ~ (form.nomprojet.vars.errors|length ? ' is-invalid' : ''),
+            'placeholder': 'Ex: Villa moderne à Sousse',
+            'required': 'required'
+        }
+    }) }}
+    {% if form.nomprojet.vars.errors|length %}
+        <div class="form-error-message">
+            <i class="fas fa-exclamation-circle form-error-icon"></i>
+            {% for error in form.nomprojet.vars.errors %}
+                <span>{{ error.message }}</span>
+            {% endfor %}
+        </div>
+    {% endif %}
+</div>
               </div>
               <div class="col-md-6">
                 <div class="form-group">

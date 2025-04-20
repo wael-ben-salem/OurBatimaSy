@@ -12,30 +12,25 @@ use Symfony\Component\OptionsResolver\OptionsResolver;
 use Symfony\Component\Form\Extension\Core\Type\ChoiceType;
 use Symfony\Component\Form\Extension\Core\Type\TextType;
 use Symfony\Component\Validator\Constraints as Assert;
+use Symfony\Component\Validator\Constraints\Length;
 
 class ProjetType extends AbstractType
 {
     public function buildForm(FormBuilderInterface $builder, array $options): void
     {
         $builder
-            ->add('nomprojet', null, [
-                'label' => 'Nom du projet',
-                'required' => true, 
-                'constraints' => [
-                    new Assert\NotBlank([
-                        'message' => 'Le nom du projet est obligatoire'
-                    ]),
-                    new Assert\Length([
-                        'min' => 3,
-                        'max' => 100,
-                        'minMessage' => 'Le nom doit contenir au moins {{ limit }} caractères',
-                        'maxMessage' => 'Le nom ne peut pas dépasser {{ limit }} caractères'
-                    ])
-                ],
-                'attr' => [
-                    'placeholder' => 'Ex: Villa moderne à Sousse'
-                ]
-            ])
+        ->add('nomprojet', TextType::class, [
+            'label' => 'Nom du projet',
+            'constraints' => [
+                new Assert\NotBlank([
+                    'message' => 'Le nom du projet est obligatoire',
+                ]),
+                new Length([
+                    'max' => 30,
+                    'maxMessage' => 'Le nom ne peut pas dépasser {{ limit }} caractères',
+                ]),
+            ],
+        ])
             ->add('type', null, [
                 'label' => 'Type de projet',
                 'constraints' => [

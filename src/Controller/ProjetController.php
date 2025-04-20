@@ -102,16 +102,9 @@ public function new(Request $request, EntityManagerInterface $entityManager): Re
         $form->handleRequest($request);
     
         if ($form->isSubmitted()) {
-            // First check if nomprojet is empty
-            $nomprojet = $form->get('nomprojet')->getData();
-            if (empty($nomprojet)) {
-                $form->get('nomprojet')->addError(new FormError('Le nom du projet est obligatoire'));
-            }
             
             if ($form->isValid()) {
-                $emailClient = $form->get('nomClient')->getData();
-                
-                // Only process client if email changed or was removed
+                $emailClient = $form->get('nomClient')->getData();                
                 if ($emailClient !== ($originalClient ? $originalClient->getClient()->getEmail() : null)) {
                     if (!empty($emailClient)) {
                         $utilisateur = $entityManager->getRepository(Utilisateur::class)
@@ -144,6 +137,8 @@ public function new(Request $request, EntityManagerInterface $entityManager): Re
                 $entityManager->flush();
                 $this->addFlash('success', 'Projet mis à jour avec succès.');
                 return $this->redirectToRoute('app_projet_show', ['idProjet' => $projet->getIdProjet()]);
+            } else {
+                $this->addFlash('error', 'Veuillez corriger les erreurs dans le formulaire.');
             }
         }
     

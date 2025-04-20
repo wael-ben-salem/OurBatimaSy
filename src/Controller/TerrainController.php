@@ -20,7 +20,7 @@ final class TerrainController extends AbstractController
             ->getRepository(Terrain::class)
             ->findAll();
 
-        return $this->render('terrain/index.html.twig', [
+        return $this->render('terrain/pindex.html.twig', [
             'terrains' => $terrains,
         ]);
     }
