@@ -1,0 +1,76 @@
+{# templates/plannification/saved.html.twig #}
+
+{% extends 'base_backOffice.html.twig' %}
+
+{% block title %}Saved Plannifications{% endblock %}
+
+{% block breadcrumb %}My Saved Plannifications{% endblock %}
+
+{% block body %}
+    <div class="row">
+        <div class="col-12">
+            <div class="card my-4">
+                <div class="card-header p-0 position-relative mt-n4 mx-3 z-index-2">
+                    <div class="bg-gradient-dark shadow-dark border-radius-lg pt-4 pb-3">
+                        <h6 class="text-white text-capitalize ps-3">My Saved Plannifications</h6>
+                    </div>
+                </div>
+                <div class="card-body px-0 pb-2">
+                    <div class="table-responsive p-4">
+                        {% if saved_plans|length > 0 %}
+                            <table class="table align-items-center mb-0">
+                                <thead>
+                                <tr>
+                                    <th>Priority</th>
+                                    <th>Planned Date</th>
+                                    <th>Status</th>
+                                    <th>Associated Task</th>
+                                    <th>Actions</th>
+                                </tr>
+                                </thead>
+                                <tbody>
+                                {% for saved in saved_plans %}
+                                    {% set plan = saved.plannification %}
+                                    <tr>
+                                        <td>
+                                                <span class="priority-badge bg-{{ plan.priorite|lower }}">
+                                                    {{ plan.priorite }}
+                                                </span>
+                                        </td>
+                                        <td>{{ plan.datePlanifiee|date('d/m/Y') }}</td>
+                                        <td>
+                                                <span class="status-badge bg-{{ plan.statut|lower|replace({' ': '-'}) }}">
+                                                    {{ plan.statut }}
+                                                </span>
+                                        </td>
+                                        <td>{{ plan.idTache.description|slice(0, 30) }}...</td>
+                                        <td>
+                                            <a href="{{ path('app_plannification_show', {'idPlannification': plan.idPlannification}) }}"
+                                               class="btn btn-sm btn-outline-info px-3">
+                                                <i class="material-symbols-rounded">visibility</i>
+                                            </a>
+                                            <form method="post"
+                                                  action="{{ path('app_plannification_unsave', {'idPlannification': plan.idPlannification}) }}"
+                                                  class="d-inline">
+                                                <input type="hidden" name="_token"
+                                                       value="{{ csrf_token('unsave' ~ plan.idPlannification) }}">
+                                                <button class="btn btn-sm btn-outline-danger px-3">
+                                                    <i class="material-symbols-rounded">delete</i>
+                                                </button>
+                                            </form>
+                                        </td>
+                                    </tr>
+                                {% endfor %}
+                                </tbody>
+                            </table>
+                        {% else %}
+                            <div class="alert alert-info">
+                                No saved plannifications found.
+                            </div>
+                        {% endif %}
+                    </div>
+                </div>
+            </div>
+        </div>
+    </div>
+{% endblock %}

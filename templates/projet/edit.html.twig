@@ -183,7 +183,8 @@
                   {{ form_widget(form.nomprojet, {
                     'attr': {
                       'class': 'form-control' ~ (form.nomprojet.vars.errors|length ? ' is-invalid' : ''),
-                      'placeholder': 'Ex: Villa moderne à Sousse'
+                      'placeholder': 'Ex: Villa moderne à Sousse',
+                      'value': projet.nomprojet ?? 'Nouveau Projet'
                     }
                   }) }}
                   {% if form.nomprojet.vars.errors|length %}

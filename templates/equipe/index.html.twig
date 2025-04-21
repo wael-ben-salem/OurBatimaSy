@@ -1,0 +1,69 @@
+{% extends 'base_backOffice.html.twig' %}
+
+{% block title %}Liste des Équipes{% endblock %}
+
+{% block body %}
+<div class="container-fluid py-4">
+    <div class="row">
+        <div class="col-12">
+            <div class="card my-4">
+                <div class="card-header p-0 position-relative mt-n4 mx-3 z-index-2">
+                    <div class="bg-gradient-dark shadow-dark border-radius-lg pt-4 pb-3">
+                        <h6 class="text-white text-capitalize ps-3">Liste des Équipes</h6>
+                    </div>
+                </div>
+                <div class="card-body px-0 pb-2">
+                    <div class="table-responsive p-0">
+                        <table class="table align-items-center mb-0">
+                            <thead>
+                                <tr>
+                                    <th>Nom</th>
+                                    <th>Constructeur</th>
+                                    <th>Gestionnaire</th>
+                                    <th>Artisans</th>
+                                    <th>Date Création</th>
+                                    <th>Rating</th>
+                                </tr>
+                            </thead>
+                            <tbody>
+                                {% for equipe in equipes %}
+                                <tr>
+                                    <td>{{ equipe.nom }}</td>
+                                    <td>
+                                        {% if equipe.constructeur and equipe.constructeur.utilisateur %}
+                                            {{ equipe.constructeur.utilisateur.nom }} {{ equipe.constructeur.utilisateur.prenom }}
+                                        {% else %}
+                                            Non assigné
+                                        {% endif %}
+                                    </td>
+                                    <td>
+                                        {% if equipe.gestionnairestock and equipe.gestionnairestock.utilisateur %}
+                                            {{ equipe.gestionnairestock.utilisateur.nom }} {{ equipe.gestionnairestock.utilisateur.prenom }}
+                                        {% else %}
+                                            Non assigné
+                                        {% endif %}
+                                    </td>
+                                    <td>
+                                        <ul>
+                                            {% for artisan in equipe.artisans %}
+                                                <li>{{ artisan.utilisateur.nom }} {{ artisan.utilisateur.prenom }} ({{ artisan.specialite }})</li>
+                                            {% endfor %}
+                                        </ul>
+                                    </td>
+                                    <td>{{ equipe.dateCreation|date('d/m/Y') }}</td>
+                                    <td>{{ equipe.rating }}</td>
+                                </tr>
+                                {% else %}
+                                <tr>
+                                    <td colspan="6">Aucune équipe trouvée</td>
+                                </tr>
+                                {% endfor %}
+                            </tbody>
+                        </table>
+                    </div>
+                </div>
+            </div>
+        </div>
+    </div>
+</div>
+{% endblock %}

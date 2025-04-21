@@ -2,28 +2,21 @@
 
 namespace App\Entity;
 
+use App\Repository\ClientRepository;
 use Doctrine\ORM\Mapping as ORM;
-use App\Entity\Utilisateur;
 
-/**
- * Client
- */
+#[ORM\Entity(repositoryClass: ClientRepository::class)]
 #[ORM\Table(name: 'client')]
-#[ORM\Entity]
 class Client
 {
-    /**
-     * @var \Utilisateur
-     */
-    #[ORM\JoinColumn(name: 'client_id', referencedColumnName: 'id')]
     #[ORM\Id]
-    #[ORM\GeneratedValue(strategy: 'NONE')]
-    #[ORM\OneToOne(targetEntity: Utilisateur::class)]
-    private $client;
+    #[ORM\OneToOne(inversedBy: 'client', targetEntity: Utilisateur::class)]
+    #[ORM\JoinColumn(name: 'client_id', referencedColumnName: 'id')]
+    private ?Utilisateur $client = null;
 
     public function getClient(): ?Utilisateur
     {
-        return $this->client instanceof Utilisateur ? $this->client : null;
+        return $this->client;
     }
 
     public function setClient(?Utilisateur $client): static
@@ -32,6 +25,5 @@ class Client
 
         return $this;
     }
-
-
+    
 }

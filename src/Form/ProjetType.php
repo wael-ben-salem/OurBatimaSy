@@ -20,6 +20,7 @@ class ProjetType extends AbstractType
         $builder
             ->add('nomprojet', null, [
                 'label' => 'Nom du projet',
+                'required' => true, 
                 'constraints' => [
                     new Assert\NotBlank([
                         'message' => 'Le nom du projet est obligatoire'
@@ -102,7 +103,7 @@ class ProjetType extends AbstractType
             ])
             ->add('idEquipe', EntityType::class, [
                 'class' => Equipe::class,
-                'choice_label' => 'nomEquipe',
+                'choice_label' => 'nom',
                 'required' => false,
                 'placeholder' => 'Pas d\'équipe',
                 'label' => 'Équipe responsable',
