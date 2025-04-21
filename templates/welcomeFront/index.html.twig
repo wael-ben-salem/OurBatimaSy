@@ -70,7 +70,7 @@
     {# Welcome message for logged in users #}
     {% if user %}
         <div class="alert alert-info text-center mb-0">
-            Bienvenue, {{ utilisateur.nom }} {{ utilisateur.prenom }}! <a href="{{ path('app_logout') }}" class="float-right">Déconnexion</a>
+            Bienvenue, {{ user.nom }} {{ user.prenom }}! <a href="{{ path('app_logout') }}" class="float-right">Déconnexion</a>
         </div>
     {% endif %}
 
