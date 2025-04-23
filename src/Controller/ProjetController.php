@@ -95,14 +95,11 @@ public function new(Request $request, EntityManagerInterface $entityManager): Re
     #[Route('/{idProjet}/edit', name: 'app_projet_edit', methods: ['GET', 'POST'])]
     public function edit(Request $request, Projet $projet, EntityManagerInterface $entityManager): Response
     {
-        // Store the original client before handling the form
         $originalClient = $projet->getIdClient();
-        
         $form = $this->createForm(ProjetType::class, $projet);
         $form->handleRequest($request);
     
         if ($form->isSubmitted()) {
-            
             if ($form->isValid()) {
                 $emailClient = $form->get('nomClient')->getData();                
                 if ($emailClient !== ($originalClient ? $originalClient->getClient()->getEmail() : null)) {
@@ -112,7 +109,6 @@ public function new(Request $request, EntityManagerInterface $entityManager): Re
                                 'email' => $emailClient,
                                 'role' => 'Client'
                             ]);
-    
                         if (!$utilisateur) {
                             $this->addFlash('error', 'Aucun compte utilisateur avec le rôle client trouvé avec cet e-mail.');
                             return $this->redirectToRoute('app_projet_edit', ['idProjet' => $projet->getIdProjet()]);
@@ -125,7 +121,6 @@ public function new(Request $request, EntityManagerInterface $entityManager): Re
                             $client = new Client();
                             $client->setClient($utilisateur);
                             $entityManager->persist($client);
-                            // Don't flush yet - wait for the main flush
                         }
     
                         $projet->setIdClient($client);

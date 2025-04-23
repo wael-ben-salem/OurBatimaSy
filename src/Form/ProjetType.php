@@ -23,11 +23,13 @@ class ProjetType extends AbstractType
             'label' => 'Nom du projet',
             'constraints' => [
                 new Assert\NotBlank([
-                    'message' => 'Le nom du projet est obligatoire',
+                    'message' => 'Le nom de projet est obligatoire'
                 ]),
                 new Length([
+                    'min' => 3,
+                    'minMessage' => 'Le nom doit contenir au moins 3 caractères',
                     'max' => 30,
-                    'maxMessage' => 'Le nom ne peut pas dépasser {{ limit }} caractères',
+                    'maxMessage' => 'Le nom ne peut pas dépasser 30 caractères',
                 ]),
             ],
         ])
@@ -39,7 +41,7 @@ class ProjetType extends AbstractType
                     ]),
                     new Assert\Length([
                         'max' => 50,
-                        'maxMessage' => 'Le type ne peut pas dépasser {{ limit }} caractères'
+                        'maxMessage' => 'Le type ne peut pas dépasser 50 caractères'
                     ])
                 ]
             ])
@@ -102,7 +104,6 @@ class ProjetType extends AbstractType
                 'required' => false,
                 'placeholder' => 'Pas d\'équipe',
                 'label' => 'Équipe responsable',
-                // No constraints as per requirement
             ])
             ->add('nomClient', TextType::class, [
                 'label' => 'Email du client',
@@ -116,8 +117,8 @@ class ProjetType extends AbstractType
                         'message' => 'Veuillez fournir une adresse email valide.',
                     ]),
                     new Assert\Length([
-                        'max' => 180,
-                        'maxMessage' => 'L\'email ne peut pas dépasser {{ limit }} caractères'
+                        'max' => 50,
+                        'maxMessage' => 'L\'email ne peut pas dépasser 50 caractères'
                     ])
                 ],
             ]);

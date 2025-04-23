@@ -43,8 +43,7 @@ class Projet
     private $datecreation;
 
     #[ORM\Column(name: 'nomProjet', type: 'string', length: 30, nullable: true)]
-    #[Assert\NotBlank(message: "Le nom du projet est obligatoire")]
-    private ?string $nomprojet = null;
+    private $nomprojet;
 
     #[ORM\JoinColumn(name: 'Id_terrain', referencedColumnName: 'Id_terrain')]
     #[ORM\ManyToOne(targetEntity: Terrain::class)]
@@ -209,6 +208,6 @@ class Projet
     }
     public function __toString(): string
 {
-    return $this->nom ?? 'Projet'; // ou tout autre champ lisible
+    return $this->nom ?? 'Projet';
 }
 }

@@ -5,6 +5,11 @@
 {% block stylesheets %}
   {{ parent() }}
   <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.0.0/css/all.min.css">
+  <!-- Add Leaflet CSS -->
+  <link rel="stylesheet" href="https://unpkg.com/leaflet@1.9.4/dist/leaflet.css"
+    integrity="sha256-p4NxAoJBhIIN+hmNHrzRCf9tD/miZyoHS5obTRR9BMY="
+    crossorigin=""/>
+  <link rel="stylesheet" href="https://unpkg.com/leaflet-control-geocoder/dist/Control.Geocoder.css" />
   <style>
     .card {
       border-radius: 12px;
@@ -73,7 +78,139 @@
       color: #dc3545;
       margin-right: 0.25rem;
     }
+    
+    /* Map styles */
+    #map {
+      height: 300px;
+      border-radius: 12px;
+      margin-bottom: 15px;
+      border: 2px solid #dee2e6;
+    }
+    
+    .map-controls {
+      display: flex;
+      gap: 10px;
+      margin-bottom: 15px;
+    }
+    
+    .map-controls button {
+      flex: 1;
+      padding: 8px 12px;
+      border-radius: 8px;
+      border: none;
+      background: #f8f9fa;
+      cursor: pointer;
+      transition: all 0.2s;
+      font-size: 14px;
+    }
+    
+    .map-controls button:hover {
+      background: #e9ecef;
+    }
+    
+    .map-controls button i {
+      margin-right: 5px;
+    }
+    
+    .location-selector-btn {
+      margin-bottom: 15px;
+    }
   </style>
+{% endblock %}
+
+{% block javascripts %}
+  {{ parent() }}
+  <!-- Add Leaflet JS -->
+  <script src="https://unpkg.com/leaflet@1.9.4/dist/leaflet.js"
+    integrity="sha256-20nQCchB9co0qIjJZRGuk2/Z9VM+kNiyxNV1lvTlZBo="
+    crossorigin=""></script>
+  <script src="https://unpkg.com/leaflet-control-geocoder/dist/Control.Geocoder.js"></script>
+  
+  <script>
+    document.addEventListener('DOMContentLoaded', function() {
+      // Map elements
+      const map = L.map('map').setView([36.8, 10.18], 12); // Default to Tunisia coordinates
+      L.tileLayer('https://{s}.tile.openstreetmap.org/{z}/{x}/{y}.png', {
+        attribution: '&copy; <a href="https://www.openstreetmap.org/copyright">OpenStreetMap</a> contributors'
+      }).addTo(map);
+      
+      // Add geocoder control
+      const geocoder = L.Control.geocoder({
+        defaultMarkGeocode: false,
+        position: 'topright'
+      }).addTo(map);
+      
+      geocoder.on('markgeocode', function(e) {
+        const latlng = e.geocode.center;
+        updateMarkerPosition(latlng);
+        updateFormFields(latlng.lat, latlng.lng, e.geocode.name);
+      });
+      
+      // Form elements
+      const emplacementInput = document.getElementById('{{ form.emplacement.vars.id }}');
+      const detailsgeoInput = document.getElementById('{{ form.detailsgeo.vars.id }}');
+      
+      // Marker
+      const marker = L.marker([36.8, 10.18], { draggable: true }).addTo(map);
+      
+      // Update marker position and form fields when marker is dragged
+      marker.on('dragend', function(e) {
+        const latlng = marker.getLatLng();
+        updateFormFields(latlng.lat, latlng.lng);
+      });
+      
+      // Update fields when map is clicked
+      map.on('click', function(e) {
+        updateMarkerPosition(e.latlng);
+        updateFormFields(e.latlng.lat, e.latlng.lng);
+      });
+      
+      // Locate me button
+      document.getElementById('locate-me').addEventListener('click', function() {
+        map.locate({setView: true, maxZoom: 16});
+      });
+      
+      map.on('locationfound', function(e) {
+        updateMarkerPosition(e.latlng);
+        updateFormFields(e.latlng.lat, e.latlng.lng);
+      });
+      
+      // Helper functions
+      function updateMarkerPosition(latlng) {
+        marker.setLatLng(latlng);
+        map.setView(latlng, map.getZoom());
+      }
+      
+      function updateFormFields(lat, lng, address = null) {
+        if (!address) {
+          // Reverse geocode to get address
+          fetch(`https://nominatim.openstreetmap.org/reverse?format=json&lat=${lat}&lon=${lng}`)
+            .then(response => response.json())
+            .then(data => {
+              emplacementInput.value = data.display_name || 'Emplacement sélectionné';
+              detailsgeoInput.value = `Lat: ${lat.toFixed(6)}, Lng: ${lng.toFixed(6)}`;
+              
+              // Add validation classes
+              emplacementInput.classList.remove('is-invalid');
+              emplacementInput.classList.add('is-valid');
+              detailsgeoInput.classList.remove('is-invalid');
+              detailsgeoInput.classList.add('is-valid');
+            })
+            .catch(error => {
+              console.error('Geocoding error:', error);
+              emplacementInput.value = 'Emplacement sélectionné';
+              detailsgeoInput.value = `Lat: ${lat.toFixed(6)}, Lng: ${lng.toFixed(6)}`;
+            });
+        } else {
+          emplacementInput.value = address;
+          detailsgeoInput.value = `Lat: ${lat.toFixed(6)}, Lng: ${lng.toFixed(6)}`;
+        }
+      }
+      
+      // Initialize with current marker position
+      updateFormFields(marker.getLatLng().lat, marker.getLatLng().lng);
+    });
+  </script>
 {% endblock %}
 
 {% block body %}
@@ -109,6 +246,21 @@
           {{ form_start(form, {'attr': {'class': 'form-horizontal'}}) }}
 
             <div class="row">
+              <div class="col-12">
+                <label class="form-label">Localisation du terrain</label>
+                <div id="map"></div>
+                <div class="map-controls">
+                  <button type="button" id="locate-me" class="btn btn-sm btn-brown">
+                    <i class="fas fa-location-arrow"></i> Ma position
+                  </button>
+                  <button type="button" id="search-place" class="btn btn-sm btn-brown">
+                    <i class="fas fa-search"></i> Rechercher une adresse
+                  </button>
+                </div>
+              </div>
+            </div>
+
+            <div class="row">
               <div class="col-md-6">
                 <div class="form-group">
                   {{ form_label(form.emplacement) }}
@@ -116,7 +268,8 @@
                     'attr': {
                       'class': 'form-control' ~ (form.emplacement.vars.errors|length ? ' is-invalid' : ''),
                       'placeholder': 'Ex: Quartier résidentiel, Sousse',
-                      'required': 'required'
+                      'required': 'required',
+                      'readonly': 'readonly'
                     }
                   }) }}
                   {% if form.emplacement.vars.errors|length %}
@@ -175,7 +328,8 @@
                   {{ form_widget(form.detailsgeo, {
                     'attr': {
                       'class': 'form-control' ~ (form.detailsgeo.vars.errors|length ? ' is-invalid' : ''),
-                      'placeholder': 'Ex: Coordonnées GPS, pente, orientation'
+                      'placeholder': 'Ex: Coordonnées GPS, pente, orientation',
+                      'readonly': 'readonly'
                     }
                   }) }}
                   {% if form.detailsgeo.vars.errors|length %}
