@@ -12,6 +12,7 @@ use Symfony\Component\HttpFoundation\Request;
 use Symfony\Component\HttpFoundation\Response;
 use Symfony\Component\Routing\Attribute\Route;
 use Symfony\Component\Form\FormError;
+use Symfony\Bundle\SecurityBundle\Security;
 
 #[Route('/projet')]
 final class ProjetController extends AbstractController
@@ -156,14 +157,35 @@ public function new(Request $request, EntityManagerInterface $entityManager): Re
 
     //FRONT OFFICE
     #[Route('/front', name: 'app_projet_front_index', methods: ['GET'])]
-    public function frontIndex(EntityManagerInterface $entityManager): Response
-    {
-        $projets = $entityManager
-            ->getRepository(Projet::class)
-            ->findAll();
-
+    public function frontIndex(
+        Request $request,
+        EntityManagerInterface $entityManager,
+        Security $security
+    ): Response {
+        $user = $security->getUser();
+        $showOnlyMine = $request->query->getBoolean('mine', false);
+        
+        $repository = $entityManager->getRepository(Projet::class);
+        
+        if ($showOnlyMine && $user instanceof Utilisateur) {
+            // Get the Client entity through the Utilisateur relationship
+            $client = $user->getClient();
+            
+            if ($client) {
+                $projets = $repository->findBy(['idClient' => $client]);
+            } else {
+                // If user is a client but no Client entity exists yet
+                $projets = [];
+            }
+        } else {
+            $projets = $repository->findAll();
+        }
+    
         return $this->render('projetFront/index.html.twig', [
             'projets' => $projets,
+            'showOnlyMine' => $showOnlyMine,
+            'currentUser' => $user,
+            'isClient' => $user instanceof Utilisateur && in_array('ROLE_CLIENT', $user->getRoles())
         ]);
     }
 
