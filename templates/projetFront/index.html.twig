@@ -87,6 +87,23 @@
             border-radius: 8px;
             margin-bottom: 30px;
         }
+        .project-detail {
+            margin-bottom: 0.5rem;
+        }
+        .project-detail-label {
+            font-weight: 600;
+            color: #6c757d;
+        }
+        .terrain-link {
+            display: inline-flex;
+            align-items: center;
+            gap: 5px;
+            color: #0d6efd;
+            text-decoration: none;
+        }
+        .terrain-link:hover {
+            text-decoration: underline;
+        }
     </style>
 {% endblock %}
 
@@ -99,7 +116,7 @@
                     <h2>Nos Projets</h2>
                 </div>
                 <div class="col-12">
-                    <a href="{{ path('app_home') }}">Acceuil</a>
+                    <a href="{{ path('app_home') }}">Accueil</a>
                     <a href="{{ path('app_projet_front_index') }}">Projets</a>
                 </div>
             </div>
@@ -175,44 +192,76 @@
                                     </div>
                                 </div>
                                 <div class="card-body">
-                                    <div class="d-flex mb-3">
-                                        <div class="avatar avatar-sm rounded-circle bg-gradient-dark me-3">
-                                            <i class="fas fa-building text-white"></i>
+                                    {% if showOnlyMine %}
+                                        {# Detailed view for "Mes projets" #}
+                                        <div class="project-detail">
+                                            <span class="project-detail-label">Type:</span>
+                                            <span>{{ projet.type }}</span>
                                         </div>
-                                        <div>
-                                            <h6 class="mb-0">{{ projet.type }}</h6>
-                                            <p class="text-muted text-sm mb-0">
-                                                {{ projet.stylearch ?? 'No style specified' }}
-                                            </p>
+                                        <div class="project-detail">
+                                            <span class="project-detail-label">Style Architectural:</span>
+                                            <span>{{ projet.stylearch ?? 'Non spécifié' }}</span>
                                         </div>
-                                    </div>
-                                    
-                                    <div class="mb-3">
-                                        <p class="mb-1"><strong>Client:</strong></p>
-                                        <p class="text-muted mb-0">
-                                            {{ projet.idClient and projet.idClient.client ? projet.idClient.client.email : 'No client assigned' }}
-                                        </p>
-                                    </div>
-                                    
-                                    <div class="d-flex justify-content-between">
-                                        <div>
-                                            <p class="mb-1"><strong>Budget:</strong></p>
-                                            <p class="project-budget mb-0">
-                                                TND {{ projet.budget|number_format(2, '.', ',') }}
-                                            </p>
+                                        <div class="project-detail">
+                                            <span class="project-detail-label">Budget:</span>
+                                            <span class="project-budget">TND {{ projet.budget|number_format(2, '.', ',') }}</span>
                                         </div>
-                                        <div>
-                                            <p class="mb-1"><strong>Created:</strong></p>
+                                        <div class="project-detail">
+                                            <span class="project-detail-label">Date de création:</span>
+                                            <span>{{ projet.datecreation|date('d/m/Y') }}</span>
+                                        </div>
+                                        <div class="project-detail">
+                                            <span class="project-detail-label">Terrain:</span>
+                                            {% if projet.idTerrain %}
+                                                <a href="{{ path('app_terrain_show', {'idTerrain': projet.idTerrain.idTerrain}) }}" class="terrain-link">
+                                                    <i class="fas fa-map-marker-alt"></i>
+                                                    {{ projet.idTerrain.emplacement }}
+                                                </a>
+                                            {% else %}
+                                                <span class="text-muted">Aucun terrain associé</span>
+                                            {% endif %}
+                                        </div>
+                                    {% else %}
+                                        {# Simplified view for "Tous les projets" #}
+                                        <div class="d-flex mb-3">
+                                            <div class="avatar avatar-sm rounded-circle bg-gradient-dark me-3">
+                                                <i class="fas fa-building text-white"></i>
+                                            </div>
+                                            <div>
+                                                <h6 class="mb-0">{{ projet.type }}</h6>
+                                                <p class="text-muted text-sm mb-0">
+                                                    {{ projet.stylearch ?? 'No style specified' }}
+                                                </p>
+                                            </div>
+                                        </div>
+                                        
+                                        <div class="mb-3">
+                                            <p class="mb-1"><strong>Client:</strong></p>
                                             <p class="text-muted mb-0">
-                                                {{ projet.datecreation|date('Y-m-d') }}
+                                                {{ projet.idClient and projet.idClient.client ? projet.idClient.client.email : 'No client assigned' }}
                                             </p>
                                         </div>
-                                    </div>
+                                        
+                                        <div class="d-flex justify-content-between">
+                                            <div>
+                                                <p class="mb-1"><strong>Budget:</strong></p>
+                                                <p class="project-budget mb-0">
+                                                    TND {{ projet.budget|number_format(2, '.', ',') }}
+                                                </p>
+                                            </div>
+                                            <div>
+                                                <p class="mb-1"><strong>Créé le:</strong></p>
+                                                <p class="text-muted mb-0">
+                                                    {{ projet.datecreation|date('d/m/Y') }}
+                                                </p>
+                                            </div>
+                                        </div>
+                                    {% endif %}
                                 </div>
                                 <div class="card-footer bg-light text-center">
                                     <div class="stages-dropdown">
                                         <button class="btn btn-sm btn-dark">
-                                            Voir les étapes du projet
+                                            <i class="fas fa-tasks me-1"></i> Étapes du projet
                                         </button>
                                         <div class="stages-dropdown-content">
                                             {% if projet.etapeprojets|length > 0 %}
