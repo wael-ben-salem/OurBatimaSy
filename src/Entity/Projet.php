@@ -9,6 +9,7 @@ use Doctrine\DBAL\Types\Types;
 use Doctrine\ORM\Mapping as ORM;
 use Doctrine\Common\Collections\ArrayCollection;
 use Doctrine\Common\Collections\Collection;
+use Symfony\Component\Validator\Constraints as Assert;
 
 /**
  * Projet
@@ -137,7 +138,6 @@ class Projet
     public function setNomprojet(string $nomprojet): static
     {
         $this->nomprojet = $nomprojet;
-
         return $this;
     }
 
@@ -208,6 +208,6 @@ class Projet
     }
     public function __toString(): string
 {
-    return $this->nom ?? 'Projet'; // ou tout autre champ lisible
+    return $this->nom ?? 'Projet';
 }
 }

@@ -95,23 +95,13 @@ public function new(Request $request, EntityManagerInterface $entityManager): Re
     #[Route('/{idProjet}/edit', name: 'app_projet_edit', methods: ['GET', 'POST'])]
     public function edit(Request $request, Projet $projet, EntityManagerInterface $entityManager): Response
     {
-        // Store the original client before handling the form
         $originalClient = $projet->getIdClient();
-        
         $form = $this->createForm(ProjetType::class, $projet);
         $form->handleRequest($request);
     
         if ($form->isSubmitted()) {
-            // First check if nomprojet is empty
-            $nomprojet = $form->get('nomprojet')->getData();
-            if (empty($nomprojet)) {
-                $form->get('nomprojet')->addError(new FormError('Le nom du projet est obligatoire'));
-            }
-            
             if ($form->isValid()) {
-                $emailClient = $form->get('nomClient')->getData();
-                
-                // Only process client if email changed or was removed
+                $emailClient = $form->get('nomClient')->getData();                
                 if ($emailClient !== ($originalClient ? $originalClient->getClient()->getEmail() : null)) {
                     if (!empty($emailClient)) {
                         $utilisateur = $entityManager->getRepository(Utilisateur::class)
@@ -119,7 +109,6 @@ public function new(Request $request, EntityManagerInterface $entityManager): Re
                                 'email' => $emailClient,
                                 'role' => 'Client'
                             ]);
-    
                         if (!$utilisateur) {
                             $this->addFlash('error', 'Aucun compte utilisateur avec le rôle client trouvé avec cet e-mail.');
                             return $this->redirectToRoute('app_projet_edit', ['idProjet' => $projet->getIdProjet()]);
@@ -132,7 +121,6 @@ public function new(Request $request, EntityManagerInterface $entityManager): Re
                             $client = new Client();
                             $client->setClient($utilisateur);
                             $entityManager->persist($client);
-                            // Don't flush yet - wait for the main flush
                         }
     
                         $projet->setIdClient($client);
@@ -144,6 +132,8 @@ public function new(Request $request, EntityManagerInterface $entityManager): Re
                 $entityManager->flush();
                 $this->addFlash('success', 'Projet mis à jour avec succès.');
                 return $this->redirectToRoute('app_projet_show', ['idProjet' => $projet->getIdProjet()]);
+            } else {
+                $this->addFlash('error', 'Veuillez corriger les erreurs dans le formulaire.');
             }
         }
     
