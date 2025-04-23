@@ -130,6 +130,12 @@ final class TerrainController extends AbstractController
         ]);
     }
 
-
+    #[Route('/front/terrain/{idTerrain}', name: 'app_terrain_front_show', methods: ['GET'])]
+    public function frontShow(Terrain $terrain): Response
+    {
+        return $this->render('terrainFront/show.html.twig', [
+            'terrain' => $terrain,
+        ]);
+    }
 
 }
