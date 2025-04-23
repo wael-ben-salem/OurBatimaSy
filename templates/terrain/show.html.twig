@@ -1,9 +1,9 @@
 {% extends 'base_backOffice.html.twig' %}
 
-{% block title %}Terrain{% endblock %}
+{% block title %}Détails du Terrain{% endblock %}
 
 {% block stylesheets %}
-  { parent() %}
+  {{ parent() }}
   <link rel="stylesheet" href="https://fonts.googleapis.com/css?family=Inter:300,400,500,600,700,900" />
   <link rel="stylesheet" href="https://fonts.googleapis.com/css2?family=Material+Symbols+Rounded:opsz,wght,FILL,GRAD@24,400,0,0" />
   <link rel="stylesheet" href="https://unpkg.com/leaflet@1.9.4/dist/leaflet.css" />
@@ -45,6 +45,30 @@
     .map-info-panel p {
       margin-bottom: 5px;
     }
+    /* Alert styles */
+    .alert {
+      border-radius: 8px;
+      margin: 15px;
+    }
+    .alert-success {
+      background-color: #d1e7dd;
+      color: #0f5132;
+      border-color: #badbcc;
+    }
+    .alert-warning {
+      background-color: #fff3cd;
+      color: #664d03;
+      border-color: #ffecb5;
+    }
+    .alert-danger {
+      background-color: #f8d7da;
+      color: #842029;
+      border-color: #f5c2c7;
+    }
+    .alert .material-symbols-rounded {
+      vertical-align: middle;
+      margin-right: 8px;
+    }
   </style>
 {% endblock %}
 
@@ -62,6 +86,22 @@
           </div>
         </div>
         <div class="card-body px-0 pb-2">
+          {% for type, messages in app.flashes %}
+            {% for message in messages %}
+              <div class="alert alert-{{ type }} alert-dismissible fade show">
+                {% if type == 'success' %}
+                  <i class="material-symbols-rounded">check_circle</i>
+                {% elseif type == 'warning' %}
+                  <i class="material-symbols-rounded">warning</i>
+                {% elseif type == 'danger' %}
+                  <i class="material-symbols-rounded">error</i>
+                {% endif %}
+                {{ message }}
+                <button type="button" class="btn-close" data-bs-dismiss="alert" aria-label="Close"></button>
+              </div>
+            {% endfor %}
+          {% endfor %}
+
           <div class="table-responsive p-3">
             <table class="table align-items-center mb-0">
               <tbody>
@@ -85,7 +125,6 @@
             </table>
           </div>
 
-          <!-- Map Section -->
           <div id="map"></div>
           <div class="map-info-panel">
             <p>📍 <span id="coordinates">{{ terrain.detailsgeo }}</span></p>
@@ -147,10 +186,6 @@
         })
       }).addTo(map)
         .bindPopup("<b>{{ terrain.emplacement }}</b><br>{{ terrain.caracteristiques }}");
-      
-      if (typeof M !== 'undefined') {
-        M.AutoInit();
-      }
     });
   </script>
 {% endblock %}
