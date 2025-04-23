@@ -12,6 +12,7 @@ use Symfony\Component\Routing\Annotation\Route;
 use App\Entity\Discussion;
 use App\Form\DiscussionType;
 use App\Entity\SavedPlannification;
+use App\Entity\PlanifNotifications;
 
 #[Route('/plannification')]
 class PlannificationController extends AbstractController
@@ -39,6 +40,24 @@ class PlannificationController extends AbstractController
             $entityManager->persist($plannification);
             $entityManager->flush();
 
+            // Create notifications
+            $currentUser = $this->getUser();
+            $artisanUser = $plannification->getIdTache()->getArtisan()->getArtisan();
+
+            $this->createNotification(
+                $currentUser,
+                "You created a new plannification: " . $plannification->getIdPlannification(),
+                $plannification,
+                $entityManager
+            );
+
+            $this->createNotification(
+                $artisanUser,
+                "New plannification assigned to you: " . $plannification->getIdPlannification(),
+                $plannification,
+                $entityManager
+            );
+
             return $this->redirectToRoute('app_plannification_index', [], Response::HTTP_SEE_OTHER);
         }
 
@@ -46,6 +65,16 @@ class PlannificationController extends AbstractController
             'plannification' => $plannification,
             'form' => $form,
         ]);
+    }
+
+    private function createNotification($recipient, $message, $plannification, $em)
+    {
+        $notification = new PlanifNotifications();
+        $notification->setRecipient($recipient);
+        $notification->setMessage($message);
+        $notification->setPlannification($plannification);
+        $em->persist($notification);
+        $em->flush();
     }
 
     #[Route('/saved', name: 'app_plannification_saved', methods: ['GET'])]
@@ -120,7 +149,7 @@ class PlannificationController extends AbstractController
     #[Route('/{idPlannification}/delete', name: 'app_plannification_delete', methods: ['POST'])]
     public function delete(Request $request, Plannification $plannification, EntityManagerInterface $entityManager): Response
     {
-        if ($this->isCsrfTokenValid('delete'.$plannification->getIdPlannification(), $request->request->get('_token'))) {
+        if ($this->isCsrfTokenValid('delete' . $plannification->getIdPlannification(), $request->request->get('_token'))) {
             $entityManager->remove($plannification);
             $entityManager->flush();
         }

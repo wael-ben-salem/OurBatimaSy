@@ -1,0 +1,22 @@
+{# templates/notification/navbar_notifications.html.twig #}
+<li class="nav-item dropdown">
+    <a class="nav-link" href="#" id="navbarNotifications" role="button" data-bs-toggle="dropdown" aria-expanded="false">
+        <i class="material-symbols-rounded">notifications</i>
+        <span class="badge bg-danger">{{ render(controller('App\\Controller\\NotificationController::unreadCount')) }}</span>
+    </a>
+    <ul class="dropdown-menu dropdown-menu-end" aria-labelledby="navbarNotifications">
+        {% for notification in render(controller('App\\Controller\\NotificationController::recentNotifications')) %}
+            <li>
+                <a class="dropdown-item {% if not notification.isRead %}fw-bold{% endif %}"
+                   href="{{ path('mark_notification_read', {'id': notification.id}) }}">
+                    {{ notification.message }}
+                    <small class="text-muted">{{ notification.createdAt|date('Y-m-d H:i') }}</small>
+                </a>
+            </li>
+        {% else %}
+            <li><span class="dropdown-item text-muted">No new notifications</span></li>
+        {% endfor %}
+        <li><hr class="dropdown-divider"></li>
+        <li><a class="dropdown-item text-center" href="{{ path('app_notifications') }}">View all notifications</a></li>
+    </ul>
+</li>

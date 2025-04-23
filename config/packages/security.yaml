@@ -41,4 +41,5 @@ security:
         - { path: ^/plannification, roles: ROLE_USER }  # Since ARTISAN, CONSTRUCTEUR, CLIENT inherit ROLE_USER
         - { path: ^/plannification/\d+/save, roles: ROLE_USER }
         - { path: ^/plannification/\d+/unsave, roles: ROLE_USER }
+        - { path: ^/notifications, roles: ROLE_USER }
 
