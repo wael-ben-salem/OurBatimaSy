@@ -4,6 +4,7 @@ namespace App\Controller;
 
 use App\Entity\Terrain;
 use App\Form\TerrainType;
+use App\Entity\Projet;
 use Doctrine\ORM\EntityManagerInterface;
 use Symfony\Bundle\FrameworkBundle\Controller\AbstractController;
 use Symfony\Component\HttpFoundation\Request;
@@ -80,12 +81,33 @@ final class TerrainController extends AbstractController
     public function delete(Request $request, Terrain $terrain, EntityManagerInterface $entityManager): Response
     {
         if ($this->isCsrfTokenValid('delete'.$terrain->getIdTerrain(), $request->getPayload()->getString('_token'))) {
-            $entityManager->remove($terrain);
-            $entityManager->flush();
+            $projetRepository = $entityManager->getRepository(Projet::class);
+            $relatedProjects = $projetRepository->findBy(['idTerrain' => $terrain]);
+            
+            if (count($relatedProjects) > 0) {
+                $projectCount = count($relatedProjects);
+                $projectWord = $projectCount > 1 ? 'projets' : 'projet';
+                
+                $this->addFlash('warning', sprintf(
+                    'Suppression impossible : Ce terrain est utilisé par un projet. '.
+                    'Veuillez d\'abord supprimer ou modifier le projet concernés.',
+                ));
+                return $this->redirectToRoute('app_terrain_show', ['idTerrain' => $terrain->getIdTerrain()]);
+            }
+            
+            try {
+                $entityManager->remove($terrain);
+                $entityManager->flush();
+                $this->addFlash('success', 'Le terrain a été supprimé avec succès.');
+            } catch (\Exception $e) {
+                $this->addFlash('danger', 'Une erreur technique est survenue lors de la suppression. Veuillez réessayer.');
+            }
         }
-
+    
         return $this->redirectToRoute('app_terrain_index', [], Response::HTTP_SEE_OTHER);
     }
+
+
     //front office
     #[Route('/front/newterrain', name: 'app_terrain_front_new', methods: ['GET', 'POST'])]
     public function frontNew(Request $request, EntityManagerInterface $entityManager): Response
@@ -108,6 +130,12 @@ final class TerrainController extends AbstractController
         ]);
     }
 
-
+    #[Route('/front/terrain/{idTerrain}', name: 'app_terrain_front_show', methods: ['GET'])]
+    public function frontShow(Terrain $terrain): Response
+    {
+        return $this->render('terrainFront/show.html.twig', [
+            'terrain' => $terrain,
+        ]);
+    }
 
 }

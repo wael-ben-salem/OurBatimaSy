@@ -119,7 +119,6 @@
       border-color: #f5c6cb;
     }
     
-    /* Brown button style */
     .btn-brown {
       background-color: #8D6E63;
       color: white;
@@ -141,14 +140,11 @@
       const GEOCODING_SERVICE = 'https://geocode.maps.co';
       const API_KEY = '67bf5aececfa5982522390euj6000e5';
       
-      // Form elements
       const emplacementInput = document.getElementById('{{ form.emplacement.vars.id }}');
       const detailsgeoInput = document.getElementById('{{ form.detailsgeo.vars.id }}');
       
-      // Initialize map centered on Tunisia
       const map = L.map('map').setView([36.8, 10.18], 12);
       
-      // Base layers
       const baseLayers = {
         "OpenStreetMap": L.tileLayer('https://{s}.tile.openstreetmap.org/{z}/{x}/{y}.png', {
           maxZoom: 19,
@@ -162,13 +158,11 @@
       
       baseLayers["OpenStreetMap"].addTo(map);
       
-      // Add geocoder control (search will be available through this)
       const geocoder = L.Control.geocoder({
         defaultMarkGeocode: false,
         position: 'topright'
       }).addTo(map);
       
-      // Marker with custom icon
       let currentMarker = L.marker(map.getCenter(), {
         draggable: true,
         icon: L.icon({
