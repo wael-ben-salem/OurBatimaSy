@@ -98,35 +98,17 @@ private string $password;
     private $resetTokenExpiry;
 
     /**
-     * @var Collection<int, Reclamation>
-     */
-    #[ORM\OneToMany(targetEntity: Reclamation::class, mappedBy: 'id_Utilisateur')]
-    private Collection $reclamations;
-
-    public function __construct()
-    {
-        $this->reclamations = new ArrayCollection();
-    }
-
-    /**
      * @var \Doctrine\Common\Collections\Collection
      */
 
     /**
      * Constructor
      */
-
+   
 
     public function getId(): ?int
     {
         return $this->id;
-    }
-
-    public function setId(int $id): static
-    {
-        $this->id = $id;
-
-        return $this;
     }
 
     public function getNom(): ?string
@@ -275,7 +257,7 @@ private string $password;
     }
 
 
-
+    
     public function getUserIdentifier(): string
     {
         return (string) $this->email;
@@ -341,7 +323,6 @@ public function setClient(?Client $client): static
 #[ORM\OneToOne(mappedBy: 'gestionnairestock', targetEntity: Gestionnairestock::class)]
 private ?Gestionnairestock $gestionnaireStock = null;
 
-
 public function getGestionnaireStock(): ?Gestionnairestock
 {
     return $this->gestionnaireStock;
@@ -351,7 +332,6 @@ public function setGestionnaireStock(?Gestionnairestock $gestionnaireStock): sta
 {
     $this->gestionnaireStock = $gestionnaireStock;
     return $this;
-
 }
 
 

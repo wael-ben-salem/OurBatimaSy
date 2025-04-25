@@ -24,15 +24,9 @@ class WelcomeController extends AbstractController
     #[Route('/welcome', name: 'app_welcome')]
     public function index(): Response
     {
-        $user = $this->getUser();
-
-        if (!$user) {
-            // If not logged in, redirect to login
-            return $this->redirectToRoute('app_login');
-        }
-
-        // All authenticated users are directed to the Reclamation page
-        return $this->redirectToRoute('app_reclamation_index');
+        return $this->render('dash/dashboard.html.twig', [
+            'user' => $this->getUser()
+        ]);
     }
 
     #[Route('/welcomeFront', name: 'app_welcomeFront')]

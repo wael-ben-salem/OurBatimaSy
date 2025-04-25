@@ -4,11 +4,9 @@ security:
         App\Entity\Utilisateur: auto
     providers:
         app_user_provider:
-
             entity:
                 class: App\Entity\Utilisateur
                 property: email
-
     firewalls:
         dev:
             pattern: ^/(_(profiler|wdt)|css|images|js)/
@@ -38,19 +36,9 @@ security:
     access_control:
         - { path: ^/register, roles: PUBLIC_ACCESS }
         - { path: ^/login, roles: PUBLIC_ACCESS }
-
-        - { path: ^/welcome, roles: [ROLE_USER] }
-        - { path: ^/reponse/new, roles: [ROLE_ADMIN] }
-        - { path: ^/reponse/[0-9]+/edit, roles: [ROLE_ADMIN] }
-        - { path: ^/reponse/[0-9]+/delete, roles: [ROLE_ADMIN] }
-        - { path: ^/reponse, roles: [ROLE_USER] }
-
-
         - { path: ^/welcome, roles: ROLE_USER }  # All roles inherit ROLE_USER
         - { path: ^/tache, roles: ROLE_CONSTRUCTEUR }  # You can add more if needed
         - { path: ^/plannification, roles: ROLE_USER }  # Since ARTISAN, CONSTRUCTEUR, CLIENT inherit ROLE_USER
         - { path: ^/plannification/\d+/save, roles: ROLE_USER }
         - { path: ^/plannification/\d+/unsave, roles: ROLE_USER }
         - { path: ^/notifications, roles: ROLE_USER }
-
-
