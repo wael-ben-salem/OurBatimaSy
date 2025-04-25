@@ -78,10 +78,12 @@ class Artisan
         return $this->artisan;
     }
 
-    public function setArtisan(?Utilisateur $artisan): static
+    public function setArtisan(?Utilisateur $utilisateur): static
     {
-        $this->artisan = $artisan;
-
+        $this->artisan = $utilisateur;
+        if ($utilisateur !== null && $utilisateur->getArtisan() !== $this) {
+            $utilisateur->setArtisan($this); // Met à jour la relation inverse
+        }
         return $this;
     }
 
@@ -111,5 +113,10 @@ class Artisan
 
         return $this;
     }
+    public function __toString(): string
+{
+    return $this->specialite ?? 'Artisan';
+}
+
 
 }

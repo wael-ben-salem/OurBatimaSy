@@ -1,0 +1,234 @@
+{% extends 'base_backOffice.html.twig' %}
+
+{% block title %}Détails Plannification{% endblock %}
+
+{% block breadcrumb %}Détails Plannification{% endblock %}
+
+{% block body %}
+    <div class="row">
+        <div class="col-12">
+            <div class="card my-4">
+                <div class="card-header p-0 position-relative mt-n4 mx-3 z-index-2">
+                    <div class="bg-gradient-dark shadow-dark border-radius-lg pt-4 pb-3 d-flex justify-content-between align-items-center">
+                        <h6 class="text-white text-capitalize ps-3">Détails de la Plannification</h6>
+                        <div>
+                            {% if app.user %}
+                                {% set isSaved = false %}
+                                {% for saved in plannification.savedPlannifications %}
+                                    {% if saved.user.id == app.user.id %}
+                                        {% set isSaved = true %}
+                                    {% endif %}
+                                {% endfor %}
+
+                                {% if isSaved %}
+                                    <form method="post" action="{{ path('app_plannification_unsave', {'idPlannification': plannification.idPlannification}) }}" class="d-inline">
+                                        <input type="hidden" name="_token" value="{{ csrf_token('unsave' ~ plannification.idPlannification) }}">
+                                        <button class="btn btn-sm btn-warning me-2">
+                                            <i class="material-symbols-rounded me-1">bookmark_remove</i>
+                                            Unsave
+                                        </button>
+                                    </form>
+                                {% else %}
+                                    <form method="post" action="{{ path('app_plannification_save', {'idPlannification': plannification.idPlannification}) }}" class="d-inline">
+                                        <input type="hidden" name="_token" value="{{ csrf_token('save' ~ plannification.idPlannification) }}">
+                                        <button class="btn btn-sm btn-success me-2">
+                                            <i class="material-symbols-rounded me-1">bookmark_add</i>
+                                            Save
+                                        </button>
+                                    </form>
+                                {% endif %}
+                            {% endif %}
+
+                            <a href="{{ path('app_plannification_edit', {'idPlannification': plannification.idPlannification}) }}" class="btn btn-sm btn-light me-2">
+                                <i class="material-symbols-rounded me-1">edit</i>
+                                Modifier
+                            </a>
+                            <form method="post" action="{{ path('app_plannification_delete', {'idPlannification': plannification.idPlannification}) }}" onsubmit="return confirm('Are you sure?');" class="d-inline">
+                                <input type="hidden" name="_token" value="{{ csrf_token('delete' ~ plannification.idPlannification) }}">
+                                <button class="btn btn-sm btn-danger me-2">
+                                    <i class="material-symbols-rounded me-1">delete</i>
+                                    Supprimer
+                                </button>
+                            </form>
+                            <button type="button" class="btn btn-sm btn-primary me-2" data-bs-toggle="modal" data-bs-target="#contactModal">
+                                <i class="material-symbols-rounded me-1">chat</i>
+                                Contact Assigner
+                            </button>
+                            <a href="{{ path('app_plannification_index') }}" class="btn btn-sm btn-secondary">
+                                <i class="material-symbols-rounded me-1">arrow_back</i>
+                                Retour
+                            </a>
+                        </div>
+                    </div>
+                </div>
+                <div class="card-body px-0 pb-2">
+                    <div class="table-responsive p-4">
+                        <table class="table align-items-center mb-0">
+                            <tbody>
+                            <tr>
+                                <th class="text-uppercase text-secondary text-xxs font-weight-bolder opacity-7">Priorité</th>
+                                <td class="px-4">{{ plannification.priorite }}</td>
+                            </tr>
+                            <tr>
+                                <th class="text-uppercase text-secondary text-xxs font-weight-bolder opacity-7">Date planifiée</th>
+                                <td class="px-4">
+                                        <span class="badge badge-sm bg-gradient-dark">
+                                            {{ plannification.datePlanifiee|date('d/m/Y') }}
+                                        </span>
+                                </td>
+                            </tr>
+                            <tr>
+                                <th class="text-uppercase text-secondary text-xxs font-weight-bolder opacity-7">Heures</th>
+                                <td class="px-4">
+                                        <span class="badge badge-sm bg-gradient-info">
+                                            {{ plannification.heureDebut ? plannification.heureDebut|date('H:i') : '─' }}
+                                        </span> →
+                                    <span class="badge badge-sm bg-gradient-secondary">
+                                            {{ plannification.heureFin ? plannification.heureFin|date('H:i') : '─' }}
+                                        </span>
+                                </td>
+                            </tr>
+                            <tr>
+                                <th class="text-uppercase text-secondary text-xxs font-weight-bolder opacity-7">Remarques</th>
+                                <td class="px-4">{{ plannification.remarques }}</td>
+                            </tr>
+                            <tr>
+                                <th class="text-uppercase text-secondary text-xxs font-weight-bolder opacity-7">Statut</th>
+                                <td class="px-4">
+                                        <span class="status-badge bg-{{ plannification.statut|lower|replace({' ': '-'}) }}">
+                                            {{ plannification.statut }}
+                                        </span>
+                                </td>
+                            </tr>
+                            <tr>
+                                <th class="text-uppercase text-secondary text-xxs font-weight-bolder opacity-7">Tâche associée</th>
+                                <td class="px-4">{{ plannification.idTache.description }}</td>
+                            </tr>
+                            </tbody>
+                        </table>
+                    </div>
+                </div>
+            </div>
+        </div>
+    </div>
+
+    {# Modal Bootstrap 5 #}
+    <div class="modal fade" id="contactModal" tabindex="-1" aria-labelledby="contactModalLabel" aria-hidden="true">
+        <div class="modal-dialog modal-dialog-centered">
+            <div class="modal-content">
+                <div class="modal-header">
+                    <h5 class="modal-title" id="contactModalLabel">
+                        Discussion with {{ plannification.idTache.artisan.artisan.nom }}
+                    </h5>
+                    <button type="button" class="btn-close" data-bs-dismiss="modal" aria-label="Close"></button>
+                </div>
+                <div class="modal-body">
+                    <div class="discussion-container" style="max-height: 400px; overflow-y: auto;">
+                        {% for message in messages %}
+                            <div class="card mb-2 {% if app.user == message.sender %}ms-auto bg-primary text-white{% else %}me-auto bg-light{% endif %}" style="max-width: 80%;">
+                                <div class="card-body p-2">
+                                    <p class="card-text mb-0">{{ message.content }}</p>
+                                    <small class="text-muted">{{ message.createdAt|date('d/m/Y H:i') }}</small>
+                                </div>
+                            </div>
+                        {% else %}
+                            <p class="text-muted text-center">No messages yet. Start the conversation!</p>
+                        {% endfor %}
+                    </div>
+
+                    {{ form_start(form, {
+                        'attr': {
+                            'class': 'mt-3',
+                            'name': 'discussion'
+                        }
+                    }) }}
+                    <div class="input-group">
+                        {{ form_widget(form.content, {'attr': {'class': 'form-control'}}) }}
+                        <button type="submit" class="btn btn-primary">
+                            <i class="bi bi-send"></i>
+                        </button>
+                    </div>
+                    {{ form_end(form) }}
+                </div>
+            </div>
+        </div>
+    </div>
+{% endblock %}
+
+{% block javascripts %}
+    {{ parent() }}
+    <script>
+        document.addEventListener('DOMContentLoaded', function () {
+            const discussionContainer = document.querySelector('.discussion-container');
+            const form = document.querySelector('form[name="discussion"]');
+
+            let lastMessageId = {{ messages|length > 0 ? messages|last.id : 0 }};
+
+            // Scroll to latest message on open
+            const contactModal = document.getElementById('contactModal');
+            contactModal.addEventListener('shown.bs.modal', function () {
+                discussionContainer.scrollTop = discussionContainer.scrollHeight;
+            });
+
+            // AJAX form submission
+            if (form) {
+                form.addEventListener('submit', function (e) {
+                    e.preventDefault();
+
+                    fetch("{{ path('app_discussion_send', {'id': plannification.idPlannification}) }}", {
+                        method: 'POST',
+                        body: new FormData(form)
+                    })
+                        .then(response => response.json())
+                        .then(data => {
+                            if (data.success) {
+                                const alignment = data.sender === {{ app.user.id }} ? 'ms-auto bg-primary text-white' : 'me-auto bg-light';
+                                const messageHtml = `
+                        <div class="card mb-2 ${alignment}" style="max-width: 80%;">
+                            <div class="card-body p-2">
+                                <p class="card-text mb-0">${data.content}</p>
+                                <small class="text-muted">${data.createdAt}</small>
+                            </div>
+                        </div>`;
+                                discussionContainer.insertAdjacentHTML('beforeend', messageHtml);
+                                form.reset();
+                                discussionContainer.scrollTop = discussionContainer.scrollHeight;
+                                lastMessageId = data.id;
+                            }
+                        });
+                });
+            }
+
+            // Polling new messages every 5 seconds
+            let pollInterval;
+            contactModal.addEventListener('shown.bs.modal', function () {
+                pollInterval = setInterval(() => {
+                    fetch("{{ path('app_discussion_get', {'id': plannification.idPlannification}) }}")
+                        .then(response => response.json())
+                        .then(data => {
+                            const newMessages = data.filter(msg => msg.id > lastMessageId);
+                            if (newMessages.length > 0) {
+                                newMessages.forEach(msg => {
+                                    const alignment = msg.sender === {{ app.user.id }} ? 'ms-auto bg-primary text-white' : 'me-auto bg-light';
+                                    const messageHtml = `
+                                <div class="card mb-2 ${alignment}" style="max-width: 80%;">
+                                    <div class="card-body p-2">
+                                        <p class="card-text mb-0">${msg.content}</p>
+                                        <small class="text-muted">${msg.createdAt}</small>
+                                    </div>
+                                </div>`;
+                                    discussionContainer.insertAdjacentHTML('beforeend', messageHtml);
+                                });
+                                discussionContainer.scrollTop = discussionContainer.scrollHeight;
+                                lastMessageId = data[data.length - 1].id;
+                            }
+                        });
+                }, 5000);
+            });
+
+            contactModal.addEventListener('hidden.bs.modal', function () {
+                clearInterval(pollInterval);
+            });
+        });
+    </script>
+{% endblock %}

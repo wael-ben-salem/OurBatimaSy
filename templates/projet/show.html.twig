@@ -4,7 +4,6 @@
 
 {% block stylesheets %}
   {{ parent() }}
-  <!-- Additional styles specific to this page -->
   <link rel="stylesheet" href="https://fonts.googleapis.com/css?family=Inter:300,400,500,600,700,900" />
   <link rel="stylesheet" href="https://fonts.googleapis.com/css2?family=Material+Symbols+Rounded:opsz,wght,FILL,GRAD@24,400,0,0" />
   <style>
@@ -42,8 +41,8 @@
             <table class="table align-items-center mb-0">
               <tbody>
                 <tr>
-                  <th class="text-uppercase text-secondary text-xs font-weight-bolder opacity-7">ID Projet</th>
-                  <td class="text-sm">{{ projet.idProjet }}</td>
+                  <th class="text-uppercase text-secondary text-xs font-weight-bolder opacity-7">Nom du projet</th>
+                  <td class="text-sm font-weight-bold">{{ projet.nomprojet }}</td>
                 </tr>
                 <tr>
                   <th class="text-uppercase text-secondary text-xs font-weight-bolder opacity-7">Type</th>
@@ -55,7 +54,7 @@
                 </tr>
                 <tr>
                   <th class="text-uppercase text-secondary text-xs font-weight-bolder opacity-7">Budget</th>
-                  <td class="text-sm">{{ projet.budget }} €</td>
+                  <td class="text-sm">{{ projet.budget }} TND</td>
                 </tr>
                 <tr>
                   <th class="text-uppercase text-secondary text-xs font-weight-bolder opacity-7">État</th>
@@ -70,8 +69,24 @@
                   <td class="text-sm">{{ projet.datecreation ? projet.datecreation|date('d/m/Y H:i') : '' }}</td>
                 </tr>
                 <tr>
-                  <th class="text-uppercase text-secondary text-xs font-weight-bolder opacity-7">Nom du projet</th>
-                  <td class="text-sm font-weight-bold">{{ projet.nomprojet }}</td>
+                  <th class="text-uppercase text-secondary text-xs font-weight-bolder opacity-7">Emplacement du Terrain</th>
+                  <td class="text-sm">
+                    {% if projet.idTerrain %}
+                      {{ projet.idTerrain.emplacement }}
+                    {% else %}
+                      <span class="text-muted">Aucun terrain associé</span>
+                    {% endif %}
+                  </td>
+                </tr>
+                <tr>
+                  <th class="text-uppercase text-secondary text-xs font-weight-bolder opacity-7">Équipe Responsable</th>
+                  <td class="text-sm">
+                    {% if projet.idEquipe %}
+                      {{ projet.idEquipe.nom }}
+                    {% else %}
+                      <span class="text-muted">Aucune équipe assignée</span>
+                    {% endif %}
+                  </td>
                 </tr>
               </tbody>
             </table>
@@ -103,9 +118,7 @@
 
 {% block javascripts %}
   {{ parent() }}
-  <!-- Additional scripts specific to this page -->
   <script>
-    // Initialize Material Dashboard components
     if (typeof M !== 'undefined') {
       M.AutoInit();
     }

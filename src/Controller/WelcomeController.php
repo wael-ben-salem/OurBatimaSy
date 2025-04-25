@@ -6,6 +6,7 @@ namespace App\Controller;
 use Symfony\Bundle\FrameworkBundle\Controller\AbstractController;
 use Symfony\Component\HttpFoundation\Response;
 use Symfony\Component\Routing\Annotation\Route;
+use Symfony\Component\Security\Http\Attribute\IsGranted;
 
 class WelcomeController extends AbstractController
 {
@@ -13,6 +14,11 @@ class WelcomeController extends AbstractController
     public function home(): Response
     {
         return $this->render('home/index.html.twig');
+    }
+    #[Route('/test', name: 'test')]
+    public function test(): Response
+    {
+        return $this->render('dash/base.html.twig');
     }
 
     #[Route('/welcome', name: 'app_welcome')]
@@ -28,6 +34,15 @@ class WelcomeController extends AbstractController
         // All authenticated users are directed to the Reclamation page
         return $this->redirectToRoute('app_reclamation_index');
     }
+
+    #[Route('/welcomeFront', name: 'app_welcomeFront')]
+    public function indexFront(): Response
+    {
+        return $this->render('welcomeFront/index.html.twig', [
+            'user' => $this->getUser()
+        ]);
+    }
+
     #[Route('/about', name: 'about')]
     public function about(): Response
     {

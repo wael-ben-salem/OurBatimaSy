@@ -1,0 +1,177 @@
+{% extends 'base_backOffice.html.twig' %}
+
+{% block title %}Plannification{% endblock %}
+
+{% block breadcrumb %}Gestion des Plannifications{% endblock %}
+
+{% block stylesheets %}
+    {{ parent() }}
+    <style>
+        .card {
+            border-radius: 12px;
+            box-shadow: 0 4px 20px 0 rgba(0, 0, 0, 0.14),
+            0 7px 10px -5px rgba(0, 0, 0, 0.4);
+        }
+
+        .horizontal-filter {
+            display: flex;
+            gap: 8px;
+            padding: 12px 0;
+            margin-bottom: 20px;
+            overflow-x: auto;
+        }
+
+        .filter-btn {
+            border-radius: 20px;
+            padding: 8px 20px;
+            transition: all 0.3s ease;
+            border: 1px solid #dee2e6;
+            background: white;
+            white-space: nowrap;
+        }
+
+        .filter-btn.active {
+            background: #007bff;
+            color: white !important;
+            border-color: #007bff;
+            box-shadow: 0 2px 6px rgba(0, 123, 255, 0.4);
+        }
+
+        .status-badge {
+            font-size: 0.75rem;
+            padding: 0.35em 0.65em;
+            border-radius: 8px;
+        }
+
+        .bg-en-attente { background: #ffc107; color: black; }
+        .bg-en-cours { background: #17a2b8; color: white; }
+        .bg-termine { background: #28a745; color: white; }
+        .bg-annule { background: #dc3545; color: white; }
+
+        .priority-badge {
+            font-size: 0.75rem;
+            padding: 0.35em 0.65em;
+            border-radius: 8px;
+        }
+
+        .bg-haute { background: #dc3545; color: white; }
+        .bg-moyenne { background: #fd7e14; color: white; }
+        .bg-basse { background: #28a745; color: white; }
+    </style>
+{% endblock %}
+
+{% block body %}
+    <div class="row">
+        <div class="col-12">
+            <div class="card my-4">
+                <div class="card-header p-0 position-relative mt-n4 mx-3 z-index-2">
+                    <div class="bg-gradient-dark shadow-dark border-radius-lg pt-4 pb-3 d-flex justify-content-between align-items-center">
+                        <h6 class="text-white text-capitalize ps-3">Liste des Plannifications</h6>
+                        <a href="{{ path('app_plannification_new') }}" class="btn btn-sm btn-light me-3">
+                            <i class="material-symbols-rounded me-1">add</i>
+                            Nouvelle Plannification
+                        </a>
+                    </div>
+                </div>
+
+
+
+                    <table class="table align-items-center mb-0">
+                        <thead>
+                        <tr>
+                            <th>Priorité</th>
+                            <th>Date planifiée</th>
+                            <th>Heures</th>
+                            <th>Statut</th>
+                            <th>Tâche associée</th>
+                            <th>Actions</th>
+                        </tr>
+                        </thead>
+                        <tbody id="plannification-table-body">
+                        {% for plannification in plannifications %}
+                            <tr data-status="{{ plannification.statut }}">
+                                <td>
+                                    <span class="priority-badge bg-{{ plannification.priorite|lower }}">
+                                        {{ plannification.priorite }}
+                                    </span>
+                                </td>
+                                <td>
+                                    <span class="badge badge-sm bg-gradient-dark">
+                                        {{ plannification.datePlanifiee|date('d/m/Y') }}
+                                    </span>
+                                </td>
+                                <td>
+                                    <span class="badge badge-sm bg-gradient-primary">
+                                        {{ plannification.heureDebut ? plannification.heureDebut|date('H:i') : '─' }}
+                                    </span> →
+                                    <span class="badge badge-sm bg-gradient-secondary">
+                                        {{ plannification.heureFin ? plannification.heureFin|date('H:i') : '─' }}
+                                    </span>
+                                </td>
+                                <td>
+                                    <span class="status-badge bg-{{ plannification.statut|lower|replace({' ': '-', 'é': 'e'}) }}">
+                                        {{ plannification.statut }}
+                                    </span>
+                                </td>
+                                <td>{{ plannification.idTache.description|slice(0, 30) }}...</td>
+                                <td>
+                                    <a href="{{ path('app_plannification_show', {'idPlannification': plannification.idPlannification}) }}"
+                                       class="btn btn-sm btn-outline-info px-3">
+                                        <i class="material-symbols-rounded">visibility</i>
+                                    </a>
+                                    <a href="{{ path('app_plannification_edit', {'idPlannification': plannification.idPlannification}) }}"
+                                       class="btn btn-sm btn-outline-warning px-3">
+                                        <i class="material-symbols-rounded">edit</i>
+                                    </a>
+                                </td>
+                            </tr>
+                        {% else %}
+                            <tr>
+                                <td colspan="6" class="text-center">Aucune plannification trouvée</td>
+                            </tr>
+                        {% endfor %}
+                        </tbody>
+                    </table>
+                </div>
+            </div>
+        </div>
+    </div>
+{% endblock %}
+
+{% block javascripts %}
+    {{ parent() }}
+    <script>
+        document.addEventListener('DOMContentLoaded', function() {
+            const filterBtns = document.querySelectorAll('.filter-btn');
+            const tableBody = document.getElementById('plannification-table-body');
+
+            function filterPlannifications(status) {
+                const rows = tableBody.querySelectorAll('tr');
+                rows.forEach(row => {
+                    if(status === 'all' || row.dataset.status === status) {
+                        row.style.display = 'table-row';
+                    } else {
+                        row.style.display = 'none';
+                    }
+                });
+            }
+
+            filterBtns.forEach(btn => {
+                btn.addEventListener('click', function() {
+                    // Remove active class from all buttons
+                    filterBtns.forEach(b => b.classList.remove('active'));
+
+                    // Add active class to clicked button
+                    this.classList.add('active');
+
+                    // Get filter status
+                    const status = this.dataset.status;
+                    filterPlannifications(status === 'all' ? 'all' : status);
+                });
+            });
+
+            // Initial filter
+            filterPlannifications('all');
+        });
+    </script>
+{% endblock %}

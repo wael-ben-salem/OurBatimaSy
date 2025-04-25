@@ -4,6 +4,7 @@ namespace App\Entity;
 
 use Doctrine\DBAL\Types\Types;
 use Doctrine\ORM\Mapping as ORM;
+use Symfony\Component\Validator\Constraints as Assert;
 
 /**
  * Abonnement
@@ -12,30 +13,33 @@ use Doctrine\ORM\Mapping as ORM;
 #[ORM\Entity]
 class Abonnement
 {
-    /**
-     * @var int
-     */
     #[ORM\Column(name: 'id_abonnement', type: 'integer', nullable: false)]
     #[ORM\Id]
     #[ORM\GeneratedValue(strategy: 'IDENTITY')]
     private $idAbonnement;
 
-    /**
-     * @var string|null
-     */
     #[ORM\Column(name: 'nom_abonnement', type: 'string', length: 255, nullable: true)]
+    #[Assert\NotBlank(message: "Le nom d'abonnement ne peut pas être vide.")]
+    #[Assert\Regex(
+        pattern: "/^[A-Za-z ]+$/",
+        message: "Le nom d'abonnement ne doit contenir que des lettres (A-Z)."
+    )]
     private $nomAbonnement;
 
-    /**
-     * @var string|null
-     */
     #[ORM\Column(name: 'duree', type: 'string', length: 100, nullable: true)]
+    #[Assert\Regex(
+        pattern: "/^[A-Za-z0-9 ]+$/",
+        message: "La durée doit contenir uniquement des lettres et des chiffres."
+    )]
     private $duree;
 
-    /**
-     * @var string|null
-     */
     #[ORM\Column(name: 'prix', type: 'decimal', precision: 10, scale: 2, nullable: true)]
+    #[Assert\Positive(message: "Le prix doit être un nombre positif.")]
+    #[Assert\Range(
+        notInRangeMessage: "Le prix doit être compris entre {{ min }} et {{ max }}.",
+        min: 5,
+        max: 500
+    )]
     private $prix;
 
     public function getIdAbonnement(): ?int
@@ -78,6 +82,4 @@ class Abonnement
 
         return $this;
     }
-
-
 }

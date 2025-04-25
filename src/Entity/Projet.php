@@ -7,6 +7,9 @@ use App\Entity\Equipe;
 use App\Entity\Client;
 use Doctrine\DBAL\Types\Types;
 use Doctrine\ORM\Mapping as ORM;
+use Doctrine\Common\Collections\ArrayCollection;
+use Doctrine\Common\Collections\Collection;
+use Symfony\Component\Validator\Constraints as Assert;
 
 /**
  * Projet
@@ -39,7 +42,7 @@ class Projet
     #[ORM\Column(name: 'dateCreation', type: 'datetime', nullable: false)]
     private $datecreation;
 
-    #[ORM\Column(name: 'nomProjet', type: 'string', length: 30, nullable: false)]
+    #[ORM\Column(name: 'nomProjet', type: 'string', length: 30, nullable: true)]
     private $nomprojet;
 
     #[ORM\JoinColumn(name: 'Id_terrain', referencedColumnName: 'Id_terrain')]
@@ -53,6 +56,14 @@ class Projet
     #[ORM\JoinColumn(name: 'id_client', referencedColumnName: 'client_id')]
     #[ORM\ManyToOne(targetEntity: Client::class)]
     private ?Client $idClient = null;
+
+    #[ORM\OneToMany(targetEntity: Etapeprojet::class, mappedBy: 'idProjet')]
+    private Collection $etapeprojets;
+
+    public function __construct()
+    {
+        $this->etapeprojets = new ArrayCollection();
+    }
 
     public function getIdProjet(): ?int
     {
@@ -127,7 +138,6 @@ class Projet
     public function setNomprojet(string $nomprojet): static
     {
         $this->nomprojet = $nomprojet;
-
         return $this;
     }
 
@@ -166,4 +176,38 @@ class Projet
 
         return $this;
     }
+
+    /**
+     * @return Collection<int, Etapeprojet>
+     */
+    public function getEtapeprojets(): Collection
+    {
+        return $this->etapeprojets;
+    }
+
+    public function addEtapeprojet(Etapeprojet $etapeprojet): static
+    {
+        if (!$this->etapeprojets->contains($etapeprojet)) {
+            $this->etapeprojets->add($etapeprojet);
+            $etapeprojet->setIdProjet($this);
+        }
+
+        return $this;
+    }
+
+    public function removeEtapeprojet(Etapeprojet $etapeprojet): static
+    {
+        if ($this->etapeprojets->removeElement($etapeprojet)) {
+            // set the owning side to null (unless already changed)
+            if ($etapeprojet->getIdProjet() === $this) {
+                $etapeprojet->setIdProjet(null);
+            }
+        }
+
+        return $this;
+    }
+    public function __toString(): string
+{
+    return $this->nom ?? 'Projet';
+}
 }

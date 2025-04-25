@@ -1,0 +1,48 @@
+{% extends 'base_backOffice.html.twig' %}
+
+{% block title %}Détails Equipe{% endblock %}
+
+{% block body %}
+<div class="container-fluid py-4">
+    <div class="row">
+        <div class="col-12">
+            <div class="card my-4">
+                <div class="card-header p-0 position-relative mt-n4 mx-3 z-index-2">
+                    <div class="bg-gradient-dark shadow-dark border-radius-lg pt-4 pb-3">
+                        <h6 class="text-white text-capitalize ps-3">Détails Equipe</h6>
+                    </div>
+                </div>
+                <div class="card-body px-4 pb-2">
+                    <table class="table">
+                        <tbody>
+                            <tr>
+                                <th>Nom</th>
+                                <td>{{ equipe.nom }}</td>
+                            </tr>
+                            <tr>
+                                <th>Constructeur</th>
+                                <td>{{ equipe.constructeur.nom }}</td>
+                            </tr>
+                            <tr>
+                                <th>Gestionnaire</th>
+                                <td>{{ equipe.gestionnairestock.nom }}</td>
+                            </tr>
+                            <tr>
+                                <th>Artisans</th>
+                                <td>
+                                    <ul>
+                                        {% for artisan in equipe.artisan %}
+                                            <li>{{ artisan.nom }}</li>
+                                        {% endfor %}
+                                    </ul>
+                                </td>
+                            </tr>
+                        </tbody>
+                    </table>
+                    <a href="{{ path('equipe_index') }}" class="btn btn-dark">Retour</a>
+                </div>
+            </div>
+        </div>
+    </div>
+</div>
+{% endblock %}

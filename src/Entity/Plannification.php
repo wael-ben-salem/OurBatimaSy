@@ -4,6 +4,9 @@ namespace App\Entity;
 
 use Doctrine\DBAL\Types\Types;
 use Doctrine\ORM\Mapping as ORM;
+use Doctrine\Common\Collections\ArrayCollection;
+use Doctrine\Common\Collections\Collection;
+use Symfony\Component\Validator\Constraints as Assert;
 
 /**
  * Plannification
@@ -31,12 +34,21 @@ class Plannification
      * @var \DateTime
      */
     #[ORM\Column(name: 'date_planifiee', type: 'date', nullable: false)]
+    #[Assert\NotBlank(message: "La date planifiée est obligatoire")]
+    #[Assert\GreaterThanOrEqual(
+        "today",
+        message: "La date planifiée doit être aujourd'hui ou dans le futur"
+    )]
     private $datePlanifiee;
 
     /**
      * @var \DateTime|null
      */
     #[ORM\Column(name: 'heure_debut', type: 'time', nullable: true)]
+    #[Assert\Expression(
+        "this.getHeureFin() == null or this.getHeureDebut() == null or this.getHeureDebut() < this.getHeureFin()",
+        message: "L'heure de début doit être avant l'heure de fin"
+    )]
     private $heureDebut;
 
     /**
@@ -49,6 +61,10 @@ class Plannification
      * @var string|null
      */
     #[ORM\Column(name: 'remarques', type: 'text', length: 65535, nullable: true)]
+    #[Assert\Length(
+        max: 65535,
+        maxMessage: "Les remarques ne peuvent pas dépasser {{ limit }} caractères"
+    )]
     private $remarques;
 
     /**
@@ -62,7 +78,19 @@ class Plannification
      */
     #[ORM\JoinColumn(name: 'id_tache', referencedColumnName: 'id_tache')]
     #[ORM\ManyToOne(targetEntity: \Tache::class)]
+    #[Assert\NotNull(message: "Une tâche doit être associée")]
     private $idTache;
+
+    /**
+     * @var Collection<int, SavedPlannification>
+     */
+    #[ORM\OneToMany(targetEntity: SavedPlannification::class, mappedBy: 'plannification')]
+    private $savedPlannifications;
+
+    public function __construct()
+    {
+        $this->savedPlannifications = new ArrayCollection();
+    }
 
     public function getIdPlannification(): ?int
     {
@@ -153,5 +181,33 @@ class Plannification
         return $this;
     }
 
+    /**
+     * @return Collection<int, SavedPlannification>
+     */
+    public function getSavedPlannifications(): Collection
+    {
+        return $this->savedPlannifications;
+    }
 
+    public function addSavedPlannification(SavedPlannification $savedPlannification): static
+    {
+        if (!$this->savedPlannifications->contains($savedPlannification)) {
+            $this->savedPlannifications->add($savedPlannification);
+            $savedPlannification->setPlannification($this);
+        }
+
+        return $this;
+    }
+
+    public function removeSavedPlannification(SavedPlannification $savedPlannification): static
+    {
+        if ($this->savedPlannifications->removeElement($savedPlannification)) {
+            // set the owning side to null (unless already changed)
+            if ($savedPlannification->getPlannification() === $this) {
+                $savedPlannification->setPlannification(null);
+            }
+        }
+
+        return $this;
+    }
 }

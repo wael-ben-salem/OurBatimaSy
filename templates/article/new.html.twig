@@ -1,0 +1,122 @@
+{% extends 'base_backOffice.html.twig' %}
+
+{% block title %}Créer un nouvel Article{% endblock %}
+
+{% block stylesheets %}
+  {{ parent() }}
+  <style>
+    .card {
+      border-radius: 12px;
+      box-shadow: 0 4px 20px 0 rgba(0, 0, 0, 0.14), 
+                  0 7px 10px -5px rgba(0, 0, 0, 0.4);
+    }
+    .form-group {
+      margin-bottom: 1.5rem;
+    }
+    .form-control {
+      border-radius: 8px;
+      padding: 10px 15px;
+      border: 1px solid #d2d6da;
+      transition: all 0.3s;
+    }
+    .form-control:focus {
+      border-color: #9c27b0;
+      box-shadow: 0 0 0 2px rgba(156, 39, 176, 0.1);
+    }
+    .file-upload-btn {
+      display: inline-block;
+      padding: 10px 20px;
+      font-size: 14px;
+      font-weight: bold;
+      color: #fff;
+      background-color: #007bff;
+      border: none;
+      border-radius: 5px;
+      cursor: pointer;
+    }
+    .file-upload-btn:hover {
+      background-color: #0056b3;
+    }
+    .file-upload-input {
+      display: none;
+    }
+  </style>
+{% endblock %}
+
+{% block body %}
+<div class="container-fluid py-4">
+  <div class="row">
+    <div class="col-12">
+      <div class="card my-4">
+        <div class="card-header p-0 position-relative mt-n4 mx-3 z-index-2">
+          <div class="bg-gradient-lilac shadow-lilac border-radius-lg pt-4 pb-3">
+            <h6 class="text-white text-capitalize ps-3">
+              <i class="material-symbols-rounded me-2">add_circle</i>
+              Créer un nouvel Article
+            </h6>
+          </div>
+        </div>
+        <div class="card-body px-4 pb-2">
+          <form method="post" enctype="multipart/form-data" novalidate>
+            {{ form_start(form, {'attr': {'novalidate': 'novalidate'}}) }}
+            
+            <!-- General Information Section -->
+            <h5 class="text-secondary">Informations Générales</h5>
+            <div class="form-group">
+              {{ form_label(form.nom) }}
+              {{ form_widget(form.nom, {'attr': {'class': 'form-control'}}) }}
+              {{ form_errors(form.nom) }}
+            </div>
+            <div class="form-group">
+              {{ form_label(form.description) }}
+              {{ form_widget(form.description, {'attr': {'class': 'form-control'}}) }}
+              {{ form_errors(form.description) }}
+            </div>
+            <div class="form-group">
+              {{ form_label(form.prixUnitaire) }}
+              {{ form_widget(form.prixUnitaire, {'attr': {'class': 'form-control'}}) }}
+              {{ form_errors(form.prixUnitaire) }}
+            </div>
+
+            <!-- Associations Section -->
+            <h5 class="text-secondary mt-4">Associations</h5>
+            <div class="form-group">
+              {{ form_label(form.etapeprojet) }}
+              {{ form_widget(form.etapeprojet, {'attr': {'class': 'form-control'}}) }}
+              {{ form_errors(form.etapeprojet) }}
+            </div>
+            <div class="form-group">
+              {{ form_label(form.stock) }}
+              {{ form_widget(form.stock, {'attr': {'class': 'form-control'}}) }}
+              {{ form_errors(form.stock) }}
+            </div>
+            <div class="form-group">
+              {{ form_label(form.fournisseur) }}
+              {{ form_widget(form.fournisseur, {'attr': {'class': 'form-control'}}) }}
+              {{ form_errors(form.fournisseur) }}
+            </div>
+
+            <!-- Photo Upload Section -->
+            <h5 class="text-secondary mt-4">Photo</h5>
+            <div class="form-group">
+              {{ form_label(form.photoFile) }}
+              {{ form_widget(form.photoFile, {'attr': {'class': 'form-control'}}) }}
+              {{ form_errors(form.photoFile) }}
+            </div>
+
+            <!-- Submit Button -->
+            <button type="submit" class="btn btn-primary mt-4">Créer</button>
+            {{ form_end(form) }}
+          </form>
+
+          <!-- Back to List Button -->
+          <a href="{{ path('app_article_index') }}" class="btn btn-outline-secondary mt-3">
+            <i class="material-symbols-rounded me-1">arrow_back</i>
+            Retour à la liste
+          </a>
+        </div>
+      </div>
+    </div>
+  </div>
+</div>
+{% endblock %}

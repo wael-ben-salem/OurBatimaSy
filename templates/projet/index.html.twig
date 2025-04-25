@@ -19,15 +19,27 @@
       align-items: center;
       justify-content: center;
     }
-
     .bg-gradient-success { background: linear-gradient(45deg,rgb(39, 223, 82), #20c997); }
     .bg-gradient-info { background: linear-gradient(45deg, #17a2b8, #0dcaf0); }
     .bg-gradient-secondary { background: linear-gradient(45deg, #6c757d, #adb5bd); }
     .bg-gradient-danger { background: linear-gradient(45deg, #dc3545, #fd7e14); }
-
     .badge-sm {
       font-size: 0.65rem;
       padding: 0.35em 0.65em;
+    }
+    .project-stages {
+      max-width: 250px;
+    }
+    .dropdown-menu {
+      max-height: 300px;
+      overflow-y: auto;
+    }
+    .dropdown-item-text {
+      white-space: normal;
+    }
+    .stage-badge {
+      font-size: 0.7rem;
+      padding: 0.25em 0.4em;
     }
   </style>
 {% endblock %}
@@ -50,12 +62,13 @@
             <table class="table align-items-center justify-content-center mb-0">
               <thead>
                 <tr>
-                  <th class="text-uppercase text-secondary text-xxs font-weight-bolder opacity-7">Projet</th>
+                  <th class="text-uppercase text-secondary text-xxs font-weight-bolder opacity-7">Project</th>
                   <th class="text-uppercase text-secondary text-xxs font-weight-bolder opacity-7 text-center">Client</th>
                   <th class="text-uppercase text-secondary text-xxs font-weight-bolder opacity-7 text-center">Type</th>
                   <th class="text-uppercase text-secondary text-xxs font-weight-bolder opacity-7 text-center">Budget</th>
-                  <th class="text-uppercase text-secondary text-xxs font-weight-bolder opacity-7 text-center">État</th>
-                  <th class="text-uppercase text-secondary text-xxs font-weight-bolder opacity-7 text-center">Date de création</th>
+                  <th class="text-uppercase text-secondary text-xxs font-weight-bolder opacity-7 text-center">Status</th>
+                  <th class="text-uppercase text-secondary text-xxs font-weight-bolder opacity-7 text-center">Étapes du projet</th>
+                  <th class="text-uppercase text-secondary text-xxs font-weight-bolder opacity-7 text-center">Creation Date</th>
                   <th class="text-uppercase text-secondary text-xxs font-weight-bolder opacity-7 text-center">Actions</th>
                 </tr>
               </thead>
@@ -87,7 +100,7 @@
                   </td>
                   <td class="text-center align-middle">
                     <p class="text-sm font-weight-bold mb-0">
-                      {{ projet.idClient and projet.idClient.client ? projet.idClient.client.email : 'Pas de client' }}
+                      {{ projet.idClient and projet.idClient.client ? projet.idClient.client.email : 'No client' }}
                     </p>
                   </td>
                   <td class="text-center align-middle">
@@ -100,6 +113,47 @@
                     <span class="badge badge-sm bg-gradient-{{ color }}">
                       {{ etatRaw }}
                     </span>
+                  </td>
+                  <td class="text-center align-middle">
+                    {% if projet.etapeprojets|length > 0 %}
+                      <div class="dropdown">
+                        <button class="btn btn-sm btn-outline-primary dropdown-toggle" type="button" id="dropdownStages{{ projet.idProjet }}" data-bs-toggle="dropdown" aria-expanded="false">
+                          {{ projet.etapeprojets|length }} Étape(s)
+                        </button>
+                        <ul class="dropdown-menu" aria-labelledby="dropdownStages{{ projet.idProjet }}">
+                          {% for etape in projet.etapeprojets %}
+                            <li>
+                              <div class="dropdown-item-text px-2 py-1">
+                                <div class="d-flex justify-content-between">
+                                  <strong>{{ etape.nometape }}</strong>
+                                  <span class="badge stage-badge bg-{{ 
+                                    etape.statut == 'Terminé' ? 'success' : 
+                                    (etape.statut == 'En cours' ? 'info' : 
+                                    (etape.statut == 'En attente' ? 'warning' : 'danger')) 
+                                  }}">{{ etape.statut }}</span>
+                                </div>
+                                <div class="text-muted small">
+                                  {{ etape.datedebut|date('d/m/Y') }} - 
+                                  {% if etape.datefin %}
+                                    {{ etape.datefin|date('d/m/Y') }}
+                                  {% else %}
+                                    Ongoing
+                                  {% endif %}
+                                </div>
+                                {% if etape.description %}
+                                  <div class="text-muted small mt-1">{{ etape.description|u.truncate(50, '...') }}</div>
+                                {% endif %}
+                              </div>
+                            </li>
+                            {% if not loop.last %}
+                              <li><hr class="dropdown-divider"></li>
+                            {% endif %}
+                          {% endfor %}
+                        </ul>
+                      </div>
+                    {% else %}
+                      <span class="badge bg-secondary">En Attente</span>
+                    {% endif %}
                   </td>
                   <td class="text-center align-middle">
                     <p class="text-sm font-weight-bold mb-0">{{ projet.datecreation|date('Y-m-d') }}</p>
@@ -115,7 +169,7 @@
                 </tr>
                 {% else %}
                 <tr>
-                  <td colspan="7" class="text-center">No projects found</td>
+                  <td colspan="8" class="text-center">No projects found</td>
                 </tr>
                 {% endfor %}
               </tbody>
@@ -132,6 +186,14 @@
   <script>
     $(function () {
       $('[data-toggle="tooltip"]').tooltip();
+      
+      // Initialize dropdowns
+      $('.dropdown-toggle').dropdown();
+      
+      // Prevent dropdown from closing when clicking inside
+      $('.dropdown-menu').on('click', function(e) {
+        e.stopPropagation();
+      });
     });
   </script>
 {% endblock %}

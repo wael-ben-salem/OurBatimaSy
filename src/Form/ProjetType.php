@@ -11,23 +11,79 @@ use Symfony\Component\Form\FormBuilderInterface;
 use Symfony\Component\OptionsResolver\OptionsResolver;
 use Symfony\Component\Form\Extension\Core\Type\ChoiceType;
 use Symfony\Component\Form\Extension\Core\Type\TextType;
-use Symfony\Component\Validator\Constraints\Email; // ✅ Required for the constraint
+use Symfony\Component\Validator\Constraints as Assert;
+use Symfony\Component\Validator\Constraints\Length;
 
 class ProjetType extends AbstractType
 {
     public function buildForm(FormBuilderInterface $builder, array $options): void
     {
         $builder
-            ->add('nomprojet')
-            ->add('type')
-            ->add('stylearch')
-            ->add('budget')
+        ->add('nomprojet', TextType::class, [
+            'label' => 'Nom du projet',
+            'constraints' => [
+                new Assert\NotBlank([
+                    'message' => 'Le nom de projet est obligatoire'
+                ]),
+                new Length([
+                    'min' => 3,
+                    'minMessage' => 'Le nom doit contenir au moins 3 caractères',
+                    'max' => 30,
+                    'maxMessage' => 'Le nom ne peut pas dépasser 30 caractères',
+                ]),
+            ],
+        ])
+            ->add('type', null, [
+                'label' => 'Type de projet',
+                'constraints' => [
+                    new Assert\NotBlank([
+                        'message' => 'Le type de projet est obligatoire'
+                    ]),
+                    new Assert\Length([
+                        'max' => 50,
+                        'maxMessage' => 'Le type ne peut pas dépasser 50 caractères'
+                    ])
+                ]
+            ])
+            ->add('stylearch', null, [
+                'label' => 'Style d\'architecture',
+                'constraints' => [
+                    new Assert\NotBlank([
+                        'message' => 'Le style architectural est obligatoire'
+                    ]),
+                    new Assert\Length([
+                        'max' => 100,
+                        'maxMessage' => 'Le style ne peut pas dépasser {{ limit }} caractères'
+                    ])
+                ]
+            ])
+            ->add('budget', null, [
+                'label' => 'Budget (TND)',
+                'constraints' => [
+                    new Assert\NotBlank([
+                        'message' => 'Le budget est obligatoire'
+                    ]),
+                    new Assert\Type([
+                        'type' => 'numeric',
+                        'message' => 'Le budget doit être un nombre'
+                    ]),
+                    new Assert\Positive([
+                        'message' => 'Le budget doit être positif'
+                    ])
+                ]
+            ])
             ->add('etat', ChoiceType::class, [
+                'label' => 'État du projet',
                 'choices' => [
                     'En cours' => 'En cours',
                     'En attente' => 'En attente',
                     'Fini' => 'Fini',
                     'Annulé' => 'Annulé'
+                ],
+                'constraints' => [
+                    new Assert\NotBlank([
+                        'message' => 'L\'état du projet est obligatoire'
+                    ])
                 ],
                 'placeholder' => 'Choisir un état',
             ])
@@ -35,11 +91,16 @@ class ProjetType extends AbstractType
                 'class' => Terrain::class,
                 'choice_label' => 'emplacement',
                 'label' => 'Emplacement du terrain',
+                'constraints' => [
+                    new Assert\NotBlank([
+                        'message' => 'Le terrain est obligatoire'
+                    ])
+                ],
                 'placeholder' => 'Sélectionner un terrain',
             ])
             ->add('idEquipe', EntityType::class, [
                 'class' => Equipe::class,
-                'choice_label' => 'nomEquipe',
+                'choice_label' => 'nom',
                 'required' => false,
                 'placeholder' => 'Pas d\'équipe',
                 'label' => 'Équipe responsable',
@@ -47,11 +108,18 @@ class ProjetType extends AbstractType
             ->add('nomClient', TextType::class, [
                 'label' => 'Email du client',
                 'mapped' => false,
-                'required' => false, // ✅ make the field optional
+                'required' => false,
+                'attr' => [
+                    'placeholder' => 'exemple@domaine.com'
+                ],
                 'constraints' => [
-                    new Email([
+                    new Assert\Email([
                         'message' => 'Veuillez fournir une adresse email valide.',
                     ]),
+                    new Assert\Length([
+                        'max' => 50,
+                        'maxMessage' => 'L\'email ne peut pas dépasser 50 caractères'
+                    ])
                 ],
             ]);
     }

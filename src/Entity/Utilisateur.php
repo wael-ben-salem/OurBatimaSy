@@ -66,8 +66,7 @@ class Utilisateur implements UserInterface, PasswordAuthenticatedUserInterface
      * @var string
      */
     #[ORM\Column(name: 'mot_de_passe', type: 'string', length: 255, nullable: false)]
-    private $password;
-
+private string $password;
     /**
      * @var string|null
      */
@@ -298,35 +297,63 @@ class Utilisateur implements UserInterface, PasswordAuthenticatedUserInterface
     {
         // Si tu stockes des données sensibles temporairement, efface-les ici
     }
+    #[ORM\OneToOne(mappedBy: 'artisan', targetEntity: Artisan::class)]
+private ?Artisan $artisan = null;
 
-    /**
-     * @return Collection<int, Reclamation>
-     */
-    public function getReclamations(): Collection
-    {
-        return $this->reclamations;
-    }
+#[ORM\OneToOne(mappedBy: 'constructeur', targetEntity: Constructeur::class)]
+private ?Constructeur $constructeur = null;
 
-    public function addReclamation(Reclamation $reclamation): static
-    {
-        if (!$this->reclamations->contains($reclamation)) {
-            $this->reclamations->add($reclamation);
-            $reclamation->setIdUtilisateur($this);
-        }
 
-        return $this;
-    }
+public function getArtisan(): ?Artisan
+{
+    return $this->artisan;
+}
 
-    public function removeReclamation(Reclamation $reclamation): static
-    {
-        if ($this->reclamations->removeElement($reclamation)) {
-            // set the owning side to null (unless already changed)
-            if ($reclamation->getIdUtilisateur() === $this) {
-                $reclamation->setIdUtilisateur(null);
-            }
-        }
+public function setArtisan(?Artisan $artisan): static
+{
+    $this->artisan = $artisan;
+    return $this;
+}
 
-        return $this;
-    }
+public function getConstructeur(): ?Constructeur
+{
+    return $this->constructeur;
+}
+
+public function setConstructeur(?Constructeur $constructeur): static
+{
+    $this->constructeur = $constructeur;
+    return $this;
+}
+#[ORM\OneToOne(mappedBy: 'client', targetEntity: Client::class)]
+private ?Client $client = null;
+
+public function getClient(): ?Client
+{
+    return $this->client;
+}
+
+public function setClient(?Client $client): static
+{
+    $this->client = $client;
+    return $this;
+}
+#[ORM\OneToOne(mappedBy: 'gestionnairestock', targetEntity: Gestionnairestock::class)]
+private ?Gestionnairestock $gestionnaireStock = null;
+
+
+public function getGestionnaireStock(): ?Gestionnairestock
+{
+    return $this->gestionnaireStock;
+}
+
+public function setGestionnaireStock(?Gestionnairestock $gestionnaireStock): static
+{
+    $this->gestionnaireStock = $gestionnaireStock;
+    return $this;
+
+}
+
+
 
 }

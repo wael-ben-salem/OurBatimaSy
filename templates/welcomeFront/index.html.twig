@@ -1,0 +1,251 @@
+{% extends 'base_frontOffice.html.twig' %}
+
+{% block title %}Our Batima - Accueil{% endblock %}
+
+{% block meta %}
+    <meta name="description" content="Our Batima - Votre partenaire de confiance pour tous vos projets de construction">
+    <meta property="og:title" content="Our Batima - Accueil">
+    <meta property="og:description" content="Votre partenaire de confiance pour tous vos projets de construction">
+    <meta property="og:image" content="{{ absolute_url(asset('img/ksks.png')) }}">
+{% endblock %}
+
+{% block stylesheets %}
+    {{ parent() }}
+    <style>
+        .hero {
+            background: linear-gradient(rgba(0, 0, 0, 0.5), rgba(0, 0, 0, 0.5));
+            padding: 120px 0;
+            color: white;
+        }
+        .hero-text h1 {
+            font-size: 3rem;
+            font-weight: 700;
+            margin-bottom: 20px;
+        }
+        .hero-btn .btn {
+            margin-right: 15px;
+            margin-bottom: 15px;
+        }
+        .about-img img, .service-img img {
+            width: 100%;
+            border-radius: 5px;
+        }
+        .service-item {
+            margin-bottom: 30px;
+            position: relative;
+        }
+        .service-overlay {
+            position: absolute;
+            top: 0;
+            left: 0;
+            width: 100%;
+            height: 100%;
+            background: rgba(0, 0, 0, 0.7);
+            color: white;
+            display: flex;
+            align-items: center;
+            padding: 20px;
+            opacity: 0;
+            transition: opacity 0.3s;
+        }
+        .service-item:hover .service-overlay {
+            opacity: 1;
+        }
+        .call-to-action {
+            background: #f8f9fa;
+            padding: 60px 0;
+            text-align: center;
+        }
+        .access-denied {
+            min-height: 80vh;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            text-align: center;
+        }
+    </style>
+{% endblock %}
+
+{% block body %}
+    {# Welcome message for logged in users #}
+    {% if user %}
+        <div class="alert alert-info text-center mb-0">
+            Bienvenue, {{ user.nom }} {{ user.prenom }}! <a href="{{ path('app_logout') }}" class="float-right">Déconnexion</a>
+        </div>
+    {% endif %}
+
+    {# Flash messages #}
+    {% for message in app.flashes('success') %}
+        <div class="alert alert-success alert-dismissible fade show">
+            {{ message }}
+            <button type="button" class="close" data-dismiss="alert" aria-label="Close">
+                <span aria-hidden="true">&times;</span>
+            </button>
+        </div>
+    {% endfor %}
+
+    {# Hero Section #}
+    <section class="hero">
+        <div class="container">
+            <div class="row align-items-center">
+                <div class="col-lg-6">
+                    <div class="hero-text">
+                        <h1 class="display-4">Bienvenue chez Our Batima</h1>
+                        <p class="lead">Votre partenaire de confiance pour tous vos projets de construction</p>
+                        <div class="hero-btn">
+                            <a class="btn btn-primary btn-lg" href="{{ path('service') }}">Nos Services</a>
+                            <a class="btn btn-outline-light btn-lg" href="{{ path('contact') }}">Contactez-nous</a>
+                        </div>
+                    </div>
+                </div>
+                <div class="col-lg-6 d-none d-lg-block">
+                    <div class="hero-image">
+                        <img src="{{ asset('img/ksks.png') }}" alt="Projet de construction moderne" class="img-fluid rounded shadow" loading="lazy">
+                    </div>
+                </div>
+            </div>
+        </div>
+    </section>
+
+    {# About Section #}
+    <section class="about py-5 wow fadeInUp" data-wow-delay="0.1s">
+        <div class="container">
+            <div class="row align-items-center">
+                <div class="col-lg-5 col-md-6">
+                    <div class="about-img">
+                        <img src="{{ asset('img/about.jpg') }}" alt="Notre équipe de construction" class="img-fluid rounded shadow" loading="lazy">
+                    </div>
+                </div>
+                <div class="col-lg-7 col-md-6">
+                    <div class="section-header text-left">
+                        <p class="text-primary">À propos de nous</p>
+                        <h2>25 ans d'expérience</h2>
+                    </div>
+                    <div class="about-text">
+                        <p class="text-muted">
+                            Fondée en 1998, Our Batima s'est imposée comme un leader dans le secteur de la construction grâce à son engagement envers la qualité et l'innovation.
+                        </p>
+                        <p class="text-muted">
+                            Notre équipe d'experts travaille sans relâche pour transformer vos visions en réalité, en respectant les délais et les budgets convenus.
+                        </p>
+                        <a class="btn btn-outline-primary" href="{{ path('about') }}">En savoir plus</a>
+                    </div>
+                </div>
+            </div>
+        </div>
+    </section>
+
+    {# Services Section #}
+    <section class="service py-5 bg-light">
+        <div class="container">
+            <div class="section-header text-center mb-5">
+                <p class="text-primary">Nos Services</p>
+                <h2>Nous fournissons des services de construction de qualité</h2>
+            </div>
+            <div class="row">
+                <div class="col-lg-4 col-md-6 wow fadeInUp" data-wow-delay="0.1s">
+                    <div class="service-item card h-100 border-0 shadow">
+                        <div class="service-img position-relative">
+                            <img src="{{ asset('img/service-1.jpg') }}" alt="Construction de bâtiments" class="card-img-top" loading="lazy">
+                            <div class="service-overlay">
+                                <p class="card-text">
+                                    Conception et construction de bâtiments résidentiels et commerciaux sur mesure, adaptés à vos besoins spécifiques.
+                                </p>
+                            </div>
+                        </div>
+                        <div class="card-body">
+                            <h3 class="card-title">Construction de bâtiments</h3>
+                            <a class="btn btn-sm btn-primary" href="{{ path('service') }}#building-construction">Détails</a>
+                        </div>
+                    </div>
+                </div>
+                <div class="col-lg-4 col-md-6 wow fadeInUp" data-wow-delay="0.2s">
+                    <div class="service-item card h-100 border-0 shadow">
+                        <div class="service-img position-relative">
+                            <img src="{{ asset('img/service-2.jpg') }}" alt="Rénovation" class="card-img-top" loading="lazy">
+                            <div class="service-overlay">
+                                <p class="card-text">
+                                    Services complets de rénovation pour redonner vie à vos espaces tout en préservant leur caractère unique.
+                                </p>
+                            </div>
+                        </div>
+                        <div class="card-body">
+                            <h3 class="card-title">Rénovation</h3>
+                            <a class="btn btn-sm btn-primary" href="{{ path('service') }}#renovation">Détails</a>
+                        </div>
+                    </div>
+                </div>
+                <div class="col-lg-4 col-md-6 wow fadeInUp" data-wow-delay="0.3s">
+                    <div class="service-item card h-100 border-0 shadow">
+                        <div class="service-img position-relative">
+                            <img src="{{ asset('img/service-3.jpg') }}" alt="Design architectural" class="card-img-top" loading="lazy">
+                            <div class="service-overlay">
+                                <p class="card-text">
+                                    Solutions de design architectural innovantes qui combinent esthétique, fonctionnalité et durabilité.
+                                </p>
+                            </div>
+                        </div>
+                        <div class="card-body">
+                            <h3 class="card-title">Design architectural</h3>
+                            <a class="btn btn-sm btn-primary" href="{{ path('service') }}#architectural-design">Détails</a>
+                        </div>
+                    </div>
+                </div>
+            </div>
+        </div>
+    </section>
+
+    {# Call to Action #}
+    <section class="call-to-action py-5 wow fadeInUp" data-wow-delay="0.1s">
+        <div class="container">
+            <div class="row align-items-center">
+                <div class="col-md-9 text-center text-md-left">
+                    <h2 class="mb-3 mb-md-0">Vous avez un projet en tête?</h2>
+                    <p class="mb-3 mb-md-0">
+                        Contactez-nous dès aujourd'hui pour discuter de votre projet de construction.
+                    </p>
+                </div>
+                <div class="col-md-3 text-center text-md-right">
+                    <a class="btn btn-primary btn-lg" href="{{ path('contact') }}">Contactez-nous</a>
+                </div>
+            </div>
+        </div>
+    </section>
+{% endblock %}
+
+{% block javascripts %}
+    {{ parent() }}
+    <script>
+        $(document).ready(function(){
+            new WOW().init();
+            
+            // Smooth scrolling for anchor links
+            $('a[href^="#"]').on('click', function(event) {
+                var target = $(this.getAttribute('href'));
+                if(target.length) {
+                    event.preventDefault();
+                    $('html, body').stop().animate({
+                        scrollTop: target.offset().top - 70
+                    }, 1000);
+                }
+            });
+            
+            // Add active class to current section in view
+            $(window).scroll(function() {
+                var scrollPosition = $(window).scrollTop();
+                
+                $('section').each(function() {
+                    var currentSection = $(this);
+                    var sectionTop = currentSection.offset().top - 100;
+                    var sectionBottom = sectionTop + currentSection.outerHeight();
+                    
+                    if (scrollPosition >= sectionTop && scrollPosition < sectionBottom) {
+                        var id = currentSection.attr('id');
+                        $('nav a').removeClass('active');
+                        $('nav a[href="#' + id + '"]').addClass('active');
+                    }
+                });
+            });
+        });
+    </script>
+{% endblock %}
