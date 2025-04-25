@@ -1,0 +1,48 @@
+{{ form_start(form, {'attr': {'novalidate': 'novalidate'}}) }}
+    {{ form_errors(form) }}
+
+    <div class="form-group">
+        {{ form_label(form.description) }}
+        {{ form_widget(form.description, {'attr': {'class': 'form-control' ~ (form.description.vars.valid ? '' : ' is-invalid'), 'required': false}}) }}
+        {% if not form.description.vars.valid %}
+            <div class="invalid-feedback">
+                {{ form_errors(form.description) }}
+            </div>
+        {% endif %}
+    </div>
+
+    <div class="form-group">
+        {{ form_label(form.statut) }}
+        {{ form_widget(form.statut, {'attr': {'class': 'form-control' ~ (form.statut.vars.valid ? '' : ' is-invalid'), 'required': false}}) }}
+        {% if not form.statut.vars.valid %}
+            <div class="invalid-feedback">
+                {{ form_errors(form.statut) }}
+            </div>
+        {% endif %}
+    </div>
+
+    <div class="form-group">
+        {{ form_label(form.date) }}
+        {{ form_widget(form.date, {'attr': {'class': 'form-control' ~ (form.date.vars.valid ? '' : ' is-invalid'), 'required': false}}) }}
+        {% if not form.date.vars.valid %}
+            <div class="invalid-feedback">
+                {{ form_errors(form.date) }}
+            </div>
+        {% endif %}
+    </div>
+
+    <div class="form-group">
+        {{ form_label(form.id_Reclamation) }}
+        {{ form_widget(form.id_Reclamation, {'attr': {'class': 'form-control' ~ (form.id_Reclamation.vars.valid ? '' : ' is-invalid'), 'required': false}}) }}
+        {% if not form.id_Reclamation.vars.valid %}
+            <div class="invalid-feedback">
+                {{ form_errors(form.id_Reclamation) }}
+            </div>
+        {% endif %}
+    </div>
+
+    <button class="btn btn-outline-dark mt-3">
+        <i class="material-symbols-rounded me-1">save</i>
+        {{ button_label|default('Enregistrer') }}
+    </button>
+{{ form_end(form) }}

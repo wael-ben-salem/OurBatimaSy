@@ -11,6 +11,7 @@
         "doctrine/dbal": "^3",
         "doctrine/doctrine-bundle": "^2.14",
         "doctrine/doctrine-migrations-bundle": "^3.4",
+        "doctrine/migrations": "^3.9",
         "doctrine/orm": "^3.3",
         "lexik/jwt-authentication-bundle": "^2.18",
         "nelmio/cors-bundle": "^2.5",
@@ -106,7 +107,7 @@
         "symfony/css-selector": "6.4.*",
         "symfony/debug-bundle": "6.4.*",
         "symfony/doctrine-bridge": "6.4.*",
-        "symfony/maker-bundle": "^1.62",
+        "symfony/maker-bundle": "*",
         "symfony/phpunit-bridge": "^7.1",
         "symfony/stopwatch": "6.4.*",
         "symfony/web-profiler-bundle": "6.4.*"
