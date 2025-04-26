@@ -152,15 +152,32 @@ private function reverseGeocode(float $latitude, float $longitude): ?string
         $terrain = new Terrain();
         $form = $this->createForm(TerrainType::class, $terrain);
         $form->handleRequest($request);
-
+    
         if ($form->isSubmitted() && $form->isValid()) {
+            $latitude = $form->get('latitude')->getData();
+            $longitude = $form->get('longitude')->getData();
+            
+            $terrain->setLatitude($latitude);
+            $terrain->setLongitude($longitude);
+            
+            if (empty($terrain->getEmplacement())) {
+                $address = $this->reverseGeocode($latitude, $longitude);
+                if ($address) {
+                    $terrain->setEmplacement($address);
+                }
+            }
+            
+            if (empty($terrain->getDetailsgeo())) {
+                $terrain->setDetailsgeo("Lat: $latitude, Lng: $longitude");
+            }
+    
             $entityManager->persist($terrain);
             $entityManager->flush();
             
-            $this->addFlash('success', 'Terrain ajouté avec succès. Sélectionnez-le dans le champ "emplacement".');
-            return $this->redirectToRoute('app_terrain_front_new');
+            $this->addFlash('success', 'Terrain ajouté avec succès. Vous pouvez maintenant créer votre projet.');
+            return $this->redirectToRoute('app_projet_front_new');
         }
-
+    
         return $this->render('terrainFront/new.html.twig', [
             'terrain' => $terrain,
             'form' => $form,

@@ -11,6 +11,7 @@
                         0 7px 10px -5px rgba(0, 0, 0, 0.4);
             transition: transform 0.3s;
             margin-bottom: 30px;
+            height: 100%;
         }
         .project-card:hover {
             transform: translateY(-5px);
@@ -63,11 +64,18 @@
             font-size: 0.7rem;
             padding: 0.25em 0.4em;
         }
-        .filter-buttons {
+        .filter-section {
+            background-color: #f8f9fa;
+            padding: 20px;
+            border-radius: 8px;
             margin-bottom: 30px;
+        }
+        .filter-buttons {
+            margin-bottom: 15px;
             display: flex;
             justify-content: center;
             gap: 15px;
+            flex-wrap: wrap;
         }
         .filter-btn {
             padding: 8px 20px;
@@ -111,6 +119,54 @@
             color: white;
             border-radius: 4px;
         }
+        .page-item.active .page-link {
+            background-color: #fd7e14;
+            border-color: #fd7e14;
+        }
+        .search-form {
+            max-width: 500px;
+            margin: 0 auto;
+        }
+        .pagination {
+            display: flex;
+            justify-content: center;
+            margin-top: 30px;
+            gap: 15px;
+        }
+        .page-item {
+            margin: 0 4px;
+        }
+        .page-link {
+            color: #fd7e14;
+            padding: 8px 14px;
+            border-radius: 6px;
+            border: 1px solid #dee2e6;
+            transition: all 0.3s;
+            min-width: 40px;
+            text-align: center;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+        }
+        .page-link:hover {
+            background-color: #f8f9fa;
+            color: #fd7e14;
+            text-decoration: none;
+        }
+        .page-item.active .page-link {
+            background-color: #fd7e14;
+            border-color: #fd7e14;
+            color: white;
+        }
+        .page-item.disabled .page-link {
+            color: #6c757d;
+            pointer-events: none;
+            background-color: #f8f9fa;
+        }
+        .page-item:first-child .page-link,
+        .page-item:last-child .page-link {
+            padding: 8px 12px;
+        }
     </style>
 {% endblock %}
 
@@ -136,7 +192,7 @@
         <div class="container">
             <div class="section-header text-center">
                 <p>Nos Projets</p>
-                <h2>Nos Projets</h2>
+                <h2>Découvrez Nos Réalisations</h2>
                 <div class="create-btn-container">
                     <a href="{{ path('app_projet_front_new') }}" class="btn btn-primary btn-lg">
                         <i class="fas fa-plus mr-2"></i> Créer un nouveau projet
@@ -144,21 +200,52 @@
                 </div>
             </div>
             
-            {# Filter Buttons #}
-            <div class="filter-buttons">
-                <a href="{{ path('app_projet_front_index') }}" 
-                   class="btn btn-outline-secondary filter-btn {{ not showOnlyMine ? 'active' : '' }}">
-                    Tous les projets
-                </a>
-                {% if isClient %}
-                    <a href="{{ path('app_projet_front_index', {'mine': true}) }}" 
-                       class="btn btn-outline-secondary filter-btn {{ showOnlyMine ? 'active' : '' }}">
-                        Mes projets
-                    </a>
-                {% endif %}
+            <!-- Filter Section -->
+            <div class="filter-section">
+                <div class="row">
+                    <div class="col-md-6 mb-3 mb-md-0">
+                        <div class="filter-buttons">
+                            <a href="{{ path('app_projet_front_index') }}" 
+                               class="btn btn-outline-secondary filter-btn {{ not showOnlyMine ? 'active' : '' }}">
+                                Tous les projets
+                            </a>
+                            {% if isClient %}
+                                <a href="{{ path('app_projet_front_index', {'mine': true}) }}" 
+                                   class="btn btn-outline-secondary filter-btn {{ showOnlyMine ? 'active' : '' }}">
+                                    Mes projets
+                                </a>
+                            {% endif %}
+                        </div>
+                    </div>
+                    <div class="col-md-6">
+                        <form method="get" class="search-form">
+                            <input type="hidden" name="mine" value="{{ showOnlyMine ? '1' : '0' }}">
+                            <div class="input-group">
+                                <select name="status" class="form-select" onchange="this.form.submit()">
+                                    <option value="">Tous les statuts</option>
+                                    <option value="en cours" {{ app.request.query.get('status') == 'en cours' ? 'selected' }}>En cours</option>
+                                    <option value="fini" {{ app.request.query.get('status') == 'fini' ? 'selected' }}>Fini</option>
+                                    <option value="en attente" {{ app.request.query.get('status') == 'en attente' ? 'selected' }}>En attente</option>
+                                    <option value="annulé" {{ app.request.query.get('status') == 'annulé' ? 'selected' }}>Annulé</option>
+                                </select>
+                                <input type="text" 
+                                       name="search" 
+                                       value="{{ app.request.query.get('search') }}" 
+                                       placeholder="Rechercher..." 
+                                       class="form-control">
+                                <button type="submit" class="btn btn-primary">
+                                    <i class="fas fa-search"></i>
+                                </button>
+                                <a href="{{ path('app_projet_front_index') }}" class="btn btn-secondary">
+                                    <i class="fas fa-times"></i>
+                                </a>
+                            </div>
+                        </form>
+                    </div>
+                </div>
             </div>
             
-            {% if projets|length == 0 %}
+            {% if pagination|length == 0 %}
                 <div class="no-projects-message">
                     <i class="fas fa-folder-open fa-3x mb-3 text-secondary"></i>
                     <h4>
@@ -178,7 +265,7 @@
                 </div>
             {% else %}
                 <div class="row">
-                    {% for projet in projets %}
+                    {% for projet in pagination %}
                         {% set etatRaw = projet.etat|default('En cours') %}
                         {% set etat = etatRaw|trim|lower %}
                         {% set color = 
@@ -200,7 +287,6 @@
                                 </div>
                                 <div class="card-body">
                                     {% if showOnlyMine %}
-                                        {# Detailed view for "Mes projets" #}
                                         <div class="project-detail">
                                             <span class="project-detail-label">Type:</span>
                                             <span>{{ projet.type }}</span>
@@ -220,16 +306,15 @@
                                         <div class="project-detail">
                                             <span class="project-detail-label">Terrain:</span>
                                             {% if projet.idTerrain %}
-<a href="{{ path('app_terrain_front_show', {'idTerrain': projet.idTerrain.idTerrain}) }}" class="terrain-link">
-    <i class="fas fa-map-marker-alt"></i>
-    {{ projet.idTerrain.emplacement }}
-</a>
+                                                <a href="{{ path('app_terrain_front_show', {'idTerrain': projet.idTerrain.idTerrain}) }}" class="terrain-link">
+                                                    <i class="fas fa-map-marker-alt"></i>
+                                                    {{ projet.idTerrain.emplacement }}
+                                                </a>
                                             {% else %}
                                                 <span class="text-muted">Aucun terrain associé</span>
                                             {% endif %}
                                         </div>
                                     {% else %}
-                                        {# Simplified view for "Tous les projets" #}
                                         <div class="mb-3">
                                             <span class="project-type-badge">{{ projet.type }}</span>
                                         </div>
@@ -287,6 +372,11 @@
                         </div>
                     {% endfor %}
                 </div>
+
+                <!-- Pagination -->
+                <div class="navigation">
+                    {{ knp_pagination_render(pagination) }}
+                </div>
             {% endif %}
         </div>
     </div>
@@ -317,6 +407,13 @@
         document.addEventListener('click', function() {
             document.querySelectorAll('.stages-dropdown-content').forEach(d => {
                 d.style.display = 'none';
+            });
+        });
+
+        // Submit form when status filter changes
+        document.querySelectorAll('select[name="status"]').forEach(select => {
+            select.addEventListener('change', function() {
+                this.form.submit();
             });
         });
     </script>
