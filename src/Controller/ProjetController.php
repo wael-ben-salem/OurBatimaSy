@@ -1,7 +1,7 @@
 <?php
 
 namespace App\Controller;
-
+use Knp\Component\Pager\PaginatorInterface;
 use App\Entity\Projet;
 use App\Form\ProjetType;
 use App\Entity\Client;
@@ -160,29 +160,43 @@ public function new(Request $request, EntityManagerInterface $entityManager): Re
     public function frontIndex(
         Request $request,
         EntityManagerInterface $entityManager,
-        Security $security
+        Security $security,
+        PaginatorInterface $paginator
     ): Response {
         $user = $security->getUser();
         $showOnlyMine = $request->query->getBoolean('mine', false);
         
-        $repository = $entityManager->getRepository(Projet::class);
+        $queryBuilder = $entityManager->getRepository(Projet::class)
+            ->createQueryBuilder('p')
+            ->leftJoin('p.idClient', 'c')
+            ->leftJoin('c.client', 'u');  // Join to Utilisateur
         
         if ($showOnlyMine && $user instanceof Utilisateur) {
-            // Get the Client entity through the Utilisateur relationship
-            $client = $user->getClient();
-            
-            if ($client) {
-                $projets = $repository->findBy(['idClient' => $client]);
-            } else {
-                // If user is a client but no Client entity exists yet
-                $projets = [];
-            }
-        } else {
-            $projets = $repository->findAll();
+            // Filter by logged-in user's email
+            $queryBuilder->andWhere('u.email = :email')
+                       ->setParameter('email', $user->getEmail());
+        }
+        
+        // Add status filter if provided
+        if ($status = $request->query->get('status')) {
+            $queryBuilder->andWhere('p.etat = :status')
+                       ->setParameter('status', $status);
+        }
+        
+        // Add search by name if provided
+        if ($search = $request->query->get('search')) {
+            $queryBuilder->andWhere('p.nomprojet LIKE :search')
+                       ->setParameter('search', '%'.$search.'%');
         }
     
+        $pagination = $paginator->paginate(
+            $queryBuilder->getQuery(),
+            $request->query->getInt('page', 1),
+            9 // Items per page
+        );
+    
         return $this->render('projetFront/index.html.twig', [
-            'projets' => $projets,
+            'pagination' => $pagination,
             'showOnlyMine' => $showOnlyMine,
             'currentUser' => $user,
             'isClient' => $user instanceof Utilisateur && in_array('ROLE_CLIENT', $user->getRoles())
