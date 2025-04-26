@@ -10,6 +10,7 @@ use Symfony\Bundle\FrameworkBundle\Controller\AbstractController;
 use Symfony\Component\HttpFoundation\Request;
 use Symfony\Component\HttpFoundation\Response;
 use Symfony\Component\Routing\Attribute\Route;
+use App\Service\MapService;
 
 #[Route('/terrain')]
 final class TerrainController extends AbstractController
@@ -84,13 +85,39 @@ private function reverseGeocode(float $latitude, float $longitude): ?string
     }
 }
 
-    #[Route('/{idTerrain}', name: 'app_terrain_show', methods: ['GET'])]
-    public function show(Terrain $terrain): Response
-    {
-        return $this->render('terrain/show.html.twig', [
-            'terrain' => $terrain,
-        ]);
+#[Route('/{idTerrain}', name: 'app_terrain_show', methods: ['GET'])]
+public function show(Terrain $terrain, MapService $mapService): Response
+{
+    // Extract coordinates from detailsgeo or use defaults
+    $coordinates = $this->extractCoordinates($terrain->getDetailsgeo());
+    
+    // Generate map HTML
+    $mapHTML = $mapService->generateMapHTML(
+        $coordinates['lat'],
+        $coordinates['lng'],
+        $terrain->getEmplacement(),
+        $terrain->getCaracteristiques()
+    );
+
+    return $this->render('terrain/show.html.twig', [
+        'terrain' => $terrain,
+        'mapHTML' => $mapHTML
+    ]);
+}
+
+private function extractCoordinates(string $detailsgeo): array
+{
+    $default = ['lat' => 36.8, 'lng' => 10.18]; // Default Tunisia coordinates
+    
+    if (preg_match('/Lat: ([\d.-]+), Lng: ([\d.-]+)/', $detailsgeo, $matches)) {
+        return [
+            'lat' => (float)$matches[1],
+            'lng' => (float)$matches[2]
+        ];
     }
+    
+    return $default;
+}
 
     #[Route('/{idTerrain}/edit', name: 'app_terrain_edit', methods: ['GET', 'POST'])]
     public function edit(Request $request, Terrain $terrain, EntityManagerInterface $entityManager): Response
