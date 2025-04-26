@@ -212,10 +212,20 @@ private function extractCoordinates(string $detailsgeo): array
     }
 
     #[Route('/front/terrain/{idTerrain}', name: 'app_terrain_front_show', methods: ['GET'])]
-    public function frontShow(Terrain $terrain): Response
+    public function frontShow(Terrain $terrain, MapService $mapService): Response
     {
+        $coordinates = $this->extractCoordinates($terrain->getDetailsgeo());
+        
+        $mapHTML = $mapService->generateMapHTML(
+            $coordinates['lat'],
+            $coordinates['lng'],
+            $terrain->getEmplacement(),
+            $terrain->getCaracteristiques()
+        );
+    
         return $this->render('terrainFront/show.html.twig', [
             'terrain' => $terrain,
+            'mapHTML' => $mapHTML
         ]);
     }
 
