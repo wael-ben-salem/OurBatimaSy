@@ -35,6 +35,7 @@ class Contrat
     private ?\DateTimeInterface $dateDebut = null;
 
     #[ORM\Column(name: 'signature_electronique', type: 'string', length: 500, nullable: true)]
+
     private ?string $signatureElectronique = null;
 
     #[ORM\Column(name: 'date_fin', type: 'date')]
@@ -71,6 +72,7 @@ class Contrat
     {
         $this->dateSignature = new \DateTime();
     }
+
 
     public function getIdContrat(): ?int
     {
