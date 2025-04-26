@@ -32,20 +32,57 @@ final class TerrainController extends AbstractController
         $terrain = new Terrain();
         $form = $this->createForm(TerrainType::class, $terrain);
         $form->handleRequest($request);
-
+    
         if ($form->isSubmitted() && $form->isValid()) {
+            // Get coordinates from form
+            $latitude = $form->get('latitude')->getData();
+            $longitude = $form->get('longitude')->getData();
+            
+            // Set coordinates on terrain
+            $terrain->setLatitude($latitude);
+            $terrain->setLongitude($longitude);
+            
+            // Only perform reverse geocoding if emplacement is empty
+            if (empty($terrain->getEmplacement())) {
+                $address = $this->reverseGeocode($latitude, $longitude);
+                if ($address) {
+                    $terrain->setEmplacement($address);
+                }
+            }
+            
+            // Set detailsgeo if empty
+            if (empty($terrain->getDetailsgeo())) {
+                $terrain->setDetailsgeo("Lat: $latitude, Lng: $longitude");
+            }
+    
             $entityManager->persist($terrain);
             $entityManager->flush();
             
             $this->addFlash('success', 'Terrain ajouté avec succès. Sélectionnez-le dans le champ "emplacement".');
             return $this->redirectToRoute('app_projet_new');
         }
-
+    
         return $this->render('terrain/new.html.twig', [
             'terrain' => $terrain,
             'form' => $form,
         ]);
     }
+
+private function reverseGeocode(float $latitude, float $longitude): ?string
+{
+    $apiKey = '67bf5aececfa5982522390euj6000e5';
+    $url = "https://geocode.maps.co/reverse?lat=$latitude&lon=$longitude&api_key=$apiKey";
+    
+    try {
+        $response = file_get_contents($url);
+        $data = json_decode($response, true);
+        
+        return $data['display_name'] ?? null;
+    } catch (\Exception $e) {
+        // Log error if needed
+        return null;
+    }
+}
 
     #[Route('/{idTerrain}', name: 'app_terrain_show', methods: ['GET'])]
     public function show(Terrain $terrain): Response
