@@ -166,6 +166,12 @@
                         Se souvenir de moi
                     </label>
                 </div>
+<div class="d-grid gap-2 mb-4">
+    <a href="{{ path('app_google_login') }}" class="btn btn-danger btn-lg">
+        <i class="bi bi-google me-2"></i>
+        Continuer avec Google
+    </a>
+</div>
 
                 <div class="d-grid gap-2 mb-4">
                     <button type="submit" class="btn btn-primary btn-lg" id="submitBtn">
@@ -240,7 +246,8 @@ form.addEventListener('submit', async (e) => {
             throw new Error('Réponse serveur invalide');
         }
 
-        if (response.ok && data.redirect) {
+        if (response.ok && data && data.redirect) {
+
             await Swal.fire({
                 icon: 'success',
                 title: 'Connexion réussie !',

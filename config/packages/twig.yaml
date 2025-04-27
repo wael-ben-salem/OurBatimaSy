@@ -1,6 +1,13 @@
-# config/packages/twig.yaml
 twig:
-    file_name_pattern: '*.twig'
+
+    default_path: '%kernel.project_dir%/templates'
+    form_themes: ['bootstrap_5_layout.html.twig']
+    number_format:
+        decimals: 2
+        decimal_point: ','
+        thousands_separator: ' '
+    debug: '%kernel.debug%'
+    strict_variables: '%kernel.debug%'
     globals:
         # Your existing globals here (if any)
 

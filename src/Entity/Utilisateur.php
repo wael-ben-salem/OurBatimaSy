@@ -66,8 +66,7 @@ class Utilisateur implements UserInterface, PasswordAuthenticatedUserInterface
      * @var string
      */
     #[ORM\Column(name: 'mot_de_passe', type: 'string', length: 255, nullable: false)]
-    private $password;
-
+private string $password;
     /**
      * @var string|null
      */
@@ -168,10 +167,10 @@ private ?string $signature = null;
         return $this->role;
     }
 
-    // src/Entity/Utilisateur.php
     public function setRole(?string $role): static
     {
-        $this->role = strtolower($role);
+        $this->role = $role;
+
         return $this;
     }
 
@@ -299,6 +298,7 @@ private ?Artisan $artisan = null;
 #[ORM\OneToOne(mappedBy: 'constructeur', targetEntity: Constructeur::class)]
 private ?Constructeur $constructeur = null;
 
+
 public function getArtisan(): ?Artisan
 {
     return $this->artisan;
@@ -320,6 +320,48 @@ public function setConstructeur(?Constructeur $constructeur): static
     $this->constructeur = $constructeur;
     return $this;
 }
+#[ORM\OneToOne(mappedBy: 'client', targetEntity: Client::class)]
+private ?Client $client = null;
+
+public function getClient(): ?Client
+{
+    return $this->client;
+}
+
+public function setClient(?Client $client): static
+{
+    $this->client = $client;
+    return $this;
+}
+#[ORM\OneToOne(mappedBy: 'gestionnairestock', targetEntity: Gestionnairestock::class)]
+private ?Gestionnairestock $gestionnaireStock = null;
+
+public function getGestionnaireStock(): ?Gestionnairestock
+{
+    return $this->gestionnaireStock;
+}
+
+public function setGestionnaireStock(?Gestionnairestock $gestionnaireStock): static
+{
+    $this->gestionnaireStock = $gestionnaireStock;
+    return $this;
+}
 
 
+#[ORM\Column(type: 'float', nullable: true)]
+private ?float $latitude = null;
+
+#[ORM\Column(type: 'float', nullable: true)]
+private ?float $longitude = null;
+public function getLatitude(): ?float { return $this->latitude; }
+public function setLatitude(?float $latitude): self { $this->latitude = $latitude; return $this; }
+
+public function getLongitude(): ?float { return $this->longitude; }
+public function setLongitude(?float $longitude): self { $this->longitude = $longitude; return $this; }
+public function isCompleted(): bool
+{
+    return $this->adresse !== null && 
+           $this->telephone !== null && 
+           $this->password !== null;
+}
 }

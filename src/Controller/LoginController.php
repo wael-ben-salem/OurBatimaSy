@@ -5,6 +5,9 @@ namespace App\Controller;
 use Symfony\Bundle\FrameworkBundle\Controller\AbstractController;
 use Symfony\Component\HttpFoundation\Request;
 use Symfony\Component\HttpFoundation\Response;
+use App\Security\GoogleAuthenticator;
+use Symfony\Component\HttpFoundation\RedirectResponse;
+
 use Symfony\Component\HttpFoundation\JsonResponse;
 use Symfony\Component\Routing\Annotation\Route;
 use Symfony\Component\Security\Http\Authentication\AuthenticationUtils;
@@ -68,5 +71,18 @@ class LoginController extends AbstractController
         }
         
         return $this->redirectToRoute('app_welcome');
+    }
+    #[Route('/login/google', name: 'app_google_login')]
+    #[Route('/login/google', name: 'app_google_login')]
+    public function googleLogin(GoogleAuthenticator $googleAuthenticator, Request $request): Response
+    {
+        return $googleAuthenticator->start($request);
+    }
+
+    #[Route('/login/google-check', name: 'app_google_check')]
+    public function googleCheck(): Response
+    {
+        // Cette méthode ne sera jamais atteinte car interceptée par l'authenticator
+        return new RedirectResponse($this->generateUrl('app_login'));
     }
 }

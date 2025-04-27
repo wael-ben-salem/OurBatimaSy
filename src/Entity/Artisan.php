@@ -48,13 +48,6 @@ class Artisan
     {
         $this->equipe = new \Doctrine\Common\Collections\ArrayCollection();
     }
-    //mahdiii
-    // src/Entity/Artisan.php
-    public function __toString(): string
-    {
-        $user = $this->getArtisan();
-        return $user ? $user->getPrenom().' '.$user->getNom() : '';
-    }
 
     public function getSpecialite(): ?string
     {
@@ -67,11 +60,24 @@ class Artisan
 
         return $this;
     }
+    public function getStatut(): ?string
+{
+    return $this->getArtisan() ? $this->getArtisan()->getStatut() : null;
+}
+public function getId(): ?int
+    {
+        return $this->artisan?->getId(); // ou $this->getConstructeur()?->getId()
+    }
 
     public function getSalaireHeure(): ?string
     {
         return $this->salaireHeure;
     }
+public function __toString(): string
+{
+    $user = $this->getArtisan();
+    return $user ? $user->getNom() . ' ' . $user->getPrenom() : 'Artisan sans utilisateur';
+}
 
     public function setSalaireHeure(string $salaireHeure): static
     {
@@ -85,10 +91,12 @@ class Artisan
         return $this->artisan;
     }
 
-    public function setArtisan(?Utilisateur $artisan): static
+    public function setArtisan(?Utilisateur $utilisateur): static
     {
-        $this->artisan = $artisan;
-
+        $this->artisan = $utilisateur;
+        if ($utilisateur !== null && $utilisateur->getArtisan() !== $this) {
+            $utilisateur->setArtisan($this); // Met à jour la relation inverse
+        }
         return $this;
     }
 
@@ -118,5 +126,6 @@ class Artisan
 
         return $this;
     }
+    
 
 }

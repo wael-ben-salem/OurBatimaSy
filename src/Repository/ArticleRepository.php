@@ -40,4 +40,15 @@ class ArticleRepository extends ServiceEntityRepository
     //            ->getOneOrNullResult()
     //        ;
     //    }
+    public function findByEquipe(int $equipeId): array
+{
+    return $this->createQueryBuilder('a')
+        ->join('a.etapeprojet', 'ep')
+        ->join('ep.idProjet', 'p')
+        ->join('p.idEquipe', 'e')
+        ->where('e.id = :equipeId')
+        ->setParameter('equipeId', $equipeId)
+        ->getQuery()
+        ->getResult();
+}
 }

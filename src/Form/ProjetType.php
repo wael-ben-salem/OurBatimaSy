@@ -12,29 +12,27 @@ use Symfony\Component\OptionsResolver\OptionsResolver;
 use Symfony\Component\Form\Extension\Core\Type\ChoiceType;
 use Symfony\Component\Form\Extension\Core\Type\TextType;
 use Symfony\Component\Validator\Constraints as Assert;
+use Symfony\Component\Validator\Constraints\Length;
 
 class ProjetType extends AbstractType
 {
     public function buildForm(FormBuilderInterface $builder, array $options): void
     {
         $builder
-            ->add('nomprojet', null, [
-                'label' => 'Nom du projet',
-                'constraints' => [
-                    new Assert\NotBlank([
-                        'message' => 'Le nom du projet est obligatoire'
-                    ]),
-                    new Assert\Length([
-                        'min' => 3,
-                        'max' => 100,
-                        'minMessage' => 'Le nom doit contenir au moins {{ limit }} caractères',
-                        'maxMessage' => 'Le nom ne peut pas dépasser {{ limit }} caractères'
-                    ])
-                ],
-                'attr' => [
-                    'placeholder' => 'Ex: Villa moderne à Sousse'
-                ]
-            ])
+        ->add('nomprojet', TextType::class, [
+            'label' => 'Nom du projet',
+            'constraints' => [
+                new Assert\NotBlank([
+                    'message' => 'Le nom de projet est obligatoire'
+                ]),
+                new Length([
+                    'min' => 3,
+                    'minMessage' => 'Le nom doit contenir au moins 3 caractères',
+                    'max' => 30,
+                    'maxMessage' => 'Le nom ne peut pas dépasser 30 caractères',
+                ]),
+            ],
+        ])
             ->add('type', null, [
                 'label' => 'Type de projet',
                 'constraints' => [
@@ -43,7 +41,7 @@ class ProjetType extends AbstractType
                     ]),
                     new Assert\Length([
                         'max' => 50,
-                        'maxMessage' => 'Le type ne peut pas dépasser {{ limit }} caractères'
+                        'maxMessage' => 'Le type ne peut pas dépasser 50 caractères'
                     ])
                 ]
             ])
@@ -79,7 +77,7 @@ class ProjetType extends AbstractType
                 'choices' => [
                     'En cours' => 'En cours',
                     'En attente' => 'En attente',
-                    'Fini' => 'Fini',
+                    'Terminé' => 'Terminé',
                     'Annulé' => 'Annulé'
                 ],
                 'constraints' => [
@@ -102,11 +100,10 @@ class ProjetType extends AbstractType
             ])
             ->add('idEquipe', EntityType::class, [
                 'class' => Equipe::class,
-                'choice_label' => 'nomEquipe',
+                'choice_label' => 'nom',
                 'required' => false,
                 'placeholder' => 'Pas d\'équipe',
                 'label' => 'Équipe responsable',
-                // No constraints as per requirement
             ])
             ->add('nomClient', TextType::class, [
                 'label' => 'Email du client',
@@ -120,8 +117,8 @@ class ProjetType extends AbstractType
                         'message' => 'Veuillez fournir une adresse email valide.',
                     ]),
                     new Assert\Length([
-                        'max' => 180,
-                        'maxMessage' => 'L\'email ne peut pas dépasser {{ limit }} caractères'
+                        'max' => 50,
+                        'maxMessage' => 'L\'email ne peut pas dépasser 50 caractères'
                     ])
                 ],
             ]);

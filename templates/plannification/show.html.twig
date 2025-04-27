@@ -12,10 +12,45 @@
                     <div class="bg-gradient-dark shadow-dark border-radius-lg pt-4 pb-3 d-flex justify-content-between align-items-center">
                         <h6 class="text-white text-capitalize ps-3">Détails de la Plannification</h6>
                         <div>
+                            {% if app.user %}
+                                {% set isSaved = false %}
+                                {% for saved in plannification.savedPlannifications %}
+                                    {% if saved.user.id == app.user.id %}
+                                        {% set isSaved = true %}
+                                    {% endif %}
+                                {% endfor %}
+
+                                {% if isSaved %}
+                                    <form method="post" action="{{ path('app_plannification_unsave', {'idPlannification': plannification.idPlannification}) }}" class="d-inline">
+                                        <input type="hidden" name="_token" value="{{ csrf_token('unsave' ~ plannification.idPlannification) }}">
+                                        <button class="btn btn-sm btn-warning me-2">
+                                            <i class="material-symbols-rounded me-1">bookmark_remove</i>
+                                            Unsave
+                                        </button>
+                                    </form>
+                                {% else %}
+                                    <form method="post" action="{{ path('app_plannification_save', {'idPlannification': plannification.idPlannification}) }}" class="d-inline">
+                                        <input type="hidden" name="_token" value="{{ csrf_token('save' ~ plannification.idPlannification) }}">
+                                        <button class="btn btn-sm btn-success me-2">
+                                            <i class="material-symbols-rounded me-1">bookmark_add</i>
+                                            Save
+                                        </button>
+                                    </form>
+                                {% endif %}
+                            {% endif %}
+
                             <a href="{{ path('app_plannification_edit', {'idPlannification': plannification.idPlannification}) }}" class="btn btn-sm btn-light me-2">
                                 <i class="material-symbols-rounded me-1">edit</i>
                                 Modifier
                             </a>
+
+                            {# Add this button near your other action buttons #}
+                            <a href="{{ path('app_plannification_pdf', {'idPlannification': plannification.idPlannification}) }}"
+                               class="btn btn-sm btn-danger me-2">
+                                <i class="material-symbols-rounded me-1">picture_as_pdf</i>
+                                Export PDF
+                            </a>
+
                             <form method="post" action="{{ path('app_plannification_delete', {'idPlannification': plannification.idPlannification}) }}" onsubmit="return confirm('Are you sure?');" class="d-inline">
                                 <input type="hidden" name="_token" value="{{ csrf_token('delete' ~ plannification.idPlannification) }}">
                                 <button class="btn btn-sm btn-danger me-2">
@@ -85,7 +120,7 @@
         </div>
     </div>
 
-    {# ✅ Modal Bootstrap 5 - Preserved exactly as you had it #}
+    {# Modal Bootstrap 5 #}
     <div class="modal fade" id="contactModal" tabindex="-1" aria-labelledby="contactModalLabel" aria-hidden="true">
         <div class="modal-dialog modal-dialog-centered">
             <div class="modal-content">

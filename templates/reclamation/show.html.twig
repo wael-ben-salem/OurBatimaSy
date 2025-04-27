@@ -1,0 +1,95 @@
+{% extends 'base.html.twig' %}
+
+{% block title %}Reclamation{% endblock %}
+
+{% block stylesheets %}
+  {{ parent() }}
+  <style>
+    .card {
+      border-radius: 12px;
+      box-shadow: 0 4px 20px 0 rgba(0, 0, 0, 0.14), 
+                  0 7px 10px -5px rgba(0, 0, 0, 0.4);
+    }
+    .field-container {
+      border: 1px solid #e9ecef;
+      border-radius: 8px;
+      padding: 15px;
+      margin-bottom: 15px;
+      background-color: #f8f9fa;
+    }
+    .field-label {
+      font-weight: 600;
+      color: #344767;
+      margin-bottom: 8px;
+      font-size: 0.875rem;
+      text-transform: uppercase;
+    }
+    .field-value {
+      font-size: 1rem;
+      color: #495057;
+    }
+  </style>
+{% endblock %}
+
+{% block body %}
+  <div class="row">
+    <div class="col-12">
+      <div class="card my-4">
+        <div class="card-header p-0 position-relative mt-n4 mx-3 z-index-2">
+          <div class="bg-gradient-dark shadow-dark border-radius-lg pt-4 pb-3">
+            <h6 class="text-white text-capitalize ps-3">Détails de la Réclamation</h6>
+          </div>
+        </div>
+        <div class="card-body px-4 pb-2">
+          <div class="row">
+            <div class="col-md-12 mb-4">
+              <div class="d-flex align-items-center mb-4">
+                <div class="avatar avatar-lg rounded-circle bg-gradient-dark me-3">
+                  <i class="material-symbols-rounded text-white">report_problem</i>
+                </div>
+                <h4 class="mb-0">Réclamation #{{ reclamation.id }}</h4>
+              </div>
+              
+              <div class="field-container">
+                <div class="field-label">Description</div>
+                <div class="field-value">{{ reclamation.description }}</div>
+              </div>
+              
+              <div class="field-container">
+                <div class="field-label">Statut</div>
+                <div class="field-value">
+                  <span class="badge bg-gradient-{{ reclamation.statut == 'New' ? 'info' : (reclamation.statut == 'In Progress' ? 'warning' : (reclamation.statut == 'Waiting for Response' ? 'primary' : 'success')) }}">
+                    {{ reclamation.statut }}
+                  </span>
+                </div>
+              </div>
+              
+              <div class="field-container">
+                <div class="field-label">Date</div>
+                <div class="field-value">{{ reclamation.date }}</div>
+              </div>
+            </div>
+          </div>
+          
+          <div class="row mt-4">
+            <div class="col-12">
+              <div class="d-flex justify-content-between">
+                <a href="{{ path('app_reclamation_index') }}" class="btn btn-outline-secondary">
+                  <i class="material-symbols-rounded me-1">arrow_back</i>
+                  Retour à la liste
+                </a>
+                <div>
+                  <a href="{{ path('app_reclamation_edit', {'id': reclamation.id}) }}" class="btn btn-outline-info">
+                    <i class="material-symbols-rounded me-1">edit</i>
+                    Modifier
+                  </a>
+                  {{ include('reclamation/_delete_form.html.twig') }}
+                </div>
+              </div>
+            </div>
+          </div>
+        </div>
+      </div>
+    </div>
+  </div>
+{% endblock %}
