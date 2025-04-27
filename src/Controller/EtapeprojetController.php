@@ -10,6 +10,7 @@ use Symfony\Component\HttpFoundation\Request;
 use Symfony\Component\HttpFoundation\Response;
 use Symfony\Component\Routing\Attribute\Route;
 use Knp\Component\Pager\PaginatorInterface;
+use App\Helper\CalendarHelper; 
 
 
 #[Route('/etapeprojet')]
@@ -28,7 +29,7 @@ final class EtapeprojetController extends AbstractController
         $etapeprojets = $paginator->paginate(
             $query,
             $request->query->getInt('page', 1),
-            10 
+            9
         );
     
         return $this->render('etapeprojet/index.html.twig', [
@@ -56,15 +57,65 @@ final class EtapeprojetController extends AbstractController
         ]);
     }
 
-    #[Route('/calendar', name: 'app_etapeprojet_calendar', methods: ['GET'])]
-    public function calendar(EntityManagerInterface $entityManager): Response
+    #[Route('/calendar/{year}/{month}', name: 'app_etapeprojet_calendar', methods: ['GET'])]
+    public function calendar(EntityManagerInterface $entityManager, int $year = null, int $month = null): Response
     {
+        // Set current month/year if not provided
+        $currentYear = $year ?? (int)date('Y');
+        $currentMonth = $month ?? (int)date('m');
+        
+        // Validate month range
+        $currentMonth = max(1, min(12, $currentMonth));
+        
+        // Calculate previous and next month for navigation
+        $prevMonth = $currentMonth - 1;
+        $prevYear = $currentYear;
+        if ($prevMonth < 1) {
+            $prevMonth = 12;
+            $prevYear--;
+        }
+        
+        $nextMonth = $currentMonth + 1;
+        $nextYear = $currentYear;
+        if ($nextMonth > 12) {
+            $nextMonth = 1;
+            $nextYear++;
+        }
+        
+        // Get all etapes
         $etapes = $entityManager
             ->getRepository(Etapeprojet::class)
             ->findAll();
-
-        return $this->render('etapeprojet/calendar.html.twig', [
-            'etapes' => $etapes,
+        
+        // Prepare events for the calendar
+        $events = [];
+        foreach ($etapes as $etape) {
+            if ($etape->getDatedebut()) {
+                $events[] = [
+                    'id' => $etape->getIdEtapeprojet(),
+                    'title' => $etape->getNometape(),
+                    'date' => $etape->getDatedebut(),
+                    'endDate' => $etape->getDatefin(),
+                    'status' => $etape->getStatut(),
+                    'url' => $this->generateUrl('app_etapeprojet_show', ['idEtapeprojet' => $etape->getIdEtapeprojet()])
+                ];
+            }
+        }
+        
+        // Generate calendar structure
+        $calendarHelper = new CalendarHelper();
+        $calendar = $calendarHelper->generateCalendar($currentYear, $currentMonth, $events);
+        
+        return $this->render('etapeprojet/calendar_php.html.twig', [
+            'calendar' => $calendar,
+            'month' => $currentMonth,
+            'year' => $currentYear,
+            'monthName' => strftime('%B', mktime(0, 0, 0, $currentMonth, 1, $currentYear)),
+            'prevMonth' => $prevMonth,
+            'prevYear' => $prevYear,
+            'nextMonth' => $nextMonth,
+            'nextYear' => $nextYear,
+            'events' => $events
         ]);
     }
 

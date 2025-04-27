@@ -42,3 +42,4 @@ services:
         arguments:
             $connection: '@doctrine.dbal.default_connection'
             $passwordHasher: '@security.user_password_hasher'
+            
