@@ -14,7 +14,7 @@ class ProjetFilterType extends AbstractType
         $builder
             ->add('nomprojet', Filters\TextFilterType::class, [
                 'label' => 'Nom du Projet',
-                'attr' => ['placeholder' => 'Cherchez par le nom du projet...'],
+                'attr' => ['placeholder' => 'Selectionnez le nom du projet...'],
                 'apply_filter' => function($filterQuery, $field, $values) {
                     if (!empty($values['value'])) {
                         $expr = $filterQuery->getExpr();
