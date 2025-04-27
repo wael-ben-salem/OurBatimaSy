@@ -58,7 +58,7 @@ final class EtapeprojetController extends AbstractController
     }
 
     #[Route('/calendar/{year}/{month}', name: 'app_etapeprojet_calendar', methods: ['GET'])]
-    public function calendar(EntityManagerInterface $entityManager, int $year = null, int $month = null): Response
+    public function calendar(EntityManagerInterface $entityManager, ?int $year = null, ?int $month = null): Response
     {
         // Set current month/year if not provided
         $currentYear = $year ?? (int)date('Y');
