@@ -13,19 +13,47 @@ use Symfony\Component\HttpFoundation\Response;
 use Symfony\Component\Routing\Attribute\Route;
 use Symfony\Component\Form\FormError;
 use Symfony\Bundle\SecurityBundle\Security;
+use App\Form\Filter\ProjetFilterType;
+use Spiriit\Bundle\FormFilterBundle\Filter\FilterBuilderUpdaterInterface;
 
 #[Route('/projet')]
 final class ProjetController extends AbstractController
 {
     #[Route(name: 'app_projet_index', methods: ['GET'])]
-    public function index(EntityManagerInterface $entityManager): Response
-    {
-        $projets = $entityManager
+    public function index(
+        Request $request,
+        EntityManagerInterface $entityManager,
+        FilterBuilderUpdaterInterface $filterBuilderUpdater,
+        PaginatorInterface $paginator
+    ): Response {
+        $filterForm = $this->createForm(ProjetFilterType::class);
+        
+        $queryBuilder = $entityManager
             ->getRepository(Projet::class)
-            ->findAll();
-
+            ->createQueryBuilder('p')
+            ->leftJoin('p.idClient', 'c')
+            ->leftJoin('c.client', 'u')
+            ->addSelect('c', 'u');
+    
+        if ($request->query->has($filterForm->getName())) {
+            $filterForm->submit($request->query->all($filterForm->getName()));
+            
+            $filterBuilderUpdater->addFilterConditions($filterForm, $queryBuilder);
+        }
+    
+        $projets = $paginator->paginate(
+            $queryBuilder->getQuery(),
+            $request->query->getInt('page', 1),
+            10,
+            [
+                'defaultSortFieldName' => 'p.datecreation',
+                'defaultSortDirection' => 'DESC',
+            ]
+        );
+    
         return $this->render('projet/index.html.twig', [
             'projets' => $projets,
+            'filterForm' => $filterForm->createView()
         ]);
     }
 
