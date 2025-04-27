@@ -1,4 +1,5 @@
 <?php
+// src/Repository/EquipeRepository.php
 
 namespace App\Repository;
 
@@ -6,9 +7,6 @@ use App\Entity\Equipe;
 use Doctrine\Bundle\DoctrineBundle\Repository\ServiceEntityRepository;
 use Doctrine\Persistence\ManagerRegistry;
 
-/**
- * @extends ServiceEntityRepository<Equipe>
- */
 class EquipeRepository extends ServiceEntityRepository
 {
     public function __construct(ManagerRegistry $registry)
@@ -16,28 +14,47 @@ class EquipeRepository extends ServiceEntityRepository
         parent::__construct($registry, Equipe::class);
     }
 
-    //    /**
-    //     * @return Equipe[] Returns an array of Equipe objects
-    //     */
-    //    public function findByExampleField($value): array
-    //    {
-    //        return $this->createQueryBuilder('e')
-    //            ->andWhere('e.exampleField = :val')
-    //            ->setParameter('val', $value)
-    //            ->orderBy('e.id', 'ASC')
-    //            ->setMaxResults(10)
-    //            ->getQuery()
-    //            ->getResult()
-    //        ;
-    //    }
+    public function findAllWithDetails()
+{
+    return $this->createQueryBuilder('e')
+        ->addSelect('c', 'cc', 'g', 'gg', 'a', 'aa')
+        ->leftJoin('e.constructeur', 'c')
+        ->leftJoin('c.constructeur', 'cc') // Relation Constructeur -> User
+        ->leftJoin('e.gestionnairestock', 'g')
+        ->leftJoin('g.gestionnairestock', 'gg') // Relation GestionnaireStock -> User
+        ->leftJoin('e.artisan', 'a')
+        ->leftJoin('a.artisan', 'aa') // Relation Artisan -> User
+        ->getQuery()
+        ->getResult();
+}
 
-    //    public function findOneBySomeField($value): ?Equipe
-    //    {
-    //        return $this->createQueryBuilder('e')
-    //            ->andWhere('e.exampleField = :val')
-    //            ->setParameter('val', $value)
-    //            ->getQuery()
-    //            ->getOneOrNullResult()
-    //        ;
-    //    }
+public function findOneWithDetails(int $id): ?Equipe
+{
+    return $this->createQueryBuilder('e')
+        ->addSelect('c', 'cc', 'g', 'gg', 'a', 'aa', 'p')
+        ->leftJoin('e.constructeur', 'c')
+        ->leftJoin('c.constructeur', 'cc')
+        ->leftJoin('e.gestionnairestock', 'g')
+        ->leftJoin('g.gestionnairestock', 'gg')
+        ->leftJoin('e.artisan', 'a')
+        ->leftJoin('a.artisan', 'aa')
+        ->leftJoin('e.projets', 'p') // Relation OneToMany avec Projet
+        ->where('e.id = :id')
+        ->setParameter('id', $id)
+        ->getQuery()
+        ->getOneOrNullResult();
+}
+public function findWithDetails(int $id): ?Equipe
+{
+    return $this->createQueryBuilder('e')
+        ->leftJoin('e.projets', 'p')
+        ->leftJoin('e.constructeur', 'c')
+        ->leftJoin('e.gestionnairestock', 'g')
+        ->leftJoin('e.artisan', 'a')
+        ->addSelect('p', 'c', 'g', 'a')
+        ->where('e.id = :id')
+        ->setParameter('id', $id)
+        ->getQuery()
+        ->getOneOrNullResult();
+}
 }

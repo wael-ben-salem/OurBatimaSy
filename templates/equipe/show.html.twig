@@ -1,48 +1,992 @@
 {% extends 'base_backOffice.html.twig' %}
 
-{% block title %}Détails Equipe{% endblock %}
+{% block title %}Détails de l'Équipe - {{ equipe.nom }}{% endblock %}
+
+{% block stylesheets %}
+    {{ parent() }}
+    <link href="https://cdn.jsdelivr.net/npm/bootstrap-icons@1.8.0/font/bootstrap-icons.css" rel="stylesheet">
+    <link href="https://cdn.jsdelivr.net/npm/chart.js@3.7.1/dist/chart.min.css" rel="stylesheet">
+    <style>
+        :root {
+            --primary-color: #4361ee;
+            --secondary-color: #3f37c9;
+            --accent-color: #4895ef;
+            --success-color: #4cc9f0;
+            --warning-color: #f72585;
+            --light-bg: #f8f9fa;
+            --dark-text: #2b2d42;
+        }
+        
+        .team-dashboard {
+            max-width: 1400px;
+            margin: 2rem auto;
+            padding: 2rem;
+            background: white;
+            border-radius: 16px;
+            box-shadow: 0 10px 30px rgba(0,0,0,0.08);
+        }
+        
+        .team-header {
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
+            margin-bottom: 2rem;
+            padding-bottom: 1.5rem;
+            border-bottom: 1px solid rgba(0,0,0,0.1);
+        }
+        
+        .team-title {
+            font-size: 2.2rem;
+            font-weight: 700;
+            color: var(--dark-text);
+            margin: 0;
+            display: flex;
+            align-items: center;
+            gap: 1rem;
+        }
+        
+        .team-title i {
+            color: var(--primary-color);
+            font-size: 1.8rem;
+        }
+        
+        .team-id {
+            background: var(--primary-color);
+            color: white;
+            padding: 0.5rem 1rem;
+            border-radius: 50px;
+            font-size: 1rem;
+            font-weight: 600;
+        }
+        
+        .team-meta {
+            display: flex;
+            gap: 1.5rem;
+            margin-top: 1rem;
+        }
+        
+        .meta-item {
+            display: flex;
+            align-items: center;
+            gap: 0.5rem;
+            color: #6c757d;
+            font-size: 0.95rem;
+        }
+        
+        .meta-item i {
+            color: var(--accent-color);
+        }
+        
+        /* Stats Cards */
+        .stats-grid {
+            display: grid;
+            grid-template-columns: repeat(auto-fit, minmax(220px, 1fr));
+            gap: 1.5rem;
+            margin-bottom: 3rem;
+        }
+        
+        .stat-card {
+            background: white;
+            border-radius: 12px;
+            padding: 1.5rem;
+            box-shadow: 0 4px 12px rgba(0,0,0,0.05);
+            border-left: 4px solid var(--primary-color);
+            transition: all 0.3s ease;
+        }
+        
+        .stat-card:hover {
+            transform: translateY(-5px);
+            box-shadow: 0 8px 20px rgba(0,0,0,0.1);
+        }
+        
+        .stat-icon {
+            width: 48px;
+            height: 48px;
+            border-radius: 12px;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            margin-bottom: 1rem;
+            font-size: 1.5rem;
+            color: white;
+        }
+        
+        .icon-projects { background: linear-gradient(135deg, #7209b7, #b5179e); }
+        .icon-tasks { background: linear-gradient(135deg, #f72585, #b5179e); }
+        .icon-materials { background: linear-gradient(135deg, #4361ee, #3f37c9); }
+        .icon-members { background: linear-gradient(135deg, #4cc9f0, #4895ef); }
+        
+        .stat-value {
+            font-size: 2rem;
+            font-weight: 700;
+            color: var(--dark-text);
+            margin-bottom: 0.25rem;
+        }
+        
+        .stat-label {
+            font-size: 0.9rem;
+            color: #6c757d;
+            font-weight: 500;
+        }
+        
+        /* Tabs Navigation */
+        .nav-tabs-custom {
+            border-bottom: 1px solid rgba(0,0,0,0.1);
+            margin-bottom: 2rem;
+        }
+        
+        .nav-tabs-custom .nav-link {
+            border: none;
+            color: #6c757d;
+            font-weight: 600;
+            padding: 0.75rem 1.5rem;
+            position: relative;
+        }
+        
+        .nav-tabs-custom .nav-link.active {
+            color: var(--primary-color);
+            background: transparent;
+        }
+        
+        .nav-tabs-custom .nav-link.active:after {
+            content: '';
+            position: absolute;
+            bottom: -1px;
+            left: 0;
+            width: 100%;
+            height: 3px;
+            background: var(--primary-color);
+            border-radius: 3px 3px 0 0;
+        }
+        
+        /* Tab Content */
+        .tab-content {
+            padding: 0;
+        }
+        
+        /* Team Members Section */
+        .members-section {
+            display: grid;
+            grid-template-columns: repeat(auto-fill, minmax(300px, 1fr));
+            gap: 1.5rem;
+        }
+        
+        .member-card {
+            background: white;
+            border-radius: 12px;
+            padding: 1.5rem;
+            box-shadow: 0 4px 12px rgba(0,0,0,0.05);
+            display: flex;
+            align-items: center;
+            transition: all 0.3s ease;
+        }
+        
+        .member-card:hover {
+            transform: translateY(-3px);
+            box-shadow: 0 8px 20px rgba(0,0,0,0.1);
+        }
+        
+        .member-avatar {
+            width: 60px;
+            height: 60px;
+            border-radius: 50%;
+            margin-right: 1.5rem;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            font-size: 1.5rem;
+            color: white;
+            flex-shrink: 0;
+        }
+        
+        .avatar-constructor { background: linear-gradient(135deg, #4361ee, #3f37c9); }
+        .avatar-manager { background: linear-gradient(135deg, #f72585, #b5179e); }
+        .avatar-artisan { background: linear-gradient(135deg, #4cc9f0, #4895ef); }
+        
+        .member-info {
+            flex: 1;
+        }
+        
+        .member-name {
+            font-weight: 600;
+            margin-bottom: 0.25rem;
+            color: var(--dark-text);
+        }
+        
+        .member-role {
+            font-size: 0.8rem;
+            font-weight: 600;
+            text-transform: uppercase;
+            margin-bottom: 0.5rem;
+            letter-spacing: 0.5px;
+        }
+        
+        .role-constructor { color: #4361ee; }
+        .role-manager { color: #f72585; }
+        .role-artisan { color: #4cc9f0; }
+        
+        .member-details {
+            font-size: 0.85rem;
+            color: #6c757d;
+            display: flex;
+            flex-wrap: wrap;
+            gap: 0.5rem;
+        }
+        
+        .detail-badge {
+            background: #f8f9fa;
+            padding: 0.25rem 0.5rem;
+            border-radius: 4px;
+            font-size: 0.75rem;
+        }
+        
+        /* Projects Section */
+        .projects-container {
+            display: grid;
+            grid-template-columns: 1fr 1fr;
+            gap: 1.5rem;
+        }
+        
+        @media (max-width: 992px) {
+            .projects-container {
+                grid-template-columns: 1fr;
+            }
+        }
+        
+        .project-card {
+            background: white;
+            border-radius: 12px;
+            padding: 1.5rem;
+            box-shadow: 0 4px 12px rgba(0,0,0,0.05);
+            transition: all 0.3s ease;
+        }
+        
+        .project-card:hover {
+            transform: translateY(-3px);
+            box-shadow: 0 8px 20px rgba(0,0,0,0.1);
+        }
+        
+        .project-header {
+            display: flex;
+            justify-content: space-between;
+            align-items: flex-start;
+            margin-bottom: 1rem;
+        }
+        
+        .project-title {
+            font-weight: 600;
+            color: var(--dark-text);
+            margin: 0;
+            font-size: 1.1rem;
+        }
+        
+        .project-status {
+            font-size: 0.75rem;
+            font-weight: 600;
+            padding: 0.25rem 0.75rem;
+            border-radius: 50px;
+        }
+        
+        .status-active { background: #e3f2fd; color: #1976d2; }
+        .status-completed { background: #e8f5e9; color: #388e3c; }
+        .status-pending { background: #fff8e1; color: #ff8f00; }
+        
+        .project-meta {
+            display: flex;
+            gap: 1rem;
+            margin-bottom: 1rem;
+            flex-wrap: wrap;
+        }
+        
+        .meta-badge {
+            display: flex;
+            align-items: center;
+            gap: 0.5rem;
+            font-size: 0.8rem;
+            color: #6c757d;
+        }
+        
+        .meta-badge i {
+            color: var(--accent-color);
+        }
+        
+        .progress-container {
+            margin-top: 1rem;
+        }
+        
+        .progress-label {
+            display: flex;
+            justify-content: space-between;
+            margin-bottom: 0.5rem;
+            font-size: 0.8rem;
+            color: #6c757d;
+        }
+        
+        .progress-bar {
+            height: 8px;
+            border-radius: 4px;
+            background: #f0f0f0;
+            overflow: hidden;
+        }
+        
+        .progress-fill {
+            height: 100%;
+            background: linear-gradient(90deg, #4361ee, #4895ef);
+            border-radius: 4px;
+        }
+        
+        /* Tasks Section */
+        .tasks-container {
+            display: grid;
+            grid-template-columns: 1fr;
+            gap: 1rem;
+        }
+        
+        .task-card {
+            background: white;
+            border-radius: 12px;
+            padding: 1.25rem;
+            box-shadow: 0 4px 12px rgba(0,0,0,0.05);
+            transition: all 0.3s ease;
+            border-left: 4px solid var(--accent-color);
+        }
+        
+        .task-card:hover {
+            transform: translateY(-3px);
+            box-shadow: 0 8px 20px rgba(0,0,0,0.1);
+        }
+        
+        .task-header {
+            display: flex;
+            justify-content: space-between;
+            margin-bottom: 0.5rem;
+        }
+        
+        .task-title {
+            font-weight: 500;
+            color: var(--dark-text);
+            margin: 0;
+        }
+        
+        .task-priority {
+            font-size: 0.75rem;
+            font-weight: 600;
+            padding: 0.25rem 0.75rem;
+            border-radius: 50px;
+        }
+        
+        .priority-high { background: #ffebee; color: #d32f2f; }
+        .priority-medium { background: #fff8e1; color: #ff8f00; }
+        .priority-low { background: #e8f5e9; color: #388e3c; }
+        
+        .task-footer {
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
+            margin-top: 0.5rem;
+            font-size: 0.8rem;
+            color: #6c757d;
+        }
+        
+        .task-status {
+            display: inline-block;
+            padding: 0.25rem 0.75rem;
+            border-radius: 50px;
+            font-size: 0.75rem;
+            font-weight: 600;
+        }
+        
+        .status-active { background: #e3f2fd; color: #1976d2; }
+        .status-completed { background: #e8f5e9; color: #388e3c; }
+        .status-pending { background: #fff8e1; color: #ff8f00; }
+        
+        .task-assignee {
+            display: flex;
+            align-items: center;
+            gap: 0.5rem;
+        }
+        
+        .assignee-avatar {
+            width: 24px;
+            height: 24px;
+            border-radius: 50%;
+            background: var(--accent-color);
+            color: white;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            font-size: 0.7rem;
+        }
+        
+        /* Materials Section */
+        .materials-container {
+            display: grid;
+            grid-template-columns: repeat(auto-fill, minmax(280px, 1fr));
+            gap: 1.5rem;
+        }
+        
+        .material-card {
+            background: white;
+            border-radius: 12px;
+            padding: 1.5rem;
+            box-shadow: 0 4px 12px rgba(0,0,0,0.05);
+            transition: all 0.3s ease;
+        }
+        
+        .material-card:hover {
+            transform: translateY(-3px);
+            box-shadow: 0 8px 20px rgba(0,0,0,0.1);
+        }
+        
+        .material-icon {
+            width: 48px;
+            height: 48px;
+            border-radius: 12px;
+            background: linear-gradient(135deg, #7209b7, #b5179e);
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            color: white;
+            font-size: 1.5rem;
+            margin-bottom: 1rem;
+        }
+        
+        .material-name {
+            font-weight: 600;
+            color: var(--dark-text);
+            margin-bottom: 0.5rem;
+        }
+        
+        .material-details {
+            font-size: 0.85rem;
+            color: #6c757d;
+            margin-bottom: 0.5rem;
+        }
+        
+        .material-stock {
+            display: flex;
+            align-items: center;
+            gap: 0.5rem;
+            font-size: 0.8rem;
+            color: #6c757d;
+        }
+        
+        .stock-indicator {
+            width: 10px;
+            height: 10px;
+            border-radius: 50%;
+        }
+        
+        .stock-high { background: #4caf50; }
+        .stock-medium { background: #ff9800; }
+        .stock-low { background: #f44336; }
+        
+        /* Charts Section */
+        .charts-container {
+            display: grid;
+            grid-template-columns: 1fr 1fr;
+            gap: 1.5rem;
+            margin-bottom: 2rem;
+        }
+        
+        @media (max-width: 992px) {
+            .charts-container {
+                grid-template-columns: 1fr;
+            }
+        }
+        
+        .chart-card {
+            background: white;
+            border-radius: 12px;
+            padding: 1.5rem;
+            box-shadow: 0 4px 12px rgba(0,0,0,0.05);
+        }
+        
+        .chart-title {
+            font-weight: 600;
+            color: var(--dark-text);
+            margin-top: 0;
+            margin-bottom: 1rem;
+            font-size: 1.1rem;
+        }
+        
+        /* Empty State */
+        .empty-state {
+            text-align: center;
+            padding: 3rem 2rem;
+            color: #6c757d;
+            background: #f8f9fa;
+            border-radius: 12px;
+        }
+        
+        .empty-state i {
+            font-size: 3rem;
+            margin-bottom: 1rem;
+            color: #dee2e6;
+        }
+        
+        .empty-state p {
+            margin: 0;
+            font-size: 1rem;
+        }
+        
+        /* Action Buttons */
+        .action-buttons {
+            display: flex;
+            justify-content: space-between;
+            margin-top: 3rem;
+            padding-top: 2rem;
+            border-top: 1px solid rgba(0,0,0,0.1);
+        }
+        
+        .btn-custom {
+            padding: 0.75rem 1.5rem;
+            font-weight: 600;
+            border-radius: 8px;
+            transition: all 0.3s ease;
+            display: inline-flex;
+            align-items: center;
+            gap: 0.5rem;
+        }
+        
+        .btn-primary-custom {
+            background: var(--primary-color);
+            border-color: var(--primary-color);
+        }
+        
+        .btn-primary-custom:hover {
+            background: var(--secondary-color);
+            border-color: var(--secondary-color);
+            transform: translateY(-2px);
+        }
+        
+        .btn-outline-custom {
+            border-color: var(--primary-color);
+            color: var(--primary-color);
+        }
+        
+        .btn-outline-custom:hover {
+            background: var(--primary-color);
+            color: white;
+            transform: translateY(-2px);
+        }
+    </style>
+{% endblock %}
 
 {% block body %}
-<div class="container-fluid py-4">
-    <div class="row">
-        <div class="col-12">
-            <div class="card my-4">
-                <div class="card-header p-0 position-relative mt-n4 mx-3 z-index-2">
-                    <div class="bg-gradient-dark shadow-dark border-radius-lg pt-4 pb-3">
-                        <h6 class="text-white text-capitalize ps-3">Détails Equipe</h6>
-                    </div>
-                </div>
-                <div class="card-body px-4 pb-2">
-                    <table class="table">
-                        <tbody>
-                            <tr>
-                                <th>Nom</th>
-                                <td>{{ equipe.nom }}</td>
-                            </tr>
-                            <tr>
-                                <th>Constructeur</th>
-                                <td>{{ equipe.constructeur.nom }}</td>
-                            </tr>
-                            <tr>
-                                <th>Gestionnaire</th>
-                                <td>{{ equipe.gestionnairestock.nom }}</td>
-                            </tr>
-                            <tr>
-                                <th>Artisans</th>
-                                <td>
-                                    <ul>
-                                        {% for artisan in equipe.artisan %}
-                                            <li>{{ artisan.nom }}</li>
-                                        {% endfor %}
-                                    </ul>
-                                </td>
-                            </tr>
-                        </tbody>
-                    </table>
-                    <a href="{{ path('equipe_index') }}" class="btn btn-dark">Retour</a>
-                </div>
+<div class="team-dashboard">
+    <div class="team-header">
+        <div>
+            <h1 class="team-title">
+                <i class="bi bi-people-fill"></i>
+                {{ equipe.nom }}
+            </h1>
+            <div class="team-meta">
+                <span class="meta-item">
+                    <i class="bi bi-calendar"></i> Créée le {{ equipe.dateCreation|date('d/m/Y') }}
+                </span>
+                <span class="meta-item">
+                    <i class="bi bi-people"></i> {{ equipe.artisan|length }} artisan(s)
+                </span>
+                <span class="meta-item">
+                    <i class="bi bi-clipboard-check"></i> {{ equipe.projets|length }} projet(s)
+                </span>
             </div>
+        </div>
+        <div class="team-id">
+            ID: {{ equipe.id }}
+        </div>
+    </div>
+    
+    <!-- Stats Overview -->
+    <div class="stats-grid">
+        <div class="stat-card">
+            <div class="stat-icon icon-projects">
+                <i class="bi bi-clipboard-check"></i>
+            </div>
+            <div class="stat-value">{{ equipe.projets|length }}</div>
+            <div class="stat-label">Projets Actifs</div>
+        </div>
+        <div class="stat-card">
+            <div class="stat-icon icon-tasks">
+                <i class="bi bi-list-task"></i>
+            </div>
+            <div class="stat-value">{{ taches|length }}</div>
+            <div class="stat-label">Tâches en Cours</div>
+        </div>
+        <div class="stat-card">
+            <div class="stat-icon icon-materials">
+                <i class="bi bi-box-seam"></i>
+            </div>
+            <div class="stat-value">{{ materiels|length }}</div>
+            <div class="stat-label">Matériels Utilisés</div>
+        </div>
+        <div class="stat-card">
+            <div class="stat-icon icon-members">
+                <i class="bi bi-people-fill"></i>
+            </div>
+            <div class="stat-value">{{ equipe.artisan|length + (equipe.constructeur ? 1 : 0) + (equipe.gestionnairestock ? 1 : 0) }}</div>
+            <div class="stat-label">Membres d'Équipe</div>
+        </div>
+    </div>
+    
+    <!-- Charts Section -->
+    <div class="charts-container">
+        <div class="chart-card">
+            <h3 class="chart-title">Progression des Projets</h3>
+            <canvas id="projectsChart" height="250"></canvas>
+        </div>
+        <div class="chart-card">
+            <h3 class="chart-title">Répartition des Tâches</h3>
+            <canvas id="tasksChart" height="250"></canvas>
+        </div>
+    </div>
+    
+    <!-- Tabs Navigation -->
+    <ul class="nav nav-tabs nav-tabs-custom" id="teamTabs" role="tablist">
+        <li class="nav-item" role="presentation">
+            <button class="nav-link active" id="members-tab" data-bs-toggle="tab" data-bs-target="#members" type="button" role="tab">
+                <i class="bi bi-people me-1"></i> Membres
+            </button>
+        </li>
+        <li class="nav-item" role="presentation">
+            <button class="nav-link" id="projects-tab" data-bs-toggle="tab" data-bs-target="#projects" type="button" role="tab">
+                <i class="bi bi-clipboard-check me-1"></i> Projets
+            </button>
+        </li>
+        <li class="nav-item" role="presentation">
+            <button class="nav-link" id="tasks-tab" data-bs-toggle="tab" data-bs-target="#tasks" type="button" role="tab">
+                <i class="bi bi-list-task me-1"></i> Tâches
+            </button>
+        </li>
+        <li class="nav-item" role="presentation">
+            <button class="nav-link" id="materials-tab" data-bs-toggle="tab" data-bs-target="#materials" type="button" role="tab">
+                <i class="bi bi-box-seam me-1"></i> Matériels
+            </button>
+        </li>
+    </ul>
+    
+    <!-- Tabs Content -->
+    <div class="tab-content" id="teamTabsContent">
+        <!-- Members Tab -->
+        <div class="tab-pane fade show active" id="members" role="tabpanel">
+            <div class="members-section">
+                {% if equipe.constructeur %}
+                    <div class="member-card">
+                        <div class="member-avatar avatar-constructor">
+                            <i class="bi bi-person-gear"></i>
+                        </div>
+                        <div class="member-info">
+                            <h4 class="member-name">{{ equipe.constructeur.constructeur.nom }} {{ equipe.constructeur.constructeur.prenom }}</h4>
+                            <div class="member-role role-constructor">Constructeur</div>
+                            <div class="member-details">
+                                <span class="detail-badge"><i class="bi bi-envelope"></i> {{ equipe.constructeur.constructeur.email }}</span>
+                                <span class="detail-badge"><i class="bi bi-telephone"></i> {{ equipe.constructeur.constructeur.telephone }}</span>
+                            </div>
+                        </div>
+                    </div>
+                {% endif %}
+                
+                {% if equipe.gestionnairestock %}
+                    <div class="member-card">
+                        <div class="member-avatar avatar-manager">
+                            <i class="bi bi-clipboard2-data"></i>
+                        </div>
+                        <div class="member-info">
+                            <h4 class="member-name">{{ equipe.gestionnairestock.gestionnairestock.nom }} {{ equipe.gestionnairestock.gestionnairestock.prenom }}</h4>
+                            <div class="member-role role-manager">Gestionnaire de Stock</div>
+                            <div class="member-details">
+                                <span class="detail-badge"><i class="bi bi-envelope"></i> {{ equipe.gestionnairestock.gestionnairestock.email }}</span>
+                                <span class="detail-badge"><i class="bi bi-telephone"></i> {{ equipe.gestionnairestock.gestionnairestock.telephone }}</span>
+                            </div>
+                        </div>
+                    </div>
+                {% endif %}
+                
+                {% for artisan in equipe.artisan %}
+                    <div class="member-card">
+                        <div class="member-avatar avatar-artisan">
+                            <i class="bi bi-tools"></i>
+                        </div>
+                        <div class="member-info">
+                            <h4 class="member-name">{{ artisan.artisan.nom }} {{ artisan.artisan.prenom }}</h4>
+                            <div class="member-role role-artisan">Artisan</div>
+                            <div class="member-details">
+                                <span class="detail-badge"><i class="bi bi-briefcase"></i> {{ artisan.specialite }}</span>
+                                <span class="detail-badge"><i class="bi bi-envelope"></i> {{ artisan.artisan.email }}</span>
+                                {% if artisan.artisan.telephone %}
+                                    <span class="detail-badge"><i class="bi bi-telephone"></i> {{ artisan.artisan.telephone }}</span>
+                                {% endif %}
+                            </div>
+                        </div>
+                    </div>
+                {% endfor %}
+                
+                {% if equipe.artisan is empty and not equipe.constructeur and not equipe.gestionnairestock %}
+                    <div class="empty-state">
+                        <i class="bi bi-people"></i>
+                        <p>Aucun membre dans cette équipe</p>
+                    </div>
+                {% endif %}
+            </div>
+        </div>
+        
+        <!-- Projects Tab -->
+        <div class="tab-pane fade" id="projects" role="tabpanel">
+            {% if equipe.projets|length > 0 %}
+                <div class="projects-container">
+                    {% for projet in equipe.projets %}
+                        <div class="project-card">
+                            <div class="project-header">
+                                <h3 class="project-title">{{ projet.nomprojet }}</h3>
+                                <span class="project-status status-{{ projet.etat == 'Terminé' ? 'completed' : 'active' }}">
+                                    {{ projet.etat }}
+                                </span>
+                            </div>
+                            <div class="project-meta">
+                                <span class="meta-badge">
+                                    <i class="bi bi-calendar"></i> {{ projet.datecreation|date('d/m/Y') }}
+                                </span>
+                                <span class="meta-badge">
+                                    <i class="bi bi-cash-stack"></i> {{ projet.budget }} €
+                                </span>
+                                <span class="meta-badge">
+                                    <i class="bi bi-tag"></i> {{ projet.type }}
+                                </span>
+                            </div>
+                            <div class="progress-container">
+                                <div class="progress-label">
+                                    <span>Progression</span>
+                                    <span>{{ random(60, 95) }}%</span>
+                                </div>
+                                <div class="progress-bar">
+                                    <div class="progress-fill" style="width: {{ random(60, 95) }}%"></div>
+                                </div>
+                            </div>
+                        </div>
+                    {% endfor %}
+                </div>
+            {% else %}
+                <div class="empty-state">
+                    <i class="bi bi-clipboard"></i>
+                    <p>Aucun projet assigné à cette équipe</p>
+                </div>
+            {% endif %}
+        </div>
+        
+        <!-- Tasks Tab -->
+        <div class="tab-pane fade" id="tasks" role="tabpanel">
+            {% if taches|length > 0 %}
+                <div class="tasks-container">
+                    {% for tache in taches %}
+                        <div class="task-card">
+                            <div class="task-header">
+                                <h3 class="task-title">{{ tache.description|u.truncate(60, '...') }}</h3>
+                               
+                            </div>
+                            <div class="task-details">
+                                <p><i class="bi bi-calendar me-1"></i> {{ tache.dateDebut|date('d/m/Y') }} - {% if tache.dateFin %}{{ tache.dateFin|date('d/m/Y') }}{% else %}En cours{% endif %}</p>
+                            </div>
+                            <div class="task-footer">
+                                <span class="task-status status-{{ tache.etat == 'Terminé' ? 'completed' : (tache.etat == 'En cours' ? 'active' : 'pending') }}">
+                                    {{ tache.etat }}
+                                </span>
+                                <div class="task-assignee">
+                                    <span>Assigné à :</span>
+                                    <div class="assignee-avatar">
+                                        {{ tache.artisan.artisan.nom|first }}{{ tache.artisan.artisan.prenom|first }}
+                                    </div>
+                                    <span>{{ tache.artisan.artisan.prenom }} {{ tache.artisan.artisan.nom }}</span>
+                                </div>
+                            </div>
+                        </div>
+                    {% endfor %}
+                </div>
+            {% else %}
+                <div class="empty-state">
+                    <i class="bi bi-list-check"></i>
+                    <p>Aucune tâche assignée à cette équipe</p>
+                </div>
+            {% endif %}
+        </div>
+        
+        <!-- Materials Tab -->
+        <div class="tab-pane fade" id="materials" role="tabpanel">
+            {% if materiels|length > 0 %}
+                <div class="materials-container">
+                    {% for materiel in materiels %}
+                        <div class="material-card">
+                            <div class="material-icon">
+                                <i class="bi bi-box-seam"></i>
+                            </div>
+                            <h3 class="material-name">{{ materiel.nom }}</h3>
+                            <p class="material-details">{{ materiel.description|u.truncate(100, '...') }}</p>
+                            
+                            {% if materiel.prixUnitaire %}
+                                <div class="material-stock mt-2">
+                                    <i class="bi bi-cash-coin"></i>
+                                    <span>Prix unitaire: {{ materiel.prixUnitaire }} €</span>
+                                </div>
+                            {% endif %}
+                        </div>
+                    {% endfor %}
+                </div>
+            {% else %}
+                <div class="empty-state">
+                    <i class="bi bi-box"></i>
+                    <p>Aucun matériel utilisé par cette équipe</p>
+                </div>
+            {% endif %}
+        </div>
+    </div>
+    
+    <!-- Action Buttons -->
+    <div class="action-buttons">
+        <a href="{{ path('app_equipe_index') }}" class="btn btn-outline-secondary btn-outline-custom">
+            <i class="bi bi-arrow-left"></i> Retour à la liste
+        </a>
+        <div>
+            <a href="{{ path('app_equipe_edit', {'id': equipe.id}) }}" class="btn btn-primary btn-primary-custom">
+                <i class="bi bi-pencil"></i> Modifier l'équipe
+            </a>
         </div>
     </div>
 </div>
+{% endblock %}
+
+{% block javascripts %}
+    {{ parent() }}
+    <script src="https://cdn.jsdelivr.net/npm/chart.js@3.7.1/dist/chart.min.js"></script>
+    <script>
+        // Projects Chart - Specific to this team
+        const projectsCtx = document.getElementById('projectsChart').getContext('2d');
+        
+        // Prepare projects data
+        const projectNames = [
+            {% for projet in equipe.projets %}
+                '{{ projet.nomprojet|slice(0, 15) }}{% if projet.nomprojet|length > 15 %}...{% endif %}',
+            {% endfor %}
+        ];
+        
+        const projectProgress = [
+            {% for projet in equipe.projets %}
+                {{ random(30, 100) }},
+            {% endfor %}
+        ];
+        
+        const projectStatusColors = [
+            {% for projet in equipe.projets %}
+                '{{ projet.etat == "Terminé" ? "#4cc9f0" : (projet.etat == "En cours" ? "#4361ee" : "#f72585") }}',
+            {% endfor %}
+        ];
+        
+        const projectsChart = new Chart(projectsCtx, {
+            type: 'bar',
+            data: {
+                labels: projectNames,
+                datasets: [{
+                    label: 'Progression %',
+                    data: projectProgress,
+                    backgroundColor: projectStatusColors,
+                    borderRadius: 6,
+                    borderWidth: 0
+                }]
+            },
+            options: {
+                responsive: true,
+                plugins: {
+                    legend: {
+                        display: false
+                    },
+                    tooltip: {
+                        callbacks: {
+                            label: function(context) {
+                                return 'Progression: ' + context.raw + '%';
+                            }
+                        }
+                    }
+                },
+                scales: {
+                    y: {
+                        beginAtZero: true,
+                        max: 100,
+                        ticks: {
+                            callback: function(value) {
+                                return value + '%';
+                            }
+                        }
+                    },
+                    x: {
+                        grid: {
+                            display: false
+                        }
+                    }
+                }
+            }
+        });
+        
+        // Tasks Chart - Specific to this team
+        const tasksCtx = document.getElementById('tasksChart').getContext('2d');
+        
+       // Prepare tasks data by project
+        const tasksByProject = {};
+        {% for tache in taches %}
+            {% if tache.idProjet %}
+                const projectName = '{{ tache.idProjet.nomprojet|slice(0, 15) }}{% if tache.idProjet.nomprojet|length > 15 %}...{% endif %}';
+                if (!tasksByProject[projectName]) {
+                    tasksByProject[projectName] = { total: 0, completed: 0 };
+                }
+                tasksByProject[projectName].total++;
+                {% if tache.etat == 'Terminé' %}
+                    tasksByProject[projectName].completed++;
+                {% endif %}
+            {% endif %}
+        {% endfor %}
+        
+        const projectLabels = Object.keys(tasksByProject);
+        const totalTasksData = projectLabels.map(proj => tasksByProject[proj].total);
+        const completedTasksData = projectLabels.map(proj => tasksByProject[proj].completed);
+        
+        const tasksChart = new Chart(tasksCtx, {
+            type: 'bar',
+            data: {
+                labels: projectLabels,
+                datasets: [
+                    {
+                        label: 'Tâches totales',
+                        data: totalTasksData,
+                        backgroundColor: '#4361ee',
+                        borderRadius: 6
+                    },
+                    {
+                        label: 'Tâches terminées',
+                        data: completedTasksData,
+                        backgroundColor: '#4cc9f0',
+                        borderRadius: 6
+                    }
+                ]
+            },
+            options: {
+                responsive: true,
+                plugins: {
+                    legend: {
+                        position: 'bottom',
+                    }
+                },
+                scales: {
+                    x: {
+                        grid: {
+                            display: false
+                        }
+                    },
+                    y: {
+                        beginAtZero: true,
+                        ticks: {
+                            precision: 0
+                        }
+                    }
+                }
+            }
+        });
+    </script>
 {% endblock %}

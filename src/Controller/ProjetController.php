@@ -1,7 +1,7 @@
 <?php
 
 namespace App\Controller;
-
+use Knp\Component\Pager\PaginatorInterface;
 use App\Entity\Projet;
 use App\Form\ProjetType;
 use App\Entity\Client;
@@ -12,6 +12,7 @@ use Symfony\Component\HttpFoundation\Request;
 use Symfony\Component\HttpFoundation\Response;
 use Symfony\Component\Routing\Attribute\Route;
 use Symfony\Component\Form\FormError;
+use Symfony\Bundle\SecurityBundle\Security;
 
 #[Route('/projet')]
 final class ProjetController extends AbstractController
@@ -95,23 +96,13 @@ public function new(Request $request, EntityManagerInterface $entityManager): Re
     #[Route('/{idProjet}/edit', name: 'app_projet_edit', methods: ['GET', 'POST'])]
     public function edit(Request $request, Projet $projet, EntityManagerInterface $entityManager): Response
     {
-        // Store the original client before handling the form
         $originalClient = $projet->getIdClient();
-        
         $form = $this->createForm(ProjetType::class, $projet);
         $form->handleRequest($request);
     
         if ($form->isSubmitted()) {
-            // First check if nomprojet is empty
-            $nomprojet = $form->get('nomprojet')->getData();
-            if (empty($nomprojet)) {
-                $form->get('nomprojet')->addError(new FormError('Le nom du projet est obligatoire'));
-            }
-            
             if ($form->isValid()) {
-                $emailClient = $form->get('nomClient')->getData();
-                
-                // Only process client if email changed or was removed
+                $emailClient = $form->get('nomClient')->getData();                
                 if ($emailClient !== ($originalClient ? $originalClient->getClient()->getEmail() : null)) {
                     if (!empty($emailClient)) {
                         $utilisateur = $entityManager->getRepository(Utilisateur::class)
@@ -119,7 +110,6 @@ public function new(Request $request, EntityManagerInterface $entityManager): Re
                                 'email' => $emailClient,
                                 'role' => 'Client'
                             ]);
-    
                         if (!$utilisateur) {
                             $this->addFlash('error', 'Aucun compte utilisateur avec le rôle client trouvé avec cet e-mail.');
                             return $this->redirectToRoute('app_projet_edit', ['idProjet' => $projet->getIdProjet()]);
@@ -132,7 +122,6 @@ public function new(Request $request, EntityManagerInterface $entityManager): Re
                             $client = new Client();
                             $client->setClient($utilisateur);
                             $entityManager->persist($client);
-                            // Don't flush yet - wait for the main flush
                         }
     
                         $projet->setIdClient($client);
@@ -144,6 +133,8 @@ public function new(Request $request, EntityManagerInterface $entityManager): Re
                 $entityManager->flush();
                 $this->addFlash('success', 'Projet mis à jour avec succès.');
                 return $this->redirectToRoute('app_projet_show', ['idProjet' => $projet->getIdProjet()]);
+            } else {
+                $this->addFlash('error', 'Veuillez corriger les erreurs dans le formulaire.');
             }
         }
     
@@ -166,14 +157,46 @@ public function new(Request $request, EntityManagerInterface $entityManager): Re
 
     //FRONT OFFICE
     #[Route('/front', name: 'app_projet_front_index', methods: ['GET'])]
-    public function frontIndex(EntityManagerInterface $entityManager): Response
-    {
-        $projets = $entityManager
-            ->getRepository(Projet::class)
-            ->findAll();
-
+    public function frontIndex(
+        Request $request,
+        EntityManagerInterface $entityManager,
+        Security $security,
+        PaginatorInterface $paginator
+    ): Response {
+        $user = $security->getUser();
+        $showOnlyMine = $request->query->getBoolean('mine', false);
+        
+        $queryBuilder = $entityManager->getRepository(Projet::class)
+            ->createQueryBuilder('p')
+            ->leftJoin('p.idClient', 'c')
+            ->leftJoin('c.client', 'u');
+        
+        if ($showOnlyMine && $user instanceof Utilisateur) {
+            $queryBuilder->andWhere('u.email = :email')
+                       ->setParameter('email', $user->getEmail());
+        }
+        
+        if ($status = $request->query->get('status')) {
+            $queryBuilder->andWhere('p.etat = :status')
+                       ->setParameter('status', $status);
+        }
+        
+        if ($search = $request->query->get('search')) {
+            $queryBuilder->andWhere('p.nomprojet LIKE :search')
+                       ->setParameter('search', '%'.$search.'%');
+        }
+    
+        $pagination = $paginator->paginate(
+            $queryBuilder->getQuery(),
+            $request->query->getInt('page', 1),
+            9
+        );
+    
         return $this->render('projetFront/index.html.twig', [
-            'projets' => $projets,
+            'pagination' => $pagination,
+            'showOnlyMine' => $showOnlyMine,
+            'currentUser' => $user,
+            'isClient' => $user instanceof Utilisateur && in_array('ROLE_CLIENT', $user->getRoles())
         ]);
     }
 

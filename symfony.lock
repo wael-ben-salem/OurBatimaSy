@@ -35,9 +35,29 @@
             "./migrations/.gitignore"
         ]
     },
-    "jms/translation-bundle": {
-        "version": "2.6.0"
+
+
+    "knpuniversity/oauth2-client-bundle": {
+        "version": "2.18",
+        "recipe": {
+            "repo": "github.com/symfony/recipes-contrib",
+            "branch": "main",
+            "version": "1.20",
+            "ref": "1ff300d8c030f55c99219cc55050b97a695af3f6"
+        },
+        "files": [
+            "./config/packages/knpu_oauth2_client.yaml"
+        ]
     },
+
+
+"knplabs/knp-paginator-bundle": {
+    "version": "v6.8.0"
+},
+"jms/translation-bundle": {
+    "version": "2.6.0"
+},
+
     "lexik/jwt-authentication-bundle": {
         "version": "2.18",
         "recipe": {

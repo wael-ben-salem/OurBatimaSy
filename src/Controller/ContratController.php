@@ -29,11 +29,27 @@ final class ContratController extends AbstractController
     #[Route('/new', name: 'app_contrat_new', methods: ['GET', 'POST'])]
     public function new(Request $request, EntityManagerInterface $entityManager): Response
     {
+        $signatureData = $request->request->get('signatureData');
+
+     
+
+
+
         $contrat = new Contrat();
+
+
         $form = $this->createForm(ContratType::class, $contrat);
         $form->handleRequest($request);
 
         if ($form->isSubmitted() && $form->isValid()) {
+            if ($signatureData) {
+                $data = explode(',', $signatureData)[1]; // Remove 'data:image/png;base64,'
+                $decodedData = base64_decode($data);
+                $filename = uniqid() . '.png';
+                $path = $this->getParameter('kernel.project_dir') . '/public/signatures/' . $filename;
+                file_put_contents($path, $decodedData);
+                $contrat->setSignatureElectronique('/signatures/' . $filename);
+            }
             $entityManager->persist($contrat);
             $entityManager->flush();
 
@@ -57,10 +73,22 @@ final class ContratController extends AbstractController
     #[Route('/{idContrat}/edit', name: 'app_contrat_edit', methods: ['GET', 'POST'])]
     public function edit(Request $request, Contrat $contrat, EntityManagerInterface $entityManager): Response
     {
+        $signatureData = $request->request->get('signatureData');
+
         $form = $this->createForm(editContartType::class, $contrat);
         $form->handleRequest($request);
     
         if ($form->isSubmitted()) {
+
+            if ($signatureData) {
+                $data = explode(',', $signatureData)[1]; // Remove 'data:image/png;base64,'
+                $decodedData = base64_decode($data);
+                $filename = uniqid() . '.png';
+                $path = $this->getParameter('kernel.project_dir') . '/public/signatures/' . $filename;
+                file_put_contents($path, $decodedData);
+                $contrat->setSignatureElectronique('/signatures/' . $filename);
+            }
+
             $entityManager->flush();
     
             // Si c'est une requête AJAX, renvoyer une réponse JSON

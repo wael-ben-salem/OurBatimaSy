@@ -31,6 +31,9 @@ class Gestionnairestock
 
         return $this;
     }
-
+    public function getId(): ?int
+    {
+        return $this->gestionnairestock?->getId(); // ou $this->getConstructeur()?->getId()
+    }
 
 }

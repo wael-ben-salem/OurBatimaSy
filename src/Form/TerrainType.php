@@ -7,16 +7,22 @@ use Symfony\Component\Form\AbstractType;
 use Symfony\Component\Form\FormBuilderInterface;
 use Symfony\Component\OptionsResolver\OptionsResolver;
 use Symfony\Component\Validator\Constraints as Assert;
+use Symfony\Component\Form\Extension\Core\Type\HiddenType;
+use Symfony\Component\Form\Extension\Core\Type\TextareaType;
+use Symfony\Component\Form\Extension\Core\Type\TextType;
+use Symfony\Component\Form\Extension\Core\Type\NumberType;
 
 class TerrainType extends AbstractType
 {
     public function buildForm(FormBuilderInterface $builder, array $options): void
     {
         $builder
-            ->add('emplacement', null, [
+            ->add('emplacement', TextType::class, [
                 'label' => 'Emplacement du terrain',
                 'attr' => [
-                    'placeholder' => 'Adresse ou localisation du terrain'
+                    'placeholder' => 'Adresse ou localisation du terrain',
+                    'class' => 'form-control location-field',
+                    'readonly' => false // Ensure field is editable
                 ],
                 'constraints' => [
                     new Assert\NotBlank([
@@ -28,10 +34,12 @@ class TerrainType extends AbstractType
                     ]),
                 ],
             ])
-            ->add('caracteristiques', null, [
+            ->add('caracteristiques', TextareaType::class, [
                 'label' => 'Caractéristiques principales',
                 'attr' => [
-                    'placeholder' => 'Décrivez les caractéristiques du terrain'
+                    'placeholder' => 'Décrivez les caractéristiques du terrain',
+                    'class' => 'form-control',
+                    'rows' => 3
                 ],
                 'constraints' => [
                     new Assert\NotBlank([
@@ -43,10 +51,13 @@ class TerrainType extends AbstractType
                     ]),
                 ],
             ])
-            ->add('superficie', null, [
+            ->add('superficie', NumberType::class, [
                 'label' => 'Superficie (m²)',
                 'attr' => [
-                    'placeholder' => 'Surface en mètres carrés'
+                    'placeholder' => 'Surface en mètres carrés',
+                    'class' => 'form-control',
+                    'min' => 0,
+                    'step' => 'any'
                 ],
                 'constraints' => [
                     new Assert\NotBlank([
@@ -61,14 +72,26 @@ class TerrainType extends AbstractType
                     ]),
                 ],
             ])
-            ->add('detailsgeo', null, [
+            ->add('detailsgeo', TextareaType::class, [
                 'label' => 'Détails géographiques',
                 'attr' => [
-                    'placeholder' => 'Pente, orientation, particularités...'
+                    'placeholder' => 'Coordonnées GPS, pente, orientation...',
+                    'class' => 'form-control geo-details-field',
+                    'rows' => 2,
+                    'readonly' => false // Ensure field is editable
                 ],
                 'required' => false,
             ])
-        ;
+            ->add('latitude', HiddenType::class, [
+                'attr' => [
+                    'class' => 'latitude-field'
+                ]
+            ])
+            ->add('longitude', HiddenType::class, [
+                'attr' => [
+                    'class' => 'longitude-field'
+                ]
+            ]);
     }
 
     public function configureOptions(OptionsResolver $resolver): void
@@ -78,7 +101,7 @@ class TerrainType extends AbstractType
             'validation_groups' => ['Default'],
             'attr' => [
                 'novalidate' => 'novalidate',
-                'class' => 'needs-validation'
+                'class' => 'needs-validation g-3'
             ]
         ]);
     }
