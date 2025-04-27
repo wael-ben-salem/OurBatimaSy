@@ -101,7 +101,7 @@
                     {% set etatRaw = projet.etat|default('En cours') %}
                     {% set etat = etatRaw|trim|lower %}
                     {% set color = 
-                        etat == 'fini' ? 'success' :
+                        etat == 'Terminé' ? 'success' :
                         (etat == 'en cours' ? 'info' :
                         (etat == 'en attente' ? 'secondary' :
                         (etat == 'annulé' ? 'danger' : 'info')))

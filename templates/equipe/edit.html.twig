@@ -1,46 +1,688 @@
 {% extends 'base_backOffice.html.twig' %}
 
-{% block title %}Gestion Equipe{% endblock %}
+{% block title %}Edit Team - {{ equipe.nom }}{% endblock %}
+
+{% block stylesheets %}
+    {{ parent() }}
+    <link href="https://cdn.jsdelivr.net/npm/bootstrap-icons@1.8.0/font/bootstrap-icons.css" rel="stylesheet">
+    <style>
+        .team-edit-container {
+            max-width: 1200px;
+            margin: 30px auto;
+            padding: 30px;
+            background: #fff;
+            border-radius: 12px;
+            box-shadow: 0 5px 30px rgba(0,0,0,0.08);
+        }
+        
+        .team-header {
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
+            margin-bottom: 30px;
+            padding-bottom: 20px;
+            border-bottom: 1px solid #eee;
+        }
+        
+        .team-title {
+            font-size: 1.8rem;
+            color: #2c3e50;
+            margin: 0;
+        }
+        
+        .section-container {
+            margin-bottom: 40px;
+        }
+        
+        .section-title {
+            font-size: 1.3rem;
+            color: #2c3e50;
+            margin-bottom: 20px;
+            padding-bottom: 10px;
+            border-bottom: 2px solid #f1f1f1;
+            display: flex;
+            align-items: center;
+        }
+        
+        .section-title i {
+            margin-right: 10px;
+            color: #17a2b8;
+        }
+        
+        .drag-container {
+            display: flex;
+            gap: 30px;
+            margin-bottom: 30px;
+        }
+        
+        .selection-zone {
+            flex: 1;
+            min-width: 300px;
+        }
+        
+        .selection-title {
+            font-size: 0.9rem;
+            text-transform: uppercase;
+            color: #6c757d;
+            margin-bottom: 10px;
+            font-weight: 600;
+        }
+        
+        .drop-zone {
+            border: 2px dashed #17a2b8;
+            padding: 20px;
+            border-radius: 10px;
+            min-height: 200px;
+            max-height: 350px;
+            overflow-y: auto;
+            background-color: #f8fafc;
+            transition: all 0.3s ease;
+            position: relative;
+        }
+        
+        .drop-zone.empty::after {
+            content: 'Drag and drop members here';
+            position: absolute;
+            top: 50%;
+            left: 50%;
+            transform: translate(-50%, -50%);
+            color: #adb5bd;
+            font-size: 1rem;
+        }
+        
+        .drop-zone.active {
+            background-color: #e6f7ff;
+            border-color: #1890ff;
+        }
+        
+        .user-list {
+            border: 2px dashed #e9ecef;
+            padding: 20px;
+            border-radius: 10px;
+            min-height: 200px;
+            max-height: 350px;
+            overflow-y: auto;
+            background: #f8f9fa;
+        }
+        
+        .user-card {
+            background: white;
+            border: 1px solid #e9ecef;
+            border-radius: 8px;
+            padding: 15px;
+            margin-bottom: 15px;
+            cursor: grab;
+            display: flex;
+            align-items: center;
+            transition: all 0.2s;
+            box-shadow: 0 2px 4px rgba(0,0,0,0.05);
+        }
+        
+        .user-card:hover {
+            transform: translateY(-2px);
+            box-shadow: 0 5px 10px rgba(0,0,0,0.1);
+            border-color: #17a2b8;
+        }
+        
+        .user-card.dragging {
+            opacity: 0.7;
+            background: #f8f9fa;
+            box-shadow: 0 0 10px rgba(0,0,0,0.1);
+        }
+        
+        .user-card.selected {
+            background: #e6f7ff;
+            border-color: #17a2b8;
+        }
+        
+        .user-avatar {
+            width: 50px;
+            height: 50px;
+            border-radius: 50%;
+            margin-right: 15px;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            background: #e9ecef;
+            color: #495057;
+            font-size: 1.3rem;
+        }
+        
+        .user-info {
+            flex: 1;
+        }
+        
+        .user-name {
+            font-weight: 600;
+            margin-bottom: 3px;
+            color: #2c3e50;
+        }
+        
+        .user-role {
+            font-size: 0.8rem;
+            color: #17a2b8;
+            font-weight: 500;
+            text-transform: uppercase;
+            margin-bottom: 3px;
+        }
+        
+        .user-specialty {
+            font-size: 0.85rem;
+            color: #6c757d;
+        }
+        
+        .remove-btn {
+            background: none;
+            border: none;
+            color: #dc3545;
+            cursor: pointer;
+            font-size: 1.2rem;
+            margin-left: 10px;
+            opacity: 0.7;
+            transition: opacity 0.2s;
+        }
+        
+        .remove-btn:hover {
+            opacity: 1;
+        }
+        
+        .selection-count {
+            position: absolute;
+            top: -10px;
+            right: -10px;
+            background: #17a2b8;
+            color: white;
+            border-radius: 50%;
+            width: 26px;
+            height: 26px;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            font-size: 0.8rem;
+            font-weight: bold;
+            box-shadow: 0 2px 4px rgba(0,0,0,0.1);
+        }
+        
+        .form-group {
+            margin-bottom: 25px;
+        }
+        
+        .form-label {
+            font-weight: 600;
+            margin-bottom: 8px;
+            color: #495057;
+        }
+        
+        .action-buttons {
+            display: flex;
+            justify-content: space-between;
+            margin-top: 40px;
+            padding-top: 20px;
+            border-top: 1px solid #eee;
+        }
+        
+        .btn-custom {
+            padding: 10px 25px;
+            font-size: 1rem;
+            font-weight: 500;
+            border-radius: 8px;
+            transition: all 0.2s;
+        }
+        
+        .btn-custom i {
+            margin-right: 8px;
+        }
+        
+        /* Custom scrollbar */
+        ::-webkit-scrollbar {
+            width: 8px;
+        }
+        
+        ::-webkit-scrollbar-track {
+            background: #f1f1f1;
+            border-radius: 4px;
+        }
+        
+        ::-webkit-scrollbar-thumb {
+            background: #adb5bd;
+            border-radius: 4px;
+        }
+        
+        ::-webkit-scrollbar-thumb:hover {
+            background: #868e96;
+        }
+        
+        /* Responsive adjustments */
+        @media (max-width: 768px) {
+            .drag-container {
+                flex-direction: column;
+            }
+            
+            .selection-zone {
+                width: 100%;
+            }
+        }
+    </style>
+{% endblock %}
 
 {% block body %}
-<div class="container-fluid py-4">
-    <div class="row">
-        <div class="col-12">
-            <div class="card my-4">
-                <div class="card-header p-0 position-relative mt-n4 mx-3 z-index-2">
-                    <div class="bg-gradient-dark shadow-dark border-radius-lg pt-4 pb-3">
-                        <h6 class="text-white text-capitalize ps-3">
-                            {% if edit_mode %}
-                                Modifier Equipe
-                            {% else %}
-                                Créer Equipe
-                            {% endif %}
-                        </h6>
-                    </div>
+<div class="team-edit-container">
+    <div class="team-header">
+        <h1 class="team-title">Edit Team: <span class="text-primary">{{ equipe.nom }}</span></h1>
+    </div>
+    
+    <div class="form-group">
+        <label for="teamName" class="form-label">Team Name</label>
+        <input type="text" class="form-control form-control-lg" id="teamName" 
+               value="{{ equipe.nom }}" required placeholder="Enter team name">
+    </div>
+    
+    <div class="section-container">
+        <h3 class="section-title"><i class="bi bi-person-gear"></i> Constructor</h3>
+        <div class="drag-container">
+            <div class="selection-zone">
+                <div class="selection-title">Selected Constructor</div>
+                <div class="drop-zone" id="selectedConstructor">
+                    {% if equipe.constructeur %}
+                        {% set constructor = equipe.constructeur %}
+                        <div class="user-card" data-id="{{ constructor.id }}" data-type="constructeur">
+                            <div class="user-avatar bg-info-light text-info">
+                                <i class="bi bi-person-gear"></i>
+                            </div>
+                            <div class="user-info">
+                                <div class="user-role">Constructor</div>
+                                <div class="user-name">{{ constructor.constructeur.nom }} {{ constructor.constructeur.prenom }}</div>
+                            </div>
+                            <button class="remove-btn">
+                                <i class="bi bi-x-lg"></i>
+                            </button>
+                        </div>
+                    {% else %}
+                        <div class="empty"></div>
+                    {% endif %}
                 </div>
-                <div class="card-body px-4 pb-2">
-                    {{ form_start(form) }}
-                        <div class="row">
-                            <div class="col-md-6">
-                                {{ form_row(form.nom) }}
+            </div>
+            
+            <div class="selection-zone">
+                <div class="selection-title">Available Constructors</div>
+                <div class="user-list" id="constructeurList">
+                    {% for constructeur in constructeurs %}
+                        <div class="user-card {{ constructeur.id == selectedConstructor ? 'selected' : '' }}" 
+                             draggable="true" data-id="{{ constructeur.id }}" data-type="constructeur">
+                            <div class="user-avatar bg-info-light text-info">
+                                <i class="bi bi-person-gear"></i>
                             </div>
-                            <div class="col-md-6">
-                                {{ form_row(form.constructeur) }}
-                            </div>
-                        </div>
-                        <div class="row">
-                            <div class="col-md-6">
-                                {{ form_row(form.gestionnairestock) }}
-                            </div>
-                            <div class="col-md-6">
-                                {{ form_row(form.artisan) }}
+                            <div class="user-info">
+                                <div class="user-role">Constructor</div>
+                                <div class="user-name">{{ constructeur.constructeur.nom }} {{ constructeur.constructeur.prenom }}</div>
                             </div>
                         </div>
-                        <button class="btn btn-dark mt-3">{{ button_label|default('Enregistrer') }}</button>
-                    {{ form_end(form) }}
+                    {% endfor %}
                 </div>
             </div>
         </div>
     </div>
+
+    <div class="section-container">
+        <h3 class="section-title"><i class="bi bi-clipboard2-data"></i> Stock Manager</h3>
+        <div class="drag-container">
+            <div class="selection-zone">
+                <div class="selection-title">Selected Manager</div>
+                <div class="drop-zone" id="selectedGestionnaire">
+                    {% if equipe.gestionnairestock %}
+                        {% set manager = equipe.gestionnairestock %}
+                        <div class="user-card" data-id="{{ manager.id }}" data-type="gestionnaire">
+                            <div class="user-avatar bg-warning-light text-warning">
+                                <i class="bi bi-clipboard2-data"></i>
+                            </div>
+                            <div class="user-info">
+                                <div class="user-role">Stock Manager</div>
+                                <div class="user-name">{{ manager.gestionnairestock.nom }} {{ manager.gestionnairestock.prenom }}</div>
+                            </div>
+                            <button class="remove-btn">
+                                <i class="bi bi-x-lg"></i>
+                            </button>
+                        </div>
+                    {% else %}
+                        <div class="empty"></div>
+                    {% endif %}
+                </div>
+            </div>
+            
+            <div class="selection-zone">
+                <div class="selection-title">Available Managers</div>
+                <div class="user-list" id="gestionnaireList">
+                    {% for gestionnaire in gestionnaires %}
+                        <div class="user-card {{ gestionnaire.id == selectedGestionnaire ? 'selected' : '' }}" 
+                             draggable="true" data-id="{{ gestionnaire.id }}" data-type="gestionnaire">
+                            <div class="user-avatar bg-warning-light text-warning">
+                                <i class="bi bi-clipboard2-data"></i>
+                            </div>
+                            <div class="user-info">
+                                <div class="user-role">Stock Manager</div>
+                                <div class="user-name">{{ gestionnaire.gestionnairestock.nom }} {{ gestionnaire.gestionnairestock.prenom }}</div>
+                            </div>
+                        </div>
+                    {% endfor %}
+                </div>
+            </div>
+        </div>
+    </div>
+
+    <div class="section-container">
+        <h3 class="section-title"><i class="bi bi-tools"></i> Artisans</h3>
+        <div class="drag-container">
+            <div class="selection-zone">
+                <div class="selection-title">Selected Artisans ({{ equipe.artisan|length }})</div>
+                <div class="drop-zone" id="selectedArtisans">
+                    {% if equipe.artisan|length > 0 %}
+                        {% for artisan in equipe.artisan %}
+                            <div class="user-card" data-id="{{ artisan.id }}" data-type="artisan">
+                                <div class="user-avatar bg-success-light text-success">
+                                    <i class="bi bi-tools"></i>
+                                </div>
+                                <div class="user-info">
+                                    <div class="user-role">Artisan</div>
+                                    <div class="user-name">{{ artisan.artisan.nom }} {{ artisan.artisan.prenom }}</div>
+                                    <div class="user-specialty">{{ artisan.specialite }}</div>
+                                </div>
+                                <button class="remove-btn">
+                                    <i class="bi bi-x-lg"></i>
+                                </button>
+                            </div>
+                        {% endfor %}
+                        <div class="selection-count">{{ equipe.artisan|length }}</div>
+                    {% else %}
+                        <div class="empty"></div>
+                    {% endif %}
+                </div>
+            </div>
+            
+            <div class="selection-zone">
+                <div class="selection-title">Available Artisans</div>
+                <div class="user-list" id="artisanList">
+                    {% for artisan in artisans %}
+                        <div class="user-card {{ artisan.id in selectedArtisans ? 'selected' : '' }}" 
+                             draggable="true" data-id="{{ artisan.id }}" data-type="artisan">
+                            <div class="user-avatar bg-success-light text-success">
+                                <i class="bi bi-tools"></i>
+                            </div>
+                            <div class="user-info">
+                                <div class="user-role">Artisan</div>
+                                <div class="user-name">{{ artisan.artisan.nom }} {{ artisan.artisan.prenom }}</div>
+                                <div class="user-specialty">{{ artisan.specialite }}</div>
+                            </div>
+                        </div>
+                    {% endfor %}
+                </div>
+            </div>
+        </div>
+    </div>
+
+    <div class="action-buttons">
+        <a href="{{ path('app_equipe_index') }}" class="btn btn-outline-secondary btn-custom">
+            <i class="bi bi-arrow-left"></i>Back to list
+        </a>
+        <button id="updateTeamBtn" class="btn btn-primary btn-custom">
+            <i class="bi bi-save"></i>Update Team
+        </button>
+    </div>
 </div>
+{% endblock %}
+
+{% block javascripts %}
+{{ parent() }}
+<script>
+document.addEventListener('DOMContentLoaded', function() {
+    let selectedConstructor = {{ selectedConstructor|default('null')|raw }};
+    let selectedGestionnaire = {{ selectedGestionnaire|default('null')|raw }};
+    let selectedArtisans = {{ selectedArtisans|default('[]')|json_encode|raw }};
+    
+    // Initialize drag and drop
+    function setupDragAndDrop() {
+        const cards = document.querySelectorAll('.user-card[draggable="true"]');
+        const dropZones = document.querySelectorAll('.drop-zone');
+        
+        cards.forEach(card => {
+            card.addEventListener('dragstart', dragStart);
+            card.addEventListener('dragend', dragEnd);
+        });
+        
+        dropZones.forEach(zone => {
+            zone.addEventListener('dragover', dragOver);
+            zone.addEventListener('dragenter', dragEnter);
+            zone.addEventListener('dragleave', dragLeave);
+            zone.addEventListener('drop', drop);
+        });
+    }
+    
+    function dragStart(e) {
+        this.classList.add('dragging');
+        // Store both id and type in dataTransfer
+        e.dataTransfer.setData('text/plain', JSON.stringify({
+            id: this.dataset.id,
+            type: this.dataset.type
+        }));
+        e.dataTransfer.effectAllowed = 'move';
+    }
+    
+    function dragEnd() {
+        this.classList.remove('dragging');
+    }
+    
+    function dragOver(e) {
+        e.preventDefault();
+        e.dataTransfer.dropEffect = 'move';
+    }
+    
+    function dragEnter(e) {
+        e.preventDefault();
+        this.classList.add('active');
+    }
+    
+    function dragLeave() {
+        this.classList.remove('active');
+    }
+    
+    function drop(e) {
+        e.preventDefault();
+        this.classList.remove('active');
+        
+        const data = JSON.parse(e.dataTransfer.getData('text/plain'));
+        const id = data.id;
+        const type = data.type;
+        const card = document.querySelector(`.user-card[draggable="true"][data-id="${id}"][data-type="${type}"]`);
+        
+        if (!card) return;
+        
+        // Handle single selection (constructor/gestionnaire)
+        if (type === 'constructeur' || type === 'gestionnaire') {
+            // Remove previous selection highlight
+            const previousSelected = document.querySelectorAll(`.user-card.selected[data-type="${type}"]`);
+            previousSelected.forEach(el => el.classList.remove('selected'));
+            
+            // Highlight new selection
+            card.classList.add('selected');
+            
+            // Create a new card for the drop zone (don't move the original)
+            const newCard = createSelectedCard(card, type);
+            
+            // Update drop zone
+            this.innerHTML = '';
+            this.appendChild(newCard);
+            this.classList.remove('empty');
+            
+            // Update data
+            if (type === 'constructeur') selectedConstructor = id;
+            if (type === 'gestionnaire') selectedGestionnaire = id;
+        } 
+        // Handle multiple selection (artisans)
+        else if (type === 'artisan') {
+            if (!selectedArtisans.includes(id)) {
+                selectedArtisans.push(id);
+                card.classList.add('selected');
+                
+                // Update drop zone
+                if (this.classList.contains('empty')) {
+                    this.innerHTML = '';
+                    this.classList.remove('empty');
+                }
+                
+                // Create a new card and add to drop zone
+                const newCard = createSelectedCard(card, type);
+                this.appendChild(newCard);
+                
+                // Update selection count
+                updateSelectionCount();
+            }
+        }
+    }
+    
+    function createSelectedCard(originalCard, type) {
+        const card = originalCard.cloneNode(true);
+        card.classList.remove('dragging');
+        card.draggable = false;
+        card.style.cursor = 'default';
+        
+        // Add remove button if not already present
+        if (!card.querySelector('.remove-btn')) {
+            const removeBtn = document.createElement('button');
+            removeBtn.className = 'remove-btn';
+            removeBtn.innerHTML = '<i class="bi bi-x-lg"></i>';
+            removeBtn.onclick = function() {
+                removeSelection(card, type);
+            };
+            card.appendChild(removeBtn);
+        }
+        
+        return card;
+    }
+    
+    function removeSelection(card, type) {
+        const id = card.dataset.id;
+        const dropZone = card.parentElement;
+        
+        if (type === 'constructeur') {
+            selectedConstructor = null;
+            document.querySelector(`.user-card[draggable="true"][data-id="${id}"]`).classList.remove('selected');
+            dropZone.innerHTML = '<div class="empty"></div>';
+            dropZone.classList.add('empty');
+        } 
+        else if (type === 'gestionnaire') {
+            selectedGestionnaire = null;
+            document.querySelector(`.user-card[draggable="true"][data-id="${id}"]`).classList.remove('selected');
+            dropZone.innerHTML = '<div class="empty"></div>';
+            dropZone.classList.add('empty');
+        } 
+        else if (type === 'artisan') {
+            selectedArtisans = selectedArtisans.filter(a => a !== id);
+            document.querySelector(`.user-card[draggable="true"][data-id="${id}"]`).classList.remove('selected');
+            card.remove();
+            
+            if (dropZone.children.length === 0) {
+                dropZone.innerHTML = '<div class="empty"></div>';
+                dropZone.classList.add('empty');
+            }
+            
+            updateSelectionCount();
+        }
+    }
+    
+    function updateSelectionCount() {
+        const countElement = document.querySelector('#selectedArtisans .selection-count');
+        if (!countElement && selectedArtisans.length > 0) {
+            const newCountElement = document.createElement('div');
+            newCountElement.className = 'selection-count';
+            newCountElement.textContent = selectedArtisans.length;
+            document.getElementById('selectedArtisans').appendChild(newCountElement);
+        } else if (countElement) {
+            countElement.textContent = selectedArtisans.length;
+            if (selectedArtisans.length === 0) {
+                countElement.remove();
+            }
+        }
+    }
+    
+    // Setup remove buttons for existing selections
+    function setupExistingSelections() {
+        document.querySelectorAll('#selectedConstructor .remove-btn, #selectedGestionnaire .remove-btn, #selectedArtisans .remove-btn').forEach(btn => {
+            btn.onclick = function() {
+                const card = this.closest('.user-card');
+                const type = card.dataset.type;
+                removeSelection(card, type);
+            };
+        });
+    }
+    
+    // Update team button
+    document.getElementById('updateTeamBtn').addEventListener('click', function() {
+        const teamName = document.getElementById('teamName').value.trim();
+        
+        if (!teamName) {
+            alert('Please enter a team name');
+            return;
+        }
+        
+        if (!selectedConstructor) {
+            alert('Please select a constructor');
+            return;
+        }
+        
+        if (!selectedGestionnaire) {
+            alert('Please select a stock manager');
+            return;
+        }
+        
+        const data = {
+            nom: teamName,
+            constructeur: selectedConstructor,
+            gestionnaire: selectedGestionnaire,
+            artisans: selectedArtisans
+        };
+        
+        // Show loading state
+        const btn = this;
+        btn.disabled = true;
+        btn.innerHTML = '<span class="spinner-border spinner-border-sm me-2" role="status" aria-hidden="true"></span>Updating...';
+        
+        fetch('{{ path('app_equipe_edit', {'id': equipe.id}) }}', {
+            method: 'POST',
+            headers: {
+                'Content-Type': 'application/json',
+                'X-Requested-With': 'XMLHttpRequest'
+            },
+            body: JSON.stringify(data)
+        })
+        .then(response => {
+            if (!response.ok) {
+                throw new Error('Network response was not ok');
+            }
+            return response.json();
+        })
+        .then(data => {
+            if (data.success) {
+                window.location.href = '{{ path('app_equipe_index') }}';
+            } else {
+                throw new Error(data.message || 'Error updating team');
+            }
+        })
+        .catch(error => {
+            console.error('Error:', error);
+            alert(error.message || 'Error updating team');
+            btn.disabled = false;
+            btn.innerHTML = '<i class="bi bi-save me-2"></i>Update Team';
+        });
+    });
+    
+    setupDragAndDrop();
+    setupExistingSelections();
+    
+    // Mark empty drop zones
+    document.querySelectorAll('.drop-zone').forEach(zone => {
+        if (zone.children.length === 0 || (zone.children.length === 1 && zone.children[0].classList.contains('empty'))) {
+            zone.classList.add('empty');
+        }
+    });
+});
+</script>
 {% endblock %}

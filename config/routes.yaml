@@ -24,3 +24,4 @@ app_welcome:
 app_home:
     path: /
     controller: App\Controller\HomeController::index
+    
