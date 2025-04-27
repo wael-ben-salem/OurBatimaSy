@@ -77,7 +77,7 @@ class ProjetType extends AbstractType
                 'choices' => [
                     'En cours' => 'En cours',
                     'En attente' => 'En attente',
-                    'Fini' => 'Fini',
+                    'Terminé' => 'Terminé',
                     'Annulé' => 'Annulé'
                 ],
                 'constraints' => [

@@ -1,69 +1,141 @@
 {% extends 'base_backOffice.html.twig' %}
 
-{% block title %}Liste des Équipes{% endblock %}
+{% block title %}Teams{% endblock %}
+
+{% block breadcrumb %}Teams{% endblock %}
+
+{% block stylesheets %}
+  {{ parent() }}
+  {# Conserver les styles existants du tableau des projets #}
+{% endblock %}
 
 {% block body %}
-<div class="container-fluid py-4">
-    <div class="row">
-        <div class="col-12">
-            <div class="card my-4">
-                <div class="card-header p-0 position-relative mt-n4 mx-3 z-index-2">
-                    <div class="bg-gradient-dark shadow-dark border-radius-lg pt-4 pb-3">
-                        <h6 class="text-white text-capitalize ps-3">Liste des Équipes</h6>
-                    </div>
-                </div>
-                <div class="card-body px-0 pb-2">
-                    <div class="table-responsive p-0">
-                        <table class="table align-items-center mb-0">
-                            <thead>
-                                <tr>
-                                    <th>Nom</th>
-                                    <th>Constructeur</th>
-                                    <th>Gestionnaire</th>
-                                    <th>Artisans</th>
-                                    <th>Date Création</th>
-                                    <th>Rating</th>
-                                </tr>
-                            </thead>
-                            <tbody>
-                                {% for equipe in equipes %}
-                                <tr>
-                                    <td>{{ equipe.nom }}</td>
-                                    <td>
-                                        {% if equipe.constructeur and equipe.constructeur.utilisateur %}
-                                            {{ equipe.constructeur.utilisateur.nom }} {{ equipe.constructeur.utilisateur.prenom }}
-                                        {% else %}
-                                            Non assigné
-                                        {% endif %}
-                                    </td>
-                                    <td>
-                                        {% if equipe.gestionnairestock and equipe.gestionnairestock.utilisateur %}
-                                            {{ equipe.gestionnairestock.utilisateur.nom }} {{ equipe.gestionnairestock.utilisateur.prenom }}
-                                        {% else %}
-                                            Non assigné
-                                        {% endif %}
-                                    </td>
-                                    <td>
-                                        <ul>
-                                            {% for artisan in equipe.artisans %}
-                                                <li>{{ artisan.utilisateur.nom }} {{ artisan.utilisateur.prenom }} ({{ artisan.specialite }})</li>
-                                            {% endfor %}
-                                        </ul>
-                                    </td>
-                                    <td>{{ equipe.dateCreation|date('d/m/Y') }}</td>
-                                    <td>{{ equipe.rating }}</td>
-                                </tr>
-                                {% else %}
-                                <tr>
-                                    <td colspan="6">Aucune équipe trouvée</td>
-                                </tr>
-                                {% endfor %}
-                            </tbody>
-                        </table>
-                    </div>
-                </div>
-            </div>
+  <div class="row">
+    <div class="col-12">
+      <div class="card my-4">
+        <div class="card-header p-0 position-relative mt-n4 mx-3 z-index-2">
+          <div class="bg-gradient-dark shadow-dark border-radius-lg pt-4 pb-3 d-flex justify-content-between align-items-center">
+            <h6 class="text-white text-capitalize ps-3">Teams table</h6>
+            <a href="{{ path('app_equipe_new') }}" class="btn btn-sm btn-light me-3">
+              <i class="material-symbols-rounded me-1">group_add</i>
+              New Team
+            </a>
+          </div>
         </div>
+        <div class="card-body px-0 pb-2">
+          <div class="table-responsive p-0">
+            <table class="table align-items-center justify-content-center mb-0">
+              <thead>
+                <tr>
+                  <th class="text-uppercase text-secondary text-xxs font-weight-bolder opacity-7">Team</th>
+                  <th class="text-uppercase text-secondary text-xxs font-weight-bolder opacity-7 text-center">Constructor</th>
+                  <th class="text-uppercase text-secondary text-xxs font-weight-bolder opacity-7 text-center">Stock Manager</th>
+                  <th class="text-uppercase text-secondary text-xxs font-weight-bolder opacity-7 text-center">Members</th>
+                  <th class="text-uppercase text-secondary text-xxs font-weight-bolder opacity-7 text-center">Creation Date</th>
+                  <th class="text-uppercase text-secondary text-xxs font-weight-bolder opacity-7 text-center">Rating</th>
+                  <th class="text-uppercase text-secondary text-xxs font-weight-bolder opacity-7 text-center">Actions</th>
+                </tr>
+              </thead>
+              <tbody>
+                {% for equipe in equipes %}
+                  {% set ratingColor = equipe.rating >= 4.5 ? 'success' : 
+                                     equipe.rating >= 3.5 ? 'info' : 
+                                     equipe.rating >= 2.5 ? 'warning' : 'danger' %}
+                <tr>
+                  <td>
+                    <div class="d-flex px-2">
+                      <div class="avatar avatar-sm rounded-circle bg-gradient-dark me-2">
+                        <i class="material-symbols-rounded text-white">groups</i>
+                      </div>
+                      <div class="my-auto">
+                        <h6 class="mb-0 text-sm">{{ equipe.nom }}</h6>
+                        <p class="text-xs text-secondary mb-0">
+                          ID: {{ equipe.id }}
+                        </p>
+                      </div>
+                    </div>
+                  </td>
+                  <td class="text-center align-middle">
+  <p class="text-sm font-weight-bold mb-0">
+    {{ equipe.constructeur.constructeur.nom }} 
+    {{ equipe.constructeur.constructeur.prenom }}
+  </p>
+</td>
+                  <td class="text-center align-middle">
+  <p class="text-sm font-weight-bold mb-0">
+    {{ equipe.gestionnairestock.gestionnairestock.nom }} 
+    {{ equipe.gestionnairestock.gestionnairestock.prenom }}
+  </p>
+</td>
+                  <td class="text-center align-middle">
+                    {% if equipe.artisans|length > 0 %}
+                      <div class="dropdown">
+                        <button class="btn btn-sm btn-outline-primary dropdown-toggle" type="button" id="dropdownMembers{{ equipe.id }}" data-bs-toggle="dropdown">
+                          {{ equipe.artisans|length }} members
+                        </button>
+                        <ul class="dropdown-menu">
+{% for artisan in equipe.artisan %}
+                            <li>
+                              <div class="dropdown-item-text px-2 py-1">
+                                <div class="d-flex justify-content-between align-items-center">
+                                  <div>
+                                  
+                                    <strong>{{ artisan.artisan.nom }} {{ artisan.artisan.prenom }}</strong>
+                                            <span class="badge bg-primary">{{ artisan.specialite }}</span>
+
+                                  </div>
+                                  <span class="badge bg-{{ artisan.artisan.statut == 'actif' ? 'success' : 'secondary' }}">
+    {{ artisan.artisan.statut|upper }}
+</span>
+                                </div>
+                                <div class="small mt-1">
+                                  <i class="material-symbols-rounded fs-6">paid</i>
+                                  TND {{ artisan.salaireHeure|number_format(2) }}/h
+                                </div>
+                              </div>
+                            </li>
+                            {% if not loop.last %}<li><hr class="dropdown-divider"></li>{% endif %}
+                          {% endfor %}
+                        </ul>
+                      </div>
+                    {% else %}
+                      <span class="badge bg-secondary">No members</span>
+                    {% endif %}
+                  </td>
+                  <td class="text-center align-middle">
+                    <p class="text-sm font-weight-bold mb-0">
+                      {{ equipe.dateCreation|date('d/m/Y') }}
+                    </p>
+                  </td>
+                  <td class="text-center align-middle">
+                    <span class="badge badge-sm bg-gradient-{{ ratingColor }}">
+                      {{ equipe.rating|number_format(1) }}/5
+                    </span>
+                  </td>
+                  <td class="text-center align-middle">
+                    <a href="{{ path('app_equipe_show', {'id': equipe.id}) }}" class="text-secondary font-weight-bold text-xs" title="View">
+                      <i class="material-symbols-rounded">visibility</i>
+                    </a>
+                    <a href="{{ path('app_equipe_edit', {'id': equipe.id}) }}" class="text-secondary font-weight-bold text-xs ms-2" title="Edit">
+                      <i class="material-symbols-rounded">edit</i>
+                    </a>
+                  </td>
+                </tr>
+                {% else %}
+                <tr>
+                  <td colspan="7" class="text-center">No teams found</td>
+                </tr>
+                {% endfor %}
+              </tbody>
+            </table>
+          </div>
+        </div>
+      </div>
     </div>
-</div>
+  </div>
+{% endblock %}
+
+{% block javascripts %}
+  {{ parent() }}
+  {# Conserver les scripts existants #}
 {% endblock %}

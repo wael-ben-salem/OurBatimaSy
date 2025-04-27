@@ -60,11 +60,24 @@ class Artisan
 
         return $this;
     }
+    public function getStatut(): ?string
+{
+    return $this->getArtisan() ? $this->getArtisan()->getStatut() : null;
+}
+public function getId(): ?int
+    {
+        return $this->artisan?->getId(); // ou $this->getConstructeur()?->getId()
+    }
 
     public function getSalaireHeure(): ?string
     {
         return $this->salaireHeure;
     }
+public function __toString(): string
+{
+    $user = $this->getArtisan();
+    return $user ? $user->getNom() . ' ' . $user->getPrenom() : 'Artisan sans utilisateur';
+}
 
     public function setSalaireHeure(string $salaireHeure): static
     {
@@ -113,10 +126,6 @@ class Artisan
 
         return $this;
     }
-    public function __toString(): string
-{
-    return $this->specialite ?? 'Artisan';
-}
-
+    
 
 }

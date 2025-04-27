@@ -17,6 +17,9 @@ return [
     Lexik\Bundle\JWTAuthenticationBundle\LexikJWTAuthenticationBundle::class => ['all' => true],
     Vich\UploaderBundle\VichUploaderBundle::class => ['all' => true],
 
+    KnpU\OAuth2ClientBundle\KnpUOAuth2ClientBundle::class => ['all' => true],
+
+
     Knp\Bundle\PaginatorBundle\KnpPaginatorBundle::class => ['all' => true],
 
     JMS\TranslationBundle\JMSTranslationBundle::class => ['all' => true],
