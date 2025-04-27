@@ -9,17 +9,28 @@ use Symfony\Bundle\FrameworkBundle\Controller\AbstractController;
 use Symfony\Component\HttpFoundation\Request;
 use Symfony\Component\HttpFoundation\Response;
 use Symfony\Component\Routing\Attribute\Route;
+use Knp\Component\Pager\PaginatorInterface;
+
 
 #[Route('/etapeprojet')]
 final class EtapeprojetController extends AbstractController
 {
     #[Route(name: 'app_etapeprojet_index', methods: ['GET'])]
-    public function index(EntityManagerInterface $entityManager): Response
+    public function index(EntityManagerInterface $entityManager, PaginatorInterface $paginator, Request $request): Response
     {
-        $etapeprojets = $entityManager
+        $query = $entityManager
             ->getRepository(Etapeprojet::class)
-            ->findAll();
-
+            ->createQueryBuilder('e')
+            ->leftJoin('e.idProjet', 'p') 
+            ->addSelect('p') 
+            ->getQuery();
+    
+        $etapeprojets = $paginator->paginate(
+            $query,
+            $request->query->getInt('page', 1),
+            10 
+        );
+    
         return $this->render('etapeprojet/index.html.twig', [
             'etapeprojets' => $etapeprojets,
         ]);
@@ -45,9 +56,25 @@ final class EtapeprojetController extends AbstractController
         ]);
     }
 
-    #[Route('/{idEtapeprojet}', name: 'app_etapeprojet_show', methods: ['GET'])]
-    public function show(Etapeprojet $etapeprojet): Response
+    #[Route('/calendar', name: 'app_etapeprojet_calendar', methods: ['GET'])]
+    public function calendar(EntityManagerInterface $entityManager): Response
     {
+        $etapes = $entityManager
+            ->getRepository(Etapeprojet::class)
+            ->findAll();
+
+        return $this->render('etapeprojet/calendar.html.twig', [
+            'etapes' => $etapes,
+        ]);
+    }
+
+    #[Route('/{idEtapeprojet}', name: 'app_etapeprojet_show', methods: ['GET'])]
+    public function show(?Etapeprojet $etapeprojet = null): Response
+    {
+        if (!$etapeprojet) {
+            throw $this->createNotFoundException('Étape non trouvée');
+        }
+        
         return $this->render('etapeprojet/show.html.twig', [
             'etapeprojet' => $etapeprojet,
         ]);
@@ -75,6 +102,7 @@ final class EtapeprojetController extends AbstractController
         ]);
     }
 
+
     #[Route('/{idEtapeprojet}', name: 'app_etapeprojet_delete', methods: ['POST'])]
     public function delete(Request $request, Etapeprojet $etapeprojet, EntityManagerInterface $entityManager): Response
     {
@@ -85,4 +113,5 @@ final class EtapeprojetController extends AbstractController
 
         return $this->redirectToRoute('app_etapeprojet_index', [], Response::HTTP_SEE_OTHER);
     }
+
 }

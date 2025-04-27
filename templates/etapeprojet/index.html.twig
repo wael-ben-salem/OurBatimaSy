@@ -44,6 +44,26 @@
       align-items: center;
       padding-left: 16px;
     }
+    /* Pagination styles */
+    .pagination {
+      display: flex;
+      justify-content: center;
+      margin-top: 20px;
+    }
+    .pagination .page-item.active .page-link {
+      background-color: #5e72e4;
+      border-color: #5e72e4;
+    }
+    .pagination .page-link {
+      color: #5e72e4;
+      margin: 0 5px;
+      border-radius: 50% !important;
+      width: 40px;
+      height: 40px;
+      display: flex;
+      align-items: center;
+      justify-content: center;
+    }
   </style>
 {% endblock %}
 
@@ -54,10 +74,16 @@
         <div class="card-header p-0 position-relative mt-n4 mx-3 z-index-2">
           <div class="bg-gradient-dark shadow-dark border-radius-lg pt-4 pb-3 d-flex justify-content-between align-items-center">
             <h6 class="text-white text-capitalize ps-3">Étapes des projets</h6>
-            <a href="{{ path('app_etapeprojet_new') }}" class="btn btn-sm btn-light me-3">
-              <i class="material-symbols-rounded me-1">add</i>
-              Nouvelle Étape du projet
-            </a>
+            <div>
+              <a href="{{ path('app_etapeprojet_new') }}" class="btn btn-sm btn-light me-3">
+                <i class="material-symbols-rounded me-1">add</i>
+                Nouvelle Étape
+              </a>
+              <a href="{{ path('app_etapeprojet_calendar') }}" class="btn btn-sm btn-info">
+                <i class="material-symbols-rounded me-1">calendar_month</i>
+                Vue Calendrier
+              </a>
+            </div>
           </div>
         </div>
         <div class="card-body px-0 pb-2">
@@ -161,6 +187,18 @@
               </tbody>
             </table>
           </div>
+          
+          {# Pagination Section #}
+          {% if etapeprojets is not empty %}
+          <div class="navigation px-4 pb-3">
+            {{ knp_pagination_render(etapeprojets, null, {}, {
+                'align': 'center',
+                'size': 'medium',
+                'style': 'rounded',
+                'span_class': 'page-link'
+            }) }}
+          </div>
+          {% endif %}
         </div>
       </div>
     </div>
@@ -170,9 +208,16 @@
 {% block javascripts %}
   {{ parent() }}
   <script>
-    // Initialize tooltips if needed
+    // Initialize tooltips
     $(function () {
       $('[data-toggle="tooltip"]').tooltip();
+    });
+    
+    // Add active class to pagination items
+    document.querySelectorAll('.page-item').forEach(item => {
+      if (item.classList.contains('active')) {
+        item.querySelector('.page-link').classList.add('text-white');
+      }
     });
   </script>
 {% endblock %}
