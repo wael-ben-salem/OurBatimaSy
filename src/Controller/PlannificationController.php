@@ -1,6 +1,5 @@
 <?php
 
-// src/Controller/PlannificationController.php
 namespace App\Controller;
 
 use App\Entity\Plannification;
@@ -10,10 +9,10 @@ use Symfony\Bundle\FrameworkBundle\Controller\AbstractController;
 use Symfony\Component\HttpFoundation\Request;
 use Symfony\Component\HttpFoundation\Response;
 use Symfony\Component\Routing\Annotation\Route;
-
-// Add these use statements
 use App\Entity\Discussion;
 use App\Form\DiscussionType;
+use App\Entity\SavedPlannification;
+use App\Entity\PlanifNotifications;
 
 #[Route('/plannification')]
 class PlannificationController extends AbstractController
@@ -41,6 +40,24 @@ class PlannificationController extends AbstractController
             $entityManager->persist($plannification);
             $entityManager->flush();
 
+            // Create notifications
+            $currentUser = $this->getUser();
+            $artisanUser = $plannification->getIdTache()->getArtisan()->getArtisan();
+
+            $this->createNotification(
+                $currentUser,
+                "You created a new plannification: " . $plannification->getIdPlannification(),
+                $plannification,
+                $entityManager
+            );
+
+            $this->createNotification(
+                $artisanUser,
+                "New plannification assigned to you: " . $plannification->getIdPlannification(),
+                $plannification,
+                $entityManager
+            );
+
             return $this->redirectToRoute('app_plannification_index', [], Response::HTTP_SEE_OTHER);
         }
 
@@ -50,13 +67,41 @@ class PlannificationController extends AbstractController
         ]);
     }
 
+    private function createNotification($recipient, $message, $plannification, $em)
+    {
+        $notification = new PlanifNotifications();
+        $notification->setRecipient($recipient);
+        $notification->setMessage($message);
+        $notification->setPlannification($plannification);
+        $em->persist($notification);
+        $em->flush();
+    }
+
+    #[Route('/saved', name: 'app_plannification_saved', methods: ['GET'])]
+    public function savedPlans(EntityManagerInterface $entityManager): Response
+    {
+        $user = $this->getUser();
+        if (!$user) {
+            return $this->redirectToRoute('app_login');
+        }
+
+        $savedPlans = $entityManager->getRepository(SavedPlannification::class)->findBy(
+            ['user' => $user],
+            ['id' => 'DESC']
+        );
+
+        return $this->render('plannification/saved.html.twig', [
+            'saved_plans' => $savedPlans
+        ]);
+    }
+
     #[Route('/{idPlannification}', name: 'app_plannification_show', methods: ['GET', 'POST'])]
     public function show(Plannification $plannification, Request $request, EntityManagerInterface $entityManager): Response
     {
         $discussion = new Discussion();
         $form = $this->createForm(DiscussionType::class, $discussion);
-
         $form->handleRequest($request);
+
         if ($form->isSubmitted() && $form->isValid()) {
             $discussion->setPlannification($plannification);
             $discussion->setSender($this->getUser());
@@ -104,11 +149,64 @@ class PlannificationController extends AbstractController
     #[Route('/{idPlannification}/delete', name: 'app_plannification_delete', methods: ['POST'])]
     public function delete(Request $request, Plannification $plannification, EntityManagerInterface $entityManager): Response
     {
-        if ($this->isCsrfTokenValid('delete'.$plannification->getIdPlannification(), $request->request->get('_token'))) {
+        if ($this->isCsrfTokenValid('delete' . $plannification->getIdPlannification(), $request->request->get('_token'))) {
             $entityManager->remove($plannification);
             $entityManager->flush();
         }
 
         return $this->redirectToRoute('app_plannification_index', [], Response::HTTP_SEE_OTHER);
+    }
+
+    #[Route('/{idPlannification}/save', name: 'app_plannification_save', methods: ['POST'])]
+    public function save(Plannification $plannification, EntityManagerInterface $entityManager): Response
+    {
+        $user = $this->getUser();
+        if (!$user) {
+            return $this->redirectToRoute('app_login');
+        }
+
+        $existingSave = $entityManager->getRepository(SavedPlannification::class)->findOneBy([
+            'user' => $user,
+            'plannification' => $plannification
+        ]);
+
+        if (!$existingSave) {
+            $savedPlan = new SavedPlannification();
+            $savedPlan->setUser($user);
+            $savedPlan->setPlannification($plannification);
+
+            $entityManager->persist($savedPlan);
+            $entityManager->flush();
+
+            $this->addFlash('success', 'Plannification saved successfully!');
+        }
+
+        return $this->redirectToRoute('app_plannification_show', [
+            'idPlannification' => $plannification->getIdPlannification()
+        ]);
+    }
+
+    #[Route('/{idPlannification}/unsave', name: 'app_plannification_unsave', methods: ['POST'])]
+    public function unsave(Plannification $plannification, EntityManagerInterface $entityManager): Response
+    {
+        $user = $this->getUser();
+        if (!$user) {
+            return $this->redirectToRoute('app_login');
+        }
+
+        $savedPlan = $entityManager->getRepository(SavedPlannification::class)->findOneBy([
+            'user' => $user,
+            'plannification' => $plannification
+        ]);
+
+        if ($savedPlan) {
+            $entityManager->remove($savedPlan);
+            $entityManager->flush();
+            $this->addFlash('success', 'Plannification unsaved successfully!');
+        }
+
+        return $this->redirectToRoute('app_plannification_show', [
+            'idPlannification' => $plannification->getIdPlannification()
+        ]);
     }
 }

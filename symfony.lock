@@ -35,6 +35,7 @@
             "./migrations/.gitignore"
         ]
     },
+
     "knpuniversity/oauth2-client-bundle": {
         "version": "2.18",
         "recipe": {
@@ -47,6 +48,15 @@
             "./config/packages/knpu_oauth2_client.yaml"
         ]
     },
+
+
+"knplabs/knp-paginator-bundle": {
+    "version": "v6.8.0"
+},
+"jms/translation-bundle": {
+    "version": "2.6.0"
+},
+
     "lexik/jwt-authentication-bundle": {
         "version": "2.18",
         "recipe": {

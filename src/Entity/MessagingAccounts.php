@@ -30,7 +30,7 @@ class MessagingAccounts
      */
     #[ORM\Column(name: 'username', type: 'string', length: 255, nullable: true)]
     private $username;
-
+                        
     /**
      * @var \Utilisateur
      */
@@ -87,6 +87,6 @@ class MessagingAccounts
 
         return $this;
     }
-
+  
 
 }

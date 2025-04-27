@@ -20,6 +20,17 @@
     .table th {
       width: 30%;
     }
+    .terrain-container {
+      display: flex;
+      align-items: center;
+      height: 100%;
+    }
+    .terrain-text {
+      flex-grow: 1;
+    }
+    .terrain-button {
+      margin-left: 10px;
+    }
   </style>
 {% endblock %}
 
@@ -72,19 +83,16 @@
                   <th class="text-uppercase text-secondary text-xs font-weight-bolder opacity-7">Emplacement du Terrain</th>
                   <td class="text-sm">
                     {% if projet.idTerrain %}
-                      {{ projet.idTerrain.emplacement }}
+                      <div class="terrain-container">
+                        <span class="terrain-text">{{ projet.idTerrain.emplacement }}</span>
+                        <a href="{{ path('app_terrain_show', {'idTerrain': projet.idTerrain.idTerrain}) }}" 
+                           class="btn btn-sm btn-outline-primary terrain-button">
+                          <i class="material-symbols-rounded" style="font-size: 16px">visibility</i>
+                          Voir
+                        </a>
+                      </div>
                     {% else %}
                       <span class="text-muted">Aucun terrain associé</span>
-                    {% endif %}
-                  </td>
-                </tr>
-                <tr>
-                  <th class="text-uppercase text-secondary text-xs font-weight-bolder opacity-7">Équipe Responsable</th>
-                  <td class="text-sm">
-                    {% if projet.idEquipe %}
-                      {{ projet.idEquipe.nom }}
-                    {% else %}
-                      <span class="text-muted">Aucune équipe assignée</span>
                     {% endif %}
                   </td>
                 </tr>
