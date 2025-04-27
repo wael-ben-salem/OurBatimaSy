@@ -46,6 +46,7 @@ class Equipe
     /**
      * @var \Constructeur
      */
+    
     #[ORM\JoinColumn(name: 'constructeur_id', referencedColumnName: 'constructeur_id')]
     #[ORM\ManyToOne(targetEntity: \Constructeur::class)]
     private $constructeur;
@@ -72,6 +73,8 @@ class Equipe
     public function __construct()
     {
         $this->artisan = new \Doctrine\Common\Collections\ArrayCollection();
+        $this->projets = new \Doctrine\Common\Collections\ArrayCollection(); // Ajoutez cette ligne
+
     }
 
     public function getId(): ?int
@@ -147,20 +150,58 @@ class Equipe
         return $this->artisan;
     }
 
-    public function addArtisan(Artisan $artisan): static
-    {
-        if (!$this->artisan->contains($artisan)) {
-            $this->artisan->add($artisan);
+// Ajoutez cette méthode pour la relation ManyToMany
+public function getArtisans(): Collection
+{
+    return $this->artisan;
+}
+
+public function addArtisan(Artisan $artisan): self
+{
+    if (!$this->artisan->contains($artisan)) {
+        $this->artisan[] = $artisan;
+    }
+
+    return $this;
+}
+
+public function removeArtisan(Artisan $artisan): self
+{
+    $this->artisan->removeElement($artisan);
+
+    return $this;
+}
+
+#[ORM\OneToMany(mappedBy: 'idEquipe', targetEntity: Projet::class)]
+private Collection $projets;
+
+/**
+ * @return Collection<int, Projet>
+ */
+public function getProjets(): Collection
+{
+    return $this->projets;
+}
+
+public function addProjet(Projet $projet): self
+{
+    if (!$this->projets->contains($projet)) {
+        $this->projets->add($projet);
+        $projet->setIdEquipe($this);
+    }
+
+    return $this;
+}
+
+public function removeProjet(Projet $projet): self
+{
+    if ($this->projets->removeElement($projet)) {
+        // set the owning side to null (unless already changed)
+        if ($projet->getIdEquipe() === $this) {
+            $projet->setIdEquipe(null);
         }
-
-        return $this;
     }
 
-    public function removeArtisan(Artisan $artisan): static
-    {
-        $this->artisan->removeElement($artisan);
-
-        return $this;
-    }
-
+    return $this;
+}
 }

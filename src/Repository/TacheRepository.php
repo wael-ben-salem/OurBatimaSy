@@ -40,4 +40,14 @@ class TacheRepository extends ServiceEntityRepository
     //            ->getOneOrNullResult()
     //        ;
     //    }
+    public function findByArtisansInEquipe(int $equipeId): array
+{
+    return $this->createQueryBuilder('t')
+        ->join('t.artisan', 'a')
+        ->join('a.equipe', 'e')
+        ->where('e.id = :equipeId')
+        ->setParameter('equipeId', $equipeId)
+        ->getQuery()
+        ->getResult();
+}
 }

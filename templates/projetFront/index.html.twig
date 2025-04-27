@@ -200,6 +200,28 @@
                 </div>
             </div>
             
+
+            <div class="row">
+                {% for projet in projets %}
+                    {% set etatRaw = projet.etat|default('En cours') %}
+                    {% set etat = etatRaw|trim|lower %}
+                    {% set color = 
+                        etat == 'Terminé' ? 'success' :
+                        (etat == 'en cours' ? 'info' :
+                        (etat == 'en attente' ? 'secondary' :
+                        (etat == 'annulé' ? 'danger' : 'info')))
+                    %}
+                    
+                    <div class="col-lg-4 col-md-6 col-sm-12 mb-4">
+                        <div class="project-card">
+                            <div class="card-header p-3 bg-gradient-dark text-white">
+                                <div class="d-flex justify-content-between align-items-center">
+                                    <h5 class="mb-0">{{ projet.nomprojet }}</h5>
+                                    <span class="project-status badge status-{{ color }}">
+                                        {{ etatRaw }}
+                                    </span>
+                                </div>
+
             <!-- Filter Section -->
             <div class="filter-section">
                 <div class="row">
@@ -239,6 +261,7 @@
                                 <a href="{{ path('app_projet_front_index') }}" class="btn btn-secondary">
                                     <i class="fas fa-times"></i>
                                 </a>
+
                             </div>
                         </form>
                     </div>
