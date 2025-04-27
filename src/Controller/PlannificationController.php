@@ -5,6 +5,8 @@ namespace App\Controller;
 use App\Entity\Plannification;
 use App\Form\PlannificationType;
 use Doctrine\ORM\EntityManagerInterface;
+use Nucleos\DompdfBundle\Exception\PdfException;
+use Nucleos\DompdfBundle\Wrapper\DompdfWrapperInterface;
 use Symfony\Bundle\FrameworkBundle\Controller\AbstractController;
 use Symfony\Component\HttpFoundation\Request;
 use Symfony\Component\HttpFoundation\Response;
@@ -94,6 +96,30 @@ class PlannificationController extends AbstractController
             'saved_plans' => $savedPlans
         ]);
     }
+
+    /**
+     * @throws PdfException
+     */
+    #[Route('/plannification/{idPlannification}/pdf', name: 'app_plannification_pdf')]
+    public function pdf(
+        Plannification $plannification,
+        DompdfWrapperInterface $dompdf
+    ): Response {
+        $html = $this->renderView('plannification/pdf.html.twig', [
+            'plannification' => $plannification
+        ]);
+
+        return new Response(
+            $dompdf->getPdf($html),
+            Response::HTTP_OK,
+            [
+                'Content-Type' => 'application/pdf',
+                'Content-Disposition' => sprintf('attachment; filename="plannification-%d.pdf"', $plannification->getIdPlannification())
+            ]
+        );
+    }
+
+
 
     #[Route('/{idPlannification}', name: 'app_plannification_show', methods: ['GET', 'POST'])]
     public function show(Plannification $plannification, Request $request, EntityManagerInterface $entityManager): Response
