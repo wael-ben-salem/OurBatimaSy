@@ -14,8 +14,8 @@
         "doctrine/migrations": "^3.9",
         "doctrine/orm": "^3.3",
 
-        "knpuniversity/oauth2-client-bundle": "^2.18",
 
+        "knpuniversity/oauth2-client-bundle": "^2.18",
         "google/cloud-vision": "^2.0",
         "jms/translation-bundle": "^2.6",
         "knplabs/knp-paginator-bundle": "^6.8",

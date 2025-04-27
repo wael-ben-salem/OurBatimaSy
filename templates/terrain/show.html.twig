@@ -125,7 +125,8 @@
             </table>
           </div>
 
-          <div id="map"></div>
+          {{ mapHTML|raw }}
+
           <div class="map-info-panel">
             <p>📍 <span id="coordinates">{{ terrain.detailsgeo }}</span></p>
             <p>🏠 <span id="address">{{ terrain.emplacement }}</span></p>
@@ -152,40 +153,4 @@
 {% block javascripts %}
   {{ parent() }}
   <script src="https://unpkg.com/leaflet@1.9.4/dist/leaflet.js"></script>
-  <script>
-    document.addEventListener('DOMContentLoaded', function() {
-      // Parse coordinates from detailsgeo
-      const detailsgeo = "{{ terrain.detailsgeo }}";
-      let lat = 36.8; // Default Tunisia coordinates
-      let lng = 10.18;
-      
-      // Try to extract coordinates from detailsgeo
-      const coordMatch = detailsgeo.match(/Lat: ([\d.-]+), Lng: ([\d.-]+)/);
-      if (coordMatch && coordMatch.length === 3) {
-        lat = parseFloat(coordMatch[1]);
-        lng = parseFloat(coordMatch[2]);
-      }
-      
-      // Initialize map
-      const map = L.map('map').setView([lat, lng], 15);
-      
-      // Add tile layer
-      L.tileLayer('https://{s}.tile.openstreetmap.org/{z}/{x}/{y}.png', {
-        maxZoom: 19,
-        attribution: '© OpenStreetMap'
-      }).addTo(map);
-      
-      // Add marker
-      L.marker([lat, lng], {
-        icon: L.icon({
-          iconUrl: 'https://raw.githubusercontent.com/pointhi/leaflet-color-markers/master/img/marker-icon-red.png',
-          iconSize: [25, 41],
-          iconAnchor: [12, 41],
-          popupAnchor: [1, -34],
-          className: 'red-marker'
-        })
-      }).addTo(map)
-        .bindPopup("<b>{{ terrain.emplacement }}</b><br>{{ terrain.caracteristiques }}");
-    });
-  </script>
 {% endblock %}

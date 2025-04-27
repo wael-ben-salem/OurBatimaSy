@@ -9,17 +9,29 @@ use Symfony\Bundle\FrameworkBundle\Controller\AbstractController;
 use Symfony\Component\HttpFoundation\Request;
 use Symfony\Component\HttpFoundation\Response;
 use Symfony\Component\Routing\Attribute\Route;
+use Knp\Component\Pager\PaginatorInterface;
+use App\Helper\CalendarHelper; 
+
 
 #[Route('/etapeprojet')]
 final class EtapeprojetController extends AbstractController
 {
     #[Route(name: 'app_etapeprojet_index', methods: ['GET'])]
-    public function index(EntityManagerInterface $entityManager): Response
+    public function index(EntityManagerInterface $entityManager, PaginatorInterface $paginator, Request $request): Response
     {
-        $etapeprojets = $entityManager
+        $query = $entityManager
             ->getRepository(Etapeprojet::class)
-            ->findAll();
-
+            ->createQueryBuilder('e')
+            ->leftJoin('e.idProjet', 'p') 
+            ->addSelect('p') 
+            ->getQuery();
+    
+        $etapeprojets = $paginator->paginate(
+            $query,
+            $request->query->getInt('page', 1),
+            9
+        );
+    
         return $this->render('etapeprojet/index.html.twig', [
             'etapeprojets' => $etapeprojets,
         ]);
@@ -45,9 +57,75 @@ final class EtapeprojetController extends AbstractController
         ]);
     }
 
-    #[Route('/{idEtapeprojet}', name: 'app_etapeprojet_show', methods: ['GET'])]
-    public function show(Etapeprojet $etapeprojet): Response
+    #[Route('/calendar/{year}/{month}', name: 'app_etapeprojet_calendar', methods: ['GET'])]
+    public function calendar(EntityManagerInterface $entityManager, int $year = null, int $month = null): Response
     {
+        // Set current month/year if not provided
+        $currentYear = $year ?? (int)date('Y');
+        $currentMonth = $month ?? (int)date('m');
+        
+        // Validate month range
+        $currentMonth = max(1, min(12, $currentMonth));
+        
+        // Calculate previous and next month for navigation
+        $prevMonth = $currentMonth - 1;
+        $prevYear = $currentYear;
+        if ($prevMonth < 1) {
+            $prevMonth = 12;
+            $prevYear--;
+        }
+        
+        $nextMonth = $currentMonth + 1;
+        $nextYear = $currentYear;
+        if ($nextMonth > 12) {
+            $nextMonth = 1;
+            $nextYear++;
+        }
+        
+        // Get all etapes
+        $etapes = $entityManager
+            ->getRepository(Etapeprojet::class)
+            ->findAll();
+        
+        // Prepare events for the calendar
+        $events = [];
+        foreach ($etapes as $etape) {
+            if ($etape->getDatedebut()) {
+                $events[] = [
+                    'id' => $etape->getIdEtapeprojet(),
+                    'title' => $etape->getNometape(),
+                    'date' => $etape->getDatedebut(),
+                    'endDate' => $etape->getDatefin(),
+                    'status' => $etape->getStatut(),
+                    'url' => $this->generateUrl('app_etapeprojet_show', ['idEtapeprojet' => $etape->getIdEtapeprojet()])
+                ];
+            }
+        }
+        
+        // Generate calendar structure
+        $calendarHelper = new CalendarHelper();
+        $calendar = $calendarHelper->generateCalendar($currentYear, $currentMonth, $events);
+        
+        return $this->render('etapeprojet/calendar_php.html.twig', [
+            'calendar' => $calendar,
+            'month' => $currentMonth,
+            'year' => $currentYear,
+            'monthName' => strftime('%B', mktime(0, 0, 0, $currentMonth, 1, $currentYear)),
+            'prevMonth' => $prevMonth,
+            'prevYear' => $prevYear,
+            'nextMonth' => $nextMonth,
+            'nextYear' => $nextYear,
+            'events' => $events
+        ]);
+    }
+
+    #[Route('/{idEtapeprojet}', name: 'app_etapeprojet_show', methods: ['GET'])]
+    public function show(?Etapeprojet $etapeprojet = null): Response
+    {
+        if (!$etapeprojet) {
+            throw $this->createNotFoundException('Étape non trouvée');
+        }
+        
         return $this->render('etapeprojet/show.html.twig', [
             'etapeprojet' => $etapeprojet,
         ]);
@@ -75,6 +153,7 @@ final class EtapeprojetController extends AbstractController
         ]);
     }
 
+
     #[Route('/{idEtapeprojet}', name: 'app_etapeprojet_delete', methods: ['POST'])]
     public function delete(Request $request, Etapeprojet $etapeprojet, EntityManagerInterface $entityManager): Response
     {
@@ -85,4 +164,5 @@ final class EtapeprojetController extends AbstractController
 
         return $this->redirectToRoute('app_etapeprojet_index', [], Response::HTTP_SEE_OTHER);
     }
+
 }

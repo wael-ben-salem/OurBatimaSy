@@ -169,21 +169,18 @@ public function new(Request $request, EntityManagerInterface $entityManager): Re
         $queryBuilder = $entityManager->getRepository(Projet::class)
             ->createQueryBuilder('p')
             ->leftJoin('p.idClient', 'c')
-            ->leftJoin('c.client', 'u');  // Join to Utilisateur
+            ->leftJoin('c.client', 'u');
         
         if ($showOnlyMine && $user instanceof Utilisateur) {
-            // Filter by logged-in user's email
             $queryBuilder->andWhere('u.email = :email')
                        ->setParameter('email', $user->getEmail());
         }
         
-        // Add status filter if provided
         if ($status = $request->query->get('status')) {
             $queryBuilder->andWhere('p.etat = :status')
                        ->setParameter('status', $status);
         }
         
-        // Add search by name if provided
         if ($search = $request->query->get('search')) {
             $queryBuilder->andWhere('p.nomprojet LIKE :search')
                        ->setParameter('search', '%'.$search.'%');
@@ -192,7 +189,7 @@ public function new(Request $request, EntityManagerInterface $entityManager): Re
         $pagination = $paginator->paginate(
             $queryBuilder->getQuery(),
             $request->query->getInt('page', 1),
-            9 // Items per page
+            9
         );
     
         return $this->render('projetFront/index.html.twig', [
