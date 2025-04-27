@@ -91,6 +91,9 @@ private string $password;
     #[ORM\Column(name: 'reset_token', type: 'string', length: 255, nullable: true)]
     private $resetToken;
 
+    #[ORM\Column(name: 'signature', type: 'string', length: 255, nullable: true)]
+private ?string $signature = null;
+
     /**
      * @var \DateTime|null
      */
@@ -192,6 +195,16 @@ private string $password;
 {
     $this->password = $password;
 
+    return $this;
+}
+public function getSignature(): ?string
+{
+    return $this->signature;
+}
+
+public function setSignature(?string $signature): static
+{
+    $this->signature = $signature;
     return $this;
 }
 
