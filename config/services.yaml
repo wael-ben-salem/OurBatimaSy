@@ -64,4 +64,8 @@ services:
         arguments:
             $connection: '@doctrine.dbal.default_connection'
             $passwordHasher: '@security.user_password_hasher'
+            
+    App\Service\GeminiApiService:
+        arguments:
+            $apiKey: '%env(GEMINI_API_KEY)%'
 
