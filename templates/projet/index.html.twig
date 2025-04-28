@@ -67,7 +67,7 @@
                   <th class="text-uppercase text-secondary text-xxs font-weight-bolder opacity-7 text-center">Type</th>
                   <th class="text-uppercase text-secondary text-xxs font-weight-bolder opacity-7 text-center">Budget</th>
                   <th class="text-uppercase text-secondary text-xxs font-weight-bolder opacity-7 text-center">Status</th>
-                  <th class="text-uppercase text-secondary text-xxs font-weight-bolder opacity-7 text-center">Project Stages</th>
+                  <th class="text-uppercase text-secondary text-xxs font-weight-bolder opacity-7 text-center">Étapes du projet</th>
                   <th class="text-uppercase text-secondary text-xxs font-weight-bolder opacity-7 text-center">Creation Date</th>
                   <th class="text-uppercase text-secondary text-xxs font-weight-bolder opacity-7 text-center">Actions</th>
                 </tr>
@@ -118,7 +118,7 @@
                     {% if projet.etapeprojets|length > 0 %}
                       <div class="dropdown">
                         <button class="btn btn-sm btn-outline-primary dropdown-toggle" type="button" id="dropdownStages{{ projet.idProjet }}" data-bs-toggle="dropdown" aria-expanded="false">
-                          {{ projet.etapeprojets|length }} stages
+                          {{ projet.etapeprojets|length }} Étape(s)
                         </button>
                         <ul class="dropdown-menu" aria-labelledby="dropdownStages{{ projet.idProjet }}">
                           {% for etape in projet.etapeprojets %}

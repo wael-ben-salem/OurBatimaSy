@@ -70,6 +70,18 @@
                   <th class="text-uppercase text-secondary text-xs font-weight-bolder opacity-7">Montant Total</th>
                   <td class="text-sm font-weight-bold">{{ contrat.montantTotal }} DTN</td>
                 </tr>
+
+               <tr>  
+                <td>
+{% if contrat.signatureElectronique %}
+  <img src="{{ asset( contrat.signatureElectronique) }}" alt="Signature" width="150" />
+{% else %}
+  <span>Aucune signature</span>
+{% endif %}
+    
+    </td>
+
+               <tr
               </tbody>
             </table>
           </div>
@@ -90,6 +102,9 @@
                 Supprimer
               </button>
             </form>
+
+
+            
           </div>
         </div>
       </div>

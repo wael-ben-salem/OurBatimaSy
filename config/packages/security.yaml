@@ -39,6 +39,14 @@ security:
     access_control:
         - { path: ^/register, roles: PUBLIC_ACCESS }
         - { path: ^/login, roles: PUBLIC_ACCESS }
+
         - { path: ^/welcome, roles: ROLE_USER }
         - { path: ^/tache, roles: ROLE_CONSTRUCTEUR }
         - { path: ^/plannification, roles: ROLE_USER }
+
+        - { path: ^/welcome, roles: ROLE_USER }  # All roles inherit ROLE_USER
+        - { path: ^/tache, roles: ROLE_CONSTRUCTEUR }  # You can add more if needed
+        - { path: ^/plannification, roles: ROLE_USER }  # Since ARTISAN, CONSTRUCTEUR, CLIENT inherit ROLE_USER
+        - { path: ^/plannification/\d+/save, roles: ROLE_USER }
+        - { path: ^/plannification/\d+/unsave, roles: ROLE_USER }
+        - { path: ^/notifications, roles: ROLE_USER }

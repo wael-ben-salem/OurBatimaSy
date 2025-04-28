@@ -1,0 +1,42 @@
+{% extends 'base.html.twig' %}
+
+{% block title %}Nouvelle Réclamation{% endblock %}
+
+{% block stylesheets %}
+  {{ parent() }}
+  <style>
+    .card {
+      border-radius: 12px;
+      box-shadow: 0 4px 20px 0 rgba(0, 0, 0, 0.14), 
+                  0 7px 10px -5px rgba(0, 0, 0, 0.4);
+    }
+  </style>
+{% endblock %}
+
+{% block body %}
+  <div class="row">
+    <div class="col-12">
+      <div class="card my-4">
+        <div class="card-header p-0 position-relative mt-n4 mx-3 z-index-2">
+          <div class="bg-gradient-dark shadow-dark border-radius-lg pt-4 pb-3">
+            <h6 class="text-white text-capitalize ps-3">Nouvelle Réclamation</h6>
+          </div>
+        </div>
+        <div class="card-body px-4 pb-2">
+          {{ include('reclamation/_form.html.twig') }}
+          
+          <div class="row mt-4">
+            <div class="col-12">
+              <div class="d-flex justify-content-between">
+                <a href="{{ path('app_reclamation_index') }}" class="btn btn-outline-secondary">
+                  <i class="material-symbols-rounded me-1">arrow_back</i>
+                  Retour à la liste
+                </a>
+              </div>
+            </div>
+          </div>
+        </div>
+      </div>
+    </div>
+  </div>
+{% endblock %}
