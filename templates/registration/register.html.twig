@@ -21,7 +21,34 @@
             opacity: 0.3;
             z-index: 0;
         }
+        
+        #videoFeed {
+            transform: scaleX(-1); /* Miroir pour l'expérience utilisateur */
+            background: #000;
+        }
 
+        #overlay {
+            pointer-events: none;
+            border: 3px solid rgba(255, 255, 255, 0.5);
+            border-radius: 15px;
+        }
+
+        .pose-step {
+            animation: pulse 1.5s infinite;
+        }
+
+        @keyframes pulse {
+            0% { transform: scale(1); }
+            50% { transform: scale(1.02); }
+            100% { transform: scale(1); }
+        }
+
+        .countdown {
+            font-size: 2.5rem;
+            font-weight: bold;
+            color: #0d6efd;
+        }
+        
         .container {
             position: relative;
             z-index: 2;
@@ -146,6 +173,21 @@
             .card {
                 margin: 1rem;
             }
+        }
+        
+        .face-registration-container {
+            background-color: #f8f9fa;
+            border: 1px solid #dee2e6;
+        }
+        
+        #captureCanvas {
+            display: none;
+        }
+        
+        .capture-preview {
+            max-width: 100%;
+            border-radius: 8px;
+            margin-top: 10px;
         }
     </style>
 {% endblock %}
@@ -286,11 +328,11 @@
                         </div>
                     </div>
                 </div>
-
+                
                 <div class="col-12">
                     <button type="submit" class="btn btn-primary btn-lg w-100 py-3 fw-bold">
                         <i class="bi bi-rocket-takeoff me-2"></i>
-                        S'inscrire maintenant
+                        Suivant
                     </button>
                 </div>
             </div>
@@ -314,14 +356,11 @@
     <script src="https://cdn.jsdelivr.net/npm/intl-tel-input@18.2.1/build/js/intlTelInput.min.js"></script>
     <script src="https://cdn.jsdelivr.net/npm/leaflet.locatecontrol/dist/L.Control.Locate.min.js"></script>
     <script src="https://cdn.jsdelivr.net/npm/zxcvbn@4.4.2/dist/zxcvbn.js"></script>
-    <script src="{{ asset('js/register.js') }}"></script>
 
     <script>
-        // Validation du formulaire en temps réel
-        (function() {
-            'use strict';
-            
-            // Sélectionner tous les champs requis
+       
+
+            // Validation du formulaire en temps réel
             const fields = document.querySelectorAll('.form-control[required]');
             
             fields.forEach(field => {
@@ -348,10 +387,12 @@
                     });
                 }
             });
+           
             
             // Validation du formulaire avant soumission
             const form = document.querySelector('.needs-validation');
             form.addEventListener('submit', function(event) {
+                 
                 if (!form.checkValidity()) {
                     event.preventDefault();
                     event.stopPropagation();
@@ -458,6 +499,6 @@
                     }
                 });
             }
-        })();
+        
     </script>
 {% endblock %}

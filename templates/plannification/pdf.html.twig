@@ -1,0 +1,64 @@
+<!DOCTYPE html>
+<html>
+<head>
+    <meta charset="UTF-8">
+    <title>Plannification {{ plannification.idPlannification }}</title>
+    <style>
+        body { font-family: Arial, sans-serif; }
+        .header { text-align: center; margin-bottom: 20px; }
+        .badge { padding: 5px 10px; border-radius: 4px; }
+        .bg-dark { background-color: #333; color: white; }
+        .bg-info { background-color: #17a2b8; color: white; }
+        .bg-secondary { background-color: #6c757d; color: white; }
+        table { width: 100%; border-collapse: collapse; margin-top: 20px; }
+        th, td { padding: 10px; border: 1px solid #ddd; text-align: left; }
+        th { background-color: #f8f9fa; }
+    </style>
+</head>
+<body>
+<div class="header">
+    <h1>Plannification #{{ plannification.idPlannification }}</h1>
+    <p>Generated on {{ "now"|date('d/m/Y H:i') }}</p>
+</div>
+
+<table>
+    <tbody>
+    <tr>
+        <th>Priorité</th>
+        <td>{{ plannification.priorite }}</td>
+    </tr>
+    <tr>
+        <th>Date planifiée</th>
+        <td>{{ plannification.datePlanifiee|date('d/m/Y') }}</td>
+    </tr>
+    <tr>
+        <th>Heures</th>
+        <td>
+                    <span class="badge bg-info">
+                        {{ plannification.heureDebut ? plannification.heureDebut|date('H:i') : '─' }}
+                    </span> →
+            <span class="badge bg-secondary">
+                        {{ plannification.heureFin ? plannification.heureFin|date('H:i') : '─' }}
+                    </span>
+        </td>
+    </tr>
+    <tr>
+        <th>Remarques</th>
+        <td>{{ plannification.remarques }}</td>
+    </tr>
+    <tr>
+        <th>Statut</th>
+        <td>
+                    <span class="badge bg-dark">
+                        {{ plannification.statut }}
+                    </span>
+        </td>
+    </tr>
+    <tr>
+        <th>Tâche associée</th>
+        <td>{{ plannification.idTache.description }}</td>
+    </tr>
+    </tbody>
+</table>
+</body>
+</html>

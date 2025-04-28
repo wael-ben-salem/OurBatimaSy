@@ -14,7 +14,6 @@ security:
         main:
             lazy: true
             provider: app_user_provider
-            entry_point: App\Security\GoogleAuthenticator  # <-- This is the key addition
             custom_authenticator:
                 - App\Security\GoogleAuthenticator
                 - App\Security\LoginFormAuthenticator

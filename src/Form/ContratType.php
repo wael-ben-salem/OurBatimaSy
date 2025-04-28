@@ -14,6 +14,8 @@ use Symfony\Component\Form\Extension\Core\Type\NumberType;
 use Symfony\Bridge\Doctrine\Form\Type\EntityType;
 use Symfony\Component\Form\Extension\Core\Type\DateType;
 use Symfony\Component\Validator\Context\ExecutionContextInterface;
+use Symfony\Component\Form\Extension\Core\Type\HiddenType; // Add this line
+
 
 class ContratType extends AbstractType
 {
@@ -36,6 +38,10 @@ class ContratType extends AbstractType
 
                 ]
                 ])
+
+               
+
+
             ->add('dateDebut', DateType::class, [
                 'widget' => 'single_text' ,
                 'required' => true,
