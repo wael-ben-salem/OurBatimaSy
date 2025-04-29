@@ -334,6 +334,16 @@ public function setGestionnaireStock(?Gestionnairestock $gestionnaireStock): sta
     return $this;
 }
 
+// In Utilisateur entity
+    public function __toString(): string
+    {
+        return sprintf('%s %s (%s)',
+            $this->prenom,
+            $this->nom,
+            $this->role ?? 'No role'
+        );
+    }
+
 
 
 }

@@ -52,6 +52,15 @@
         </a>
       </li>
 
+
+      <li class="nav-item">
+        <a class="nav-link {{ current_route starts with 'app_chat' ? 'active bg-gradient-dark text-white' : 'text-dark' }}"
+           href="{{ path('app_chat') }}">
+          <i class="material-symbols-rounded opacity-5">chat</i>
+          <span class="nav-link-text ms-1">AI Assistant</span>
+        </a>
+      </li>
+
       <li class="nav-item">
         <a class="nav-link {{ current_route starts with 'app_terrain_' ? 'active bg-gradient-dark text-white' : 'text-dark' }}" href="{{ path('app_terrain_index') }}">
           <i class="material-symbols-rounded opacity-5">landscape</i>

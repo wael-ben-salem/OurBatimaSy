@@ -1,0 +1,86 @@
+{# templates/chat/index.html.twig #}
+{% extends 'base.html.twig' %}
+
+{% block body %}
+    <div class="container">
+        <div class="card">
+            <div class="card-header">
+                <h3 class="mb-0">Project Assistant</h3>
+            </div>
+
+            <div class="card-body chat-body" style="height: 60vh; overflow-y: auto;">
+                <div id="chat-history">
+                    <!-- Chat messages will appear here -->
+                </div>
+            </div>
+
+            <div class="card-footer">
+                <form id="chat-form">
+                    <div class="input-group">
+                        <input type="text" name="question" class="form-control"
+                               placeholder="Ask about tasks, planning, users..." required>
+                        <button type="submit" class="btn btn-dark">
+                            <i class="material-icons">send</i>
+                        </button>
+                    </div>
+                </form>
+            </div>
+        </div>
+    </div>
+{% endblock %}
+
+{% block javascripts %}
+    <script>
+        document.getElementById('chat-form').addEventListener('submit', async (e) => {
+            e.preventDefault();
+            const form = e.target;
+            const input = form.question;
+            const chatHistory = document.getElementById('chat-history');
+
+            // Add user question
+            chatHistory.innerHTML += `
+        <div class="alert alert-dark mb-2">
+            <strong>You:</strong> ${input.value}
+        </div>
+    `;
+
+            try {
+                const response = await fetch('{{ path('app_chat_ask') }}', {
+                    method: 'POST',
+                    headers: {
+                        'Content-Type': 'application/x-www-form-urlencoded',
+                    },
+                    body: new URLSearchParams({question: input.value})
+                });
+
+                if (!response.ok) {
+                    throw new Error(`HTTP error! status: ${response.status}`);
+                }
+
+                const data = await response.json();
+
+                // Handle potential missing answer property
+                const answer = data?.answer || 'No answer could be generated for this question';
+
+                // Add bot response
+                chatHistory.innerHTML += `
+            <div class="alert alert-secondary mb-2">
+                <strong>Assistant:</strong> ${answer}
+            </div>
+        `;
+
+                // Clear input
+                input.value = '';
+                chatHistory.scrollTop = chatHistory.scrollHeight;
+
+            } catch (error) {
+                console.error('Fetch Error:', error);
+                chatHistory.innerHTML += `
+            <div class="alert alert-danger mb-2">
+                <strong>Error:</strong> Could not get response from the assistant
+            </div>
+        `;
+            }
+        });
+    </script>
+{% endblock %}
