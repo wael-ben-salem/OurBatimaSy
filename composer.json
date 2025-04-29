@@ -14,15 +14,13 @@
         "doctrine/migrations": "^3.9",
         "doctrine/orm": "^3.3",
         "google/cloud-vision": "^2.0",
-
-      "grpc/grpc": "^1.57",
+        "grpc/grpc": "^1.57",
+        "guzzlehttp/guzzle": "^7.9",
         "jenssegers/imagehash": "^0.10.0",
-
         "jms/translation-bundle": "^2.6",
         "knplabs/knp-paginator-bundle": "^6.8",
         "knpuniversity/oauth2-client-bundle": "^2.18",
         "league/oauth2-google": "^4.0",
-
         "lexik/jwt-authentication-bundle": "^2.18",
         "nelmio/cors-bundle": "^2.5",
         "nucleos/dompdf-bundle": "^4.3",

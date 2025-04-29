@@ -51,3 +51,4 @@ security:
         - { path: ^/plannification/\d+/save, roles: ROLE_USER }
         - { path: ^/plannification/\d+/unsave, roles: ROLE_USER }
         - { path: ^/notifications, roles: ROLE_USER }
+        - {path: ^/contrat/generate-pdf, roles: ROLE_USER }
