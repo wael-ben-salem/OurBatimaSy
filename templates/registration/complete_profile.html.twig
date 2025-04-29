@@ -1,0 +1,308 @@
+{% extends 'base.html.twig' %}
+
+{% block title %}Compléter votre profil{% endblock %}
+
+{% block stylesheets %}
+    {{ parent() }}
+    <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/intl-tel-input/17.0.8/css/intlTelInput.min.css">
+    <link rel="stylesheet" href="https://unpkg.com/leaflet@1.7.1/dist/leaflet.css" />
+    <link rel="stylesheet" href="https://unpkg.com/leaflet-control-geocoder/dist/Control.Geocoder.css" />
+    <style>
+        .card {
+            border-radius: 10px;
+            box-shadow: 0 6px 15px rgba(0, 0, 0, 0.1);
+        }
+        
+        .card-header {
+            border-radius: 10px 10px 0 0 !important;
+            background: linear-gradient(135deg, #667eea 0%, #764ba2 100%);
+        }
+        
+        .form-control {
+            border-radius: 4px;
+            padding: 12px 15px;
+            margin-bottom: 15px;
+        }
+        
+        .btn-primary {
+            background: linear-gradient(135deg, #667eea 0%, #764ba2 100%);
+            border: none;
+            padding: 12px;
+            font-weight: 600;
+        }
+        
+        #map-container {
+            height: 400px;
+            margin-bottom: 20px;
+            border-radius: 8px;
+            overflow: hidden;
+            border: 1px solid #dee2e6;
+            position: relative;
+        }
+        
+        #map {
+            height: 100%;
+            width: 100%;
+        }
+        
+        .search-box {
+            position: absolute;
+            top: 10px;
+            left: 10px;
+            z-index: 1000;
+            width: calc(100% - 20px);
+        }
+        
+        .map-controls {
+            display: flex;
+            gap: 10px;
+            margin-bottom: 15px;
+        }
+
+        .search-box input {
+            width: 100%;
+            padding: 10px 15px;
+            border-radius: 4px;
+            border: 1px solid #ced4da;
+            box-shadow: 0 2px 4px rgba(0, 0, 0, 0.1);
+        }
+        
+        .is-invalid {
+            border-color: #dc3545 !important;
+        }
+        
+        .invalid-feedback {
+            color: #dc3545;
+            font-size: 0.875em;
+            margin-top: -10px;
+            margin-bottom: 15px;
+        }
+        
+        .leaflet-top {
+            top: 60px;
+        }
+        
+        .leaflet-control-geocoder-form {
+            width: 300px;
+        }
+        
+        .is-valid {
+            border-color: #28a745 !important;
+        }
+    </style>
+{% endblock %}
+
+{% block body %}
+<div class="container py-5">
+    <div class="row justify-content-center">
+        <div class="col-lg-8">
+            <div class="card">
+                <div class="card-header text-white text-center py-4">
+                    <h3 class="mb-0">Compléter votre profil</h3>
+                    <p class="mb-0">Finalisez votre inscription</p>
+                </div>
+                <div class="card-body px-5 py-4">
+                    {{ form_start(form) }}
+                        <div class="row">
+                            <div class="col-md-6">
+                                <div class="form-group">
+                                    {{ form_label(form.nom) }}
+                                    {{ form_widget(form.nom, {'attr': {'class': 'form-control' ~ (form.nom.vars.valid ? '' : ' is-invalid')}}) }}
+                                    {% if form.nom.vars.errors|length > 0 %}
+                                        <div class="invalid-feedback">
+                                            {{ form.nom.vars.errors[0].message }}
+                                        </div>
+                                    {% endif %}
+                                </div>
+                            </div>
+                            <div class="col-md-6">
+                                <div class="form-group">
+                                    {{ form_label(form.prenom) }}
+                                    {{ form_widget(form.prenom, {'attr': {'class': 'form-control' ~ (form.prenom.vars.valid ? '' : ' is-invalid')}}) }}
+                                    {% if form.prenom.vars.errors|length > 0 %}
+                                        <div class="invalid-feedback">
+                                            {{ form.prenom.vars.errors[0].message }}
+                                        </div>
+                                    {% endif %}
+                                </div>
+                            </div>
+                        </div>
+                        
+                        <div class="form-group">
+                            {{ form_label(form.telephone) }}
+                            {{ form_widget(form.telephone, {'attr': {
+                                'class': 'form-control phone-input' ~ (form.telephone.vars.valid ? '' : ' is-invalid'),
+                                'placeholder': 'Sélectionnez votre pays'
+                            }}) }}
+                            {% if form.telephone.vars.errors|length > 0 %}
+                                <div class="invalid-feedback">
+                                    {{ form.telephone.vars.errors[0].message }}
+                                </div>
+                            {% endif %}
+                        </div>
+                        
+                        <div class="form-group">
+                            <label class="form-label mb-2">Localisation</label>
+                            <div id="map-container">
+                                <div id="map"></div>
+                            </div>
+                            <div class="map-controls">
+                                <button type="button" id="locate-me" class="btn btn-sm btn-outline-primary">
+                                    <i class="bi bi-geo-alt"></i> Ma position
+                                </button>
+                            </div>
+                            <div class="form-group mt-1">
+                                {{ form_label(form.adresse) }}
+                                {{ form_widget(form.adresse, {
+                                    'attr': {
+                                        'class': 'form-control',
+                                        'required': 'required'
+                                    }
+                                }) }}
+                                {{ form_widget(form.latitude) }}
+                                {{ form_widget(form.longitude) }}
+                                <div class="invalid-feedback">
+                                    Veuillez sélectionner une adresse sur la carte.
+                                </div>
+                            </div>
+                        </div>
+
+                        <div class="form-group">
+                            {{ form_label(form.plainPassword) }}
+                            {{ form_widget(form.plainPassword, {'attr': {'class': 'form-control' ~ (form.plainPassword.vars.valid ? '' : ' is-invalid')}}) }}
+                            {% if form.plainPassword.vars.errors|length > 0 %}
+                                <div class="invalid-feedback">
+                                    {{ form.plainPassword.vars.errors[0].message }}
+                                </div>
+                            {% endif %}
+                        </div>
+
+                        <button type="submit" class="btn btn-primary w-100 mt-4">
+                            Enregistrer et continuer
+                        </button>
+                    {{ form_end(form) }}
+                </div>
+            </div>
+        </div>
+    </div>
+</div>
+{% endblock %}
+
+{% block javascripts %}
+    {{ parent() }}
+    <script src="https://cdnjs.cloudflare.com/ajax/libs/intl-tel-input/17.0.8/js/intlTelInput.min.js"></script>
+    <script src="https://cdnjs.cloudflare.com/ajax/libs/intl-tel-input/17.0.8/js/utils.js"></script>
+    <script src="https://unpkg.com/leaflet@1.7.1/dist/leaflet.js"></script>
+    <script src="https://unpkg.com/leaflet-control-geocoder/dist/Control.Geocoder.js"></script>
+
+    <script>
+        document.addEventListener('DOMContentLoaded', function() {
+            // Initialisation de la carte
+            const map = L.map('map').setView([33.8869, 9.5375], 6);
+            L.tileLayer('https://{s}.tile.openstreetmap.org/{z}/{x}/{y}.png', {
+                attribution: '&copy; <a href="https://www.openstreetmap.org/copyright">OpenStreetMap</a> contributors'
+            }).addTo(map);
+            
+            // Ajout du contrôle de recherche
+            const geocoder = L.Control.geocoder({
+                defaultMarkGeocode: false,
+                position: 'topleft',
+                placeholder: 'Rechercher un lieu...',
+                errorMessage: 'Lieu non trouvé',
+                geocoder: L.Control.Geocoder.nominatim({
+                    geocodingQueryParams: {
+                        'accept-language': 'fr',
+                        'countrycodes': 'tn'
+                    }
+                })
+            }).addTo(map);
+            
+            // Marqueur pour la position sélectionnée
+            const marker = L.marker([33.8869, 9.5375], { 
+                draggable: true 
+            }).addTo(map);
+            
+            // Champs du formulaire
+            const adresseField = document.getElementById('{{ form.adresse.vars.id }}');
+            const latitudeField = document.getElementById('{{ form.latitude.vars.id }}');
+            const longitudeField = document.getElementById('{{ form.longitude.vars.id }}');
+            
+            // Fonction pour mettre à jour l'adresse
+            function updateAddress(lat, lng) {
+                // Mettre à jour les champs latitude/longitude
+                latitudeField.value = lat;
+                longitudeField.value = lng;
+                
+                // Faire la requête pour obtenir l'adresse
+                fetch(`https://nominatim.openstreetmap.org/reverse?format=json&lat=${lat}&lon=${lng}&accept-language=fr`)
+                    .then(response => {
+                        if (!response.ok) {
+                            throw new Error('Erreur réseau');
+                        }
+                        return response.json();
+                    })
+                    .then(data => {
+                        if (data.display_name) {
+                            adresseField.value = data.display_name;
+                            adresseField.classList.remove('is-invalid');
+                            adresseField.classList.add('is-valid');
+                        } else {
+                            adresseField.value = `Position: ${lat.toFixed(6)}, ${lng.toFixed(6)}`;
+                        }
+                    })
+                    .catch(error => {
+                        console.error('Erreur:', error);
+                        adresseField.value = `Position: ${lat.toFixed(6)}, ${lng.toFixed(6)}`;
+                    });
+            }
+            
+            // Gestion des résultats de la recherche
+            geocoder.on('markgeocode', function(e) {
+                const { center, name } = e.geocode;
+                map.setView(center, 16);
+                marker.setLatLng(center);
+                adresseField.value = name;
+                latitudeField.value = center.lat;
+                longitudeField.value = center.lng;
+                adresseField.classList.remove('is-invalid');
+                adresseField.classList.add('is-valid');
+            });
+            
+            // Gestion du clic sur la carte
+            map.on('click', function(e) {
+                marker.setLatLng(e.latlng);
+                updateAddress(e.latlng.lat, e.latlng.lng);
+            });
+            
+            // Gestion du glisser-déposer du marqueur
+            marker.on('dragend', function(e) {
+                const pos = marker.getLatLng();
+                updateAddress(pos.lat, pos.lng);
+            });
+            
+            // Bouton de localisation
+            document.getElementById('locate-me').addEventListener('click', function() {
+                map.locate({setView: true, maxZoom: 16});
+            });
+            
+            // Quand la position est trouvée
+            map.on('locationfound', function(e) {
+                marker.setLatLng(e.latlng);
+                updateAddress(e.latlng.lat, e.latlng.lng);
+            });
+            
+            // Initialisation avec l'adresse actuelle du marqueur
+            updateAddress(33.8869, 9.5375);
+            
+            // Initialisation du champ téléphone
+            const phoneInput = document.querySelector('.phone-input');
+            if (phoneInput) {
+                window.intlTelInput(phoneInput, {
+                    preferredCountries: ['fr', 'us', 'gb', 'de', 'es', 'it'],
+                    separateDialCode: true,
+                    utilsScript: 'https://cdnjs.cloudflare.com/ajax/libs/intl-tel-input/17.0.8/js/utils.js'
+                });
+            }
+        });
+    </script>
+{% endblock %}

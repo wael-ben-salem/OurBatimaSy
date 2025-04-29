@@ -1,0 +1,7 @@
+<form method="post" action="{{ path('app_reclamation_delete', {'id': reclamation.id}) }}" onsubmit="return confirm('Êtes-vous sûr de vouloir supprimer cette réclamation?');" class="d-inline">
+    <input type="hidden" name="_token" value="{{ csrf_token('delete' ~ reclamation.id) }}">
+    <button class="btn btn-outline-secondary ms-2">
+        <i class="material-symbols-rounded me-1">delete</i>
+        Supprimer
+    </button>
+</form>

@@ -96,6 +96,7 @@ class EtapeprojetType extends AbstractType
                     'En attente' => 'En attente',
                     'Terminé' => 'Terminé',
                     'Annulé' => 'Annulé'
+                    
                 ],
                 'constraints' => [
                     new Assert\NotBlank([

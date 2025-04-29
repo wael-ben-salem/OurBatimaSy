@@ -23,8 +23,36 @@
       white-space: nowrap;
       overflow: hidden;
       text-overflow: ellipsis;
-      max-width: 200px;
+      max-width: 150px;  /* Reduced from 200px */
       display: inline-block;
+    }
+    /* New style for emplacement column */
+    .emplacement-cell {
+      max-width: 200px;  /* Set a maximum width */
+      overflow: hidden;
+    }
+    .emplacement-content {
+      display: flex;
+      align-items: center;
+      min-width: 0;  /* Allows text truncation to work with flex */
+    }
+    .emplacement-text {
+      white-space: nowrap;
+      overflow: hidden;
+      text-overflow: ellipsis;
+    }
+    /* Make table columns more balanced */
+    table {
+      table-layout: fixed;
+    }
+    td, th {
+      padding: 0.75rem;
+    }
+    td:first-child {
+      width: 25%;  /* Adjust as needed */
+    }
+    td:not(:first-child) {
+      width: auto;
     }
   </style>
 {% endblock %}
@@ -47,8 +75,7 @@
             <table class="table align-items-center justify-content-center mb-0">
               <thead>
                 <tr>
-                  <th class="text-uppercase text-secondary text-xxs font-weight-bolder opacity-7">Description</th>
-                  <th class="text-uppercase text-secondary text-xxs font-weight-bolder opacity-7 text-center">Emplacement</th>
+                  <th class="text-uppercase text-secondary text-xxs font-weight-bolder opacity-7" style="width: 25%;">Emplacement</th>
                   <th class="text-uppercase text-secondary text-xxs font-weight-bolder opacity-7 text-center">Caractéristiques</th>
                   <th class="text-uppercase text-secondary text-xxs font-weight-bolder opacity-7 text-center">Superficie</th>
                   <th class="text-uppercase text-secondary text-xxs font-weight-bolder opacity-7 text-center">Détails Géographiques</th>
@@ -58,23 +85,15 @@
               <tbody>
                 {% for terrain in terrains %}
                 <tr>
-                  <td>
-                    <div class="d-flex px-2">
-                      <div>
-                        <div class="avatar avatar-sm rounded-circle bg-gradient-dark me-2">
-                          <i class="material-symbols-rounded text-white">landscape</i>
-                        </div>
+                  <td class="emplacement-cell">
+                    <div class="emplacement-content">
+                      <div class="avatar avatar-sm rounded-circle bg-gradient-dark me-2">
+                        <i class="material-symbols-rounded text-white">landscape</i>
                       </div>
-                      <div class="my-auto">
+                      <div class="emplacement-text">
                         <h6 class="mb-0 text-sm">{{ terrain.emplacement }}</h6>
-                        <p class="text-xs text-secondary mb-0">
-                          {{ terrain.superficie }} m²
-                        </p>
                       </div>
                     </div>
-                  </td>
-                  <td class="text-center align-middle">
-                    <p class="text-sm font-weight-bold mb-0 text-truncate">{{ terrain.emplacement }}</p>
                   </td>
                   <td class="text-center align-middle">
                     <p class="text-sm font-weight-bold mb-0 text-truncate">{{ terrain.caracteristiques }}</p>
@@ -96,7 +115,7 @@
                 </tr>
                 {% else %}
                 <tr>
-                  <td colspan="6" class="text-center py-4">
+                  <td colspan="5" class="text-center py-4">
                     <i class="material-symbols-rounded opacity-50">landscape</i>
                     <p class="text-sm text-secondary mt-2">Aucun terrain enregistré</p>
                   </td>
