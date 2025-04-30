@@ -9,7 +9,7 @@
 
             <div class="collapse navbar-collapse justify-content-between" id="navbarCollapse">
                 <div class="navbar-nav mr-auto">
-                    <a href="{{ path('home') }}" class="nav-item nav-link {% if app.request.attributes.get('_route') == 'home' %}active{% endif %}">Home</a>
+                    <a href="{{ path('app_welcomeFront') }}" class="nav-item nav-link {% if app.request.attributes.get('_route') == 'app_welcomeFront' %}active{% endif %}">Acceuil</a>
                     <a href="{{ path('about') }}" class="nav-item nav-link {% if app.request.attributes.get('_route') == 'about' %}active{% endif %}">About</a>
                     <a href="{{ path('service') }}" class="nav-item nav-link {% if app.request.attributes.get('_route') == 'service' %}active{% endif %}">Service</a>
                     <a href="{{ path('team') }}" class="nav-item nav-link {% if app.request.attributes.get('_route') == 'team' %}active{% endif %}">Team</a>
