@@ -13,6 +13,11 @@ services:
             string $googleClientId: '%env(GOOGLE_CLIENT_ID)%'
             string $googleClientSecret: '%env(GOOGLE_CLIENT_SECRET)%'
             string $googleRedirectUri: '%env(GOOGLE_REDIRECT_URI)%'
+            string $html2pdfApiKey: '%env(HTML2PDF_API_KEY)%'
+
+            # ... other binds
+            
+    
 
     App\:
         resource: '../src/'
@@ -22,7 +27,7 @@ services:
             - '../src/Kernel.php'
             - '../src/Security/GoogleAuthenticator.php'
 
-    # Explicit config for GoogleAuthenticator
+
     App\Security\GoogleAuthenticator:
         arguments:
             $router: '@router'
@@ -55,6 +60,13 @@ services:
             $connection: '@doctrine.dbal.default_connection'
             $passwordHasher: '@security.user_password_hasher'
 
+   
+
+    App\Service\HtmlToPdfService:
+        arguments:
+            $httpClient: '@http_client'
+            $apiKey: '%env(HTML2PDF_API_KEY)%'
+
     App\Service\GeminiApiService:
         arguments:
             $apiKey: '%env(GEMINI_API_KEY)%'
@@ -63,3 +75,4 @@ framework:
     http_client:
         default_options:
             max_duration: 30
+

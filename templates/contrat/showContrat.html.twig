@@ -1,0 +1,192 @@
+{% extends 'base_backOffice.html.twig' %}
+
+{% block title %}Contrat de Construction - Ourbatima{% endblock %}
+
+{% block stylesheets %}
+  {{ parent() }}
+  <link rel="stylesheet" href="{{ asset('css/contrat.css') }}">
+  <style>
+    /* Main contract styling */
+    .contract-body {
+      background-color: #f9f9f9;
+      padding: 20px 0;
+    }
+    .contract-container {
+      max-width: 900px;
+      margin: 0 auto;
+      padding: 30px;
+      background-color: white;
+      box-shadow: 0 0 20px rgba(0, 0, 0, 0.1);
+      border: 1px solid #ddd;
+    }
+    
+    /* Print-specific styles */
+    @media print {
+      @page {
+        size: A4;
+        margin: 15mm;
+      }
+      
+      body {
+        background: white !important;
+      }
+      
+      /* Hide unnecessary elements */
+      .no-print, .no-print * {
+        display: none !important;
+      }
+      
+      /* Ensure contract container prints properly */
+      .contract-container {
+        width: 100% !important;
+        max-width: 100% !important;
+        margin: 0 !important;
+        padding: 0 !important;
+        box-shadow: none !important;
+        border: none !important;
+        position: relative !important;
+        top: auto !important;
+        left: auto !important;
+      }
+      
+      /* Prevent content breaks */
+      .contract-section {
+        page-break-inside: avoid;
+        break-inside: avoid;
+      }
+      
+      /* Force print backgrounds */
+      * {
+        -webkit-print-color-adjust: exact !important;
+        print-color-adjust: exact !important;
+      }
+    }
+    
+    /* Signature styling */
+    .signature-line {
+      border-top: 1px solid #000;
+      width: 200px;
+      margin: 40px 0 10px;
+    }
+  </style>
+{% endblock %}
+
+{% block body %}
+<div class="container-fluid">
+  <div class="contract-body">
+    <div class="contract-container">
+      <!-- Contract Header -->
+      <header class="contract-header contract-section">
+        <div class="company-logo">
+          <img src="{{ asset('img/a.png') }}" alt="Ourbatima Logo" style="height: 80px;">
+        </div>
+        <div class="contract-title">
+          <h1>CONTRAT DE CONSTRUCTION</h1>
+          <p class="contract-number">N°: {{ contrat.idContrat }}</p>
+        </div>
+      </header>
+
+      <!-- Contract Parties -->
+      <div class="contract-parties contract-section">
+        <div class="party ourbatima">
+          <h3>ENTREPRISE OURBATIMA</h3>
+          <p>Siège social: 123 Avenue des Constructeurs, Casablanca</p>
+          <p>Tél: +212 5 22 123 456 - Email: contact@ourbatima.ma</p>
+          <p>RC: 12345 - IF: 987654321 - CNSS: C123456789</p>
+          <p>Représenté par: M. Mahmoud Krichen, Gérant</p>
+        </div>
+
+        <div class="party client">
+          <h3>{{ contrat.typeContrat == "client" ? "LE CLIENT" : "LE CONSTRUCTEUR" }}</h3>
+          {% if contrat.typeContrat == "client" %}
+            <p>Nom: {{ client.nom }} {{ client.prenom }}</p>
+            <p>Adresse: {{ client.adresse }}</p>
+            <p>Tél: {{ client.telephone }}</p>
+          {% else %}
+            <p>Adresse: {{ constructeur.adresse }}</p>
+            <p>Specialité: {{ constructeur.specialite }}</p>
+          {% endif %}
+        </div>
+      </div>
+
+      <!-- Project Details -->
+      <div class="project-details contract-section">
+        <h2>PROJET DE CONSTRUCTION</h2>
+        <p><strong>Nom Projet:</strong> {{ projet.nomprojet }}</p>
+        <p><strong>Type:</strong> {{ projet.type }}</p>
+        <p><strong>Style architecture:</strong> {{ projet.stylearch }}</p>
+        <p><strong>Date création:</strong> {{ projet.datecreation|date('d/m/Y') }}</p>
+        <p><strong>Budget:</strong> {{ projet.budget|number_format(2, ',', ' ') }} Dt</p>
+      </div>
+
+      <!-- Contract Terms -->
+      <div class="contract-terms contract-section">
+        <h2>ARTICLE 1 - OBJET DU CONTRAT</h2>
+        <p>La société OURBATIMA s'engage à réaliser pour le compte du {{ contrat.typeContrat == "client" ? "client" : "constructeur" }} les travaux de {{ projet.type }} selon les plans et spécifications techniques annexés au présent contrat.</p>
+
+        <h2>ARTICLE 2 - MONTANT ET MODALITÉS DE PAIEMENT</h2>
+        <p><strong>Montant total:</strong> {{ contrat.montantTotal|number_format(2, ',', ' ') }} DT</p>
+        <p><strong>Acompte:</strong> 30% à la signature du contrat</p>
+        <p><strong>Échéancier:</strong> 40% à mi-chantier, 30% à réception des travaux</p>
+
+        <h2>ARTICLE 3 - DÉLAIS D'EXÉCUTION</h2>
+        <p>Les travaux devront être achevés entre le {{ contrat.dateDebut|date('d/m/Y') }} et le {{ contrat.dateFin|date('d/m/Y') }}.</p>
+
+        <h2>ARTICLE 4 - GARANTIES</h2>
+        <p>Ourbatima garantit les travaux contre tout vice de construction pendant une période de 10 ans à compter de la réception des travaux.</p>
+      </div>
+
+      <!-- Signatures -->
+      <div class="signatures contract-section">
+        <div class="signature-party">
+          <p>Pour la société OURBATIMA</p>
+          <div class="signature-line"></div>
+          <p>Fait à Tunis, le {{ contrat.dateSignature|date('d/m/Y') }}</p>
+          {% if contrat.signatureElectronique %}
+            <img src="{{ asset( contrat.signatureElectronique) }}" alt="Signature" style="width: 150px;">
+          {% else %}
+            <span>Aucune signature</span>
+          {% endif %}
+        </div>
+        <div class="signature-party">
+          <p>Pour le {{ contrat.typeContrat == "client" ? "client" : "constructeur" }}</p>
+          <div class="signature-line"></div>
+          <p>Fait à Tunis, le {{ contrat.dateSignatureClient ? contrat.dateSignatureClient|date('d/m/Y') : '____/____/____' }}</p>
+          {% if contrat.signatureClient %}
+            <img src="{{ asset( contrat.signatureClient) }}" alt="Signature" style="width: 150px;">
+          {% else %}
+            <span>Aucune signature</span>
+          {% endif %}
+        </div>
+      </div>
+
+      <!-- Footer -->
+      <footer class="contract-footer contract-section">
+        <p>Document établi électroniquement - Valeur légale et contractuelle</p>
+        <p>Ourbatima SARL - Tous droits réservés © {{ "now"|date('Y') }}</p>
+      </footer>
+
+      <!-- Action Buttons -->
+      <div class="text-center mt-4 no-print">
+        <a href="{{ path('app_contrat_index') }}" class="btn btn-primary">
+          <i class="material-symbols-rounded">arrow_back</i> Retour
+<a href="{{ path('generate_pdf', {'idContrat': contrat.idContrat}) }}" 
+   class="btn btn-success ms-2"
+   target="_blank">
+   <i class="fas fa-file-pdf"></i> Générer PDF
+</a>
+
+
+
+</a>
+</a>
+      </div>
+    </div>
+  </div>
+</div>
+{% endblock %}
+
+{% block javascripts %}
+  {{ parent() }}
+  
+{% endblock %}
