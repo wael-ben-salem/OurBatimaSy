@@ -15,6 +15,9 @@ use Symfony\Component\Form\FormError;
 use Symfony\Bundle\SecurityBundle\Security;
 use App\Form\Filter\ProjetFilterType;
 use Spiriit\Bundle\FormFilterBundle\Filter\FilterBuilderUpdaterInterface;
+use App\Service\GeminiApiService;
+use Psr\Log\LoggerInterface;
+
 
 #[Route('/projet')]
 final class ProjetController extends AbstractController
@@ -292,6 +295,80 @@ public function frontNew(Request $request, EntityManagerInterface $entityManager
         return $this->render('projetFront/show.html.twig', [
             'projet' => $projet,
         ]);
+    }
+
+    #[Route('/projet/{idProjet}/generate-image', name: 'app_projet_generate_image', methods: ['GET'])]
+    public function generateProjectImage(
+        Projet $projet, 
+        GeminiApiService $geminiApiService,
+        Request $request,
+        EntityManagerInterface $entityManager,
+        LoggerInterface $logger
+    ): Response {
+        // Check if user can view this specific project
+        if (!$this->isGranted('VIEW', $projet)) {
+            $this->addFlash('error', "Vous n'avez pas accès à ce projet.");
+            return $this->redirectToRoute('app_projet_index');
+        }
+        $this->denyAccessUnlessGranted('VIEW', $projet);
+    
+        try {
+            // Get terrain details if available
+            $terrain = $projet->getIdTerrain();
+            
+            // Prepare parameters with proper fallbacks
+            $styleArch = method_exists($projet, 'getStyleArch') ? ($projet->getStyleArch() ?? 'Moderne') : 'Moderne';
+            $superficie = $terrain ? (string)$terrain->getSuperficie() : '100m2';
+            $emplacement = $terrain ? (string)$terrain->getEmplacement(): 'Zone urbaine';
+            $type = method_exists($projet, 'getType') ? ($projet->getType() ?? 'Résidentiel') : 'Résidentiel';
+    
+            // Call Gemini API to generate image
+            $result = $geminiApiService->generateProjectImage(
+                $styleArch,
+                $superficie,
+                $emplacement,
+                $type
+            );
+    
+            if (!$result['success']) {
+                throw new \RuntimeException($result['error']);
+            }
+    
+            if ($request->isXmlHttpRequest()) {
+                return $this->json([
+                    'success' => true,
+                    'image' => $result['image'],
+                    'mimeType' => $result['mimeType'],
+                    'project' => [
+                        'name' => $projet->getNomprojet(),
+                        'style' => $styleArch,
+                        'type' => $type
+                    ]
+                ]);
+            }
+    
+            return $this->render('projet/generated_image.html.twig', [
+                'projet' => $projet,
+                'imageData' => $result['image'],
+                'mimeType' => $result['mimeType']
+            ]);
+    
+        } catch (\Exception $e) {
+            $logger->error('Error generating project image:', [
+                'error' => $e->getMessage(),
+                'trace' => $e->getTraceAsString()
+            ]);
+            
+            if ($request->isXmlHttpRequest()) {
+                return $this->json([
+                    'success' => false,
+                    'error' => 'Erreur lors de la génération de l\'image: ' . $e->getMessage()
+                ], 500);
+            }
+    
+            $this->addFlash('error', 'Erreur lors de la génération de l\'image. Veuillez réessayer.');
+            return $this->redirectToRoute('app_projet_show', ['idProjet' => $projet->getIdProjet()]);
+        }
     }
     
 }
