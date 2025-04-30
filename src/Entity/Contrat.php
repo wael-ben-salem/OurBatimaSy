@@ -42,7 +42,12 @@ class Contrat
     #[Assert\NotNull(message: "La date de fin est obligatoire")]
     private ?\DateTimeInterface $dateFin = null;
     
-    
+    #[ORM\Column(name: 'date_signature_client', type: 'datetime', nullable: true)]
+    private ?\DateTimeInterface $dateSignatureClient = null;
+
+    #[ORM\Column(name: 'signature_client', type: 'string', length: 500, nullable: true)]
+    private ?string $signatureClient = null;
+
     
 
     #[ORM\Column(name: 'montant_total', type: 'integer')]
@@ -183,6 +188,27 @@ class Contrat
         return $this->typeContrat ?? 'Nouveau Contrat';
     }
 
+    public function getDateSignatureClient(): ?\DateTimeInterface
+    {
+        return $this->dateSignatureClient;
+    }
+
+    public function setDateSignatureClient(?\DateTimeInterface $dateSignatureClient): static
+    {
+        $this->dateSignatureClient = $dateSignatureClient;
+        return $this;
+    }
+
+    public function getSignatureClient(): ?string
+    {
+        return $this->signatureClient;
+    }
+
+    public function setSignatureClient(?string $signatureClient): static
+    {
+        $this->signatureClient = $signatureClient;
+        return $this;
+    }
 
     
 }

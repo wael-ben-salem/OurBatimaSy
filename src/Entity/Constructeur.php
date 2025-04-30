@@ -73,5 +73,15 @@ class Constructeur
         return $this;
     }
 
+    // In Constructeur entity
+    public function __toString(): string
+    {
+        $user = $this->constructeur?->getNom() . ' ' . $this->constructeur?->getPrenom();
+        return sprintf('Constructeur: %s (%s)',
+            $user ?? 'Unnamed',
+            $this->specialite ?? 'No specialty'
+        );
+    }
+
 
 }

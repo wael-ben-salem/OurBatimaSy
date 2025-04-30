@@ -210,4 +210,21 @@ class Plannification
 
         return $this;
     }
+
+
+    public function __toString(): string
+    {
+        $task = $this->idTache ? (string)$this->idTache : 'No task';
+        $date = $this->datePlanifiee ? $this->datePlanifiee->format('Y-m-d') : 'No date';
+        $status = $this->statut ?? 'No status';
+        return sprintf('Plan#%d: %s | %s | Status: %s',
+            $this->idPlannification,
+            $task,
+            $date,
+            $status
+        );
+    }
 }
+
+//to string
+
