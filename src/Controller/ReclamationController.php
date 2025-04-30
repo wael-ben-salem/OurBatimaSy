@@ -34,6 +34,66 @@ class ReclamationController extends AbstractController
         ]);
     }
 
+    #[Route('/test-search', name: 'app_reclamation_test_search')]
+    public function testSearch(EntityManagerInterface $entityManager): Response
+    {
+        // Simple test endpoint to verify search functionality
+        $conn = $entityManager->getConnection();
+        $sql = 'SELECT * FROM reclamation LIMIT 5';
+        $stmt = $conn->prepare($sql);
+        $resultSet = $stmt->executeQuery();
+        $reclamations = $resultSet->fetchAllAssociative();
+
+        return $this->json([
+            'reclamations' => $reclamations,
+            'count' => count($reclamations),
+            'success' => true
+        ]);
+    }
+
+    #[Route('/search', name: 'app_reclamation_search', methods: ['GET'])]
+    public function search(Request $request, EntityManagerInterface $entityManager): Response
+    {
+        $searchTerm = $request->query->get('q', '');
+
+        // Use a custom query to search reclamations by description
+        $conn = $entityManager->getConnection();
+
+        try {
+            // If search term is empty, return all reclamations
+            if (empty($searchTerm)) {
+                $sql = 'SELECT * FROM reclamation ORDER BY date DESC';
+                $stmt = $conn->prepare($sql);
+                $resultSet = $stmt->executeQuery();
+            } else {
+                // Search by description
+                $searchPattern = '%' . $searchTerm . '%';
+                $sql = 'SELECT * FROM reclamation WHERE description LIKE ? ORDER BY date DESC';
+                $stmt = $conn->prepare($sql);
+                $resultSet = $stmt->executeQuery([$searchPattern]);
+            }
+
+            $reclamations = $resultSet->fetchAllAssociative();
+
+            // Return JSON response for AJAX
+            return $this->json([
+                'reclamations' => $reclamations,
+                'count' => count($reclamations),
+                'searchTerm' => $searchTerm,
+                'success' => true
+            ]);
+        } catch (\Exception $e) {
+            // Return error response
+            return $this->json([
+                'reclamations' => [],
+                'count' => 0,
+                'searchTerm' => $searchTerm,
+                'success' => false,
+                'error' => $e->getMessage()
+            ]);
+        }
+    }
+
     #[Route('/new', name: 'app_reclamation_new', methods: ['GET', 'POST'])]
     public function new(Request $request, EntityManagerInterface $entityManager): Response
     {
