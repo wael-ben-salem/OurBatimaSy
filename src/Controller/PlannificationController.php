@@ -15,6 +15,8 @@ use App\Entity\Discussion;
 use App\Form\DiscussionType;
 use App\Entity\SavedPlannification;
 use App\Entity\PlanifNotifications;
+use App\Entity\Tache;
+use Symfony\Contracts\HttpClient\HttpClientInterface;
 
 #[Route('/plannification')]
 class PlannificationController extends AbstractController
@@ -35,6 +37,16 @@ class PlannificationController extends AbstractController
     public function new(Request $request, EntityManagerInterface $entityManager): Response
     {
         $plannification = new Plannification();
+
+        // Get Tache ID from URL parameter
+        $tacheId = $request->query->get('tache_id');
+        if ($tacheId) {
+            $tache = $entityManager->getRepository(Tache::class)->find($tacheId);
+            if ($tache) {
+                $plannification->setIdTache($tache);
+            }
+        }
+
         $form = $this->createForm(PlannificationType::class, $plannification);
         $form->handleRequest($request);
 
@@ -119,6 +131,30 @@ class PlannificationController extends AbstractController
         );
     }
 
+    // src/Controller/PlannificationController.php
+    #[Route('/text-to-speech', name: 'app_text_to_speech', methods: ['POST'])]
+    public function textToSpeech(Request $request, HttpClientInterface $httpClient): Response
+    {
+        $text = $request->request->get('text');
+        if (empty($text)) {
+            return new JsonResponse(['error' => 'No text provided'], 400);
+        }
+
+        $response = $httpClient->request('POST', 'https://api.elevenlabs.io/v1/text-to-speech/'.$_ENV['ELEVENLABS_VOICE_ID'], [
+            'headers' => [
+                'xi-api-key' => $_ENV['ELEVENLABS_API_KEY'],
+                'Content-Type' => 'application/json',
+            ],
+            'json' => [
+                'text' => $text,
+                'model_id' => 'eleven_multilingual_v2',
+            ],
+        ]);
+
+        return new Response($response->getContent(), 200, [
+            'Content-Type' => 'audio/mpeg',
+        ]);
+    }
 
 
     #[Route('/{idPlannification}', name: 'app_plannification_show', methods: ['GET', 'POST'])]

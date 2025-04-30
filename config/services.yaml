@@ -58,3 +58,8 @@ services:
     App\Service\GeminiApiService:
         arguments:
             $apiKey: '%env(GEMINI_API_KEY)%'
+
+framework:
+    http_client:
+        default_options:
+            max_duration: 30
