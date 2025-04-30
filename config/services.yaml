@@ -22,3 +22,8 @@ services:
     App\Service\GeminiService:
         arguments:
             $geminiApiKey: '%gemini.api_key%'
+
+framework:
+    http_client:
+        default_options:
+            max_duration: 30

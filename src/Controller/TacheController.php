@@ -70,7 +70,9 @@ class TacheController extends AbstractController
                 $this->addFlash('warning', 'Your task description contained inappropriate language and has been filtered.');
             }
 
-            return $this->redirectToRoute('app_tache_index', [], Response::HTTP_SEE_OTHER);
+            return $this->redirectToRoute('app_plannification_new', [
+                'tache_id' => $tache->getIdTache()
+            ]);
         }
 
         return $this->render('tache/new.html.twig', [
