@@ -9,6 +9,7 @@ use Doctrine\DBAL\Types\Types;
 use Doctrine\ORM\Mapping as ORM;
 use Doctrine\Common\Collections\ArrayCollection;
 use Doctrine\Common\Collections\Collection;
+use Symfony\Component\Validator\Constraints as Assert;
 
 /**
  * Projet
@@ -49,7 +50,8 @@ class Projet
     private ?Terrain $idTerrain = null;
 
     #[ORM\JoinColumn(name: 'Id_equipe', referencedColumnName: 'id')]
-    #[ORM\ManyToOne(targetEntity: Equipe::class)]
+    #[ORM\ManyToOne(targetEntity: Equipe::class, inversedBy: 'projets')] // Ajoutez inversedBy ici
+
     private ?Equipe $idEquipe = null;
 
     #[ORM\JoinColumn(name: 'id_client', referencedColumnName: 'client_id')]
@@ -137,7 +139,6 @@ class Projet
     public function setNomprojet(string $nomprojet): static
     {
         $this->nomprojet = $nomprojet;
-
         return $this;
     }
 
@@ -152,6 +153,23 @@ class Projet
 
         return $this;
     }
+    public function getProgression(): float
+{
+    // Si vous avez une colonne progression dans la base de données
+    // return $this->progression ?? 0;
+    
+    // Ou calculez la progression en fonction des étapes terminées
+    $totalEtapes = $this->etapeprojets->count();
+    if ($totalEtapes === 0) {
+        return 0;
+    }
+    
+    $etapesTerminees = $this->etapeprojets->filter(
+        fn(Etapeprojet $etape) => $etape->getStatut() === 'Terminé'
+    )->count();
+    
+    return ($etapesTerminees / $totalEtapes) * 100;
+}
 
     public function getIdEquipe(): ?Equipe
     {
@@ -208,6 +226,6 @@ class Projet
     }
     public function __toString(): string
 {
-    return $this->nom ?? 'Projet'; // ou tout autre champ lisible
+    return $this->nom ?? 'Projet';
 }
 }

@@ -62,6 +62,10 @@ class Constructeur
         return $this->constructeur;
     }
 
+    public function getId(): ?int
+    {
+        return $this->constructeur?->getId(); // ou $this->getConstructeur()?->getId()
+    }
     public function setConstructeur(?Utilisateur $constructeur): static
     {
         $this->constructeur = $constructeur;
