@@ -35,8 +35,12 @@
             "./migrations/.gitignore"
         ]
     },
-
-
+    "jms/translation-bundle": {
+        "version": "2.6.0"
+    },
+    "knplabs/knp-paginator-bundle": {
+        "version": "v6.8.0"
+    },
     "knpuniversity/oauth2-client-bundle": {
         "version": "2.18",
         "recipe": {
@@ -49,15 +53,6 @@
             "./config/packages/knpu_oauth2_client.yaml"
         ]
     },
-
-
-"knplabs/knp-paginator-bundle": {
-    "version": "v6.8.0"
-},
-"jms/translation-bundle": {
-    "version": "2.6.0"
-},
-
     "lexik/jwt-authentication-bundle": {
         "version": "2.18",
         "recipe": {
@@ -107,6 +102,9 @@
             "./phpunit.xml.dist",
             "./tests/bootstrap.php"
         ]
+    },
+    "spiriitlabs/form-filter-bundle": {
+        "version": "v11.0.6"
     },
     "symfony/asset-mapper": {
         "version": "6.4",

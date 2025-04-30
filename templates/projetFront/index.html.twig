@@ -167,6 +167,48 @@
         .page-item:last-child .page-link {
             padding: 8px 12px;
         }
+        
+        /* Estimation button styles */
+        .estimation-btn {
+            margin-top: 8px;
+            width: 100%;
+        }
+        
+        .estimation-content {
+            font-size: 1.1rem;
+            line-height: 1.6;
+            white-space: pre-line;
+        }
+        
+        .estimation-content strong {
+            color: #fd7e14;
+            font-weight: bold;
+        }
+        
+        /* Card footer adjustments */
+        .card-footer {
+            display: flex;
+            flex-direction: column;
+            gap: 8px;
+        }
+
+        /* Modal styles */
+        #estimationModal .modal-content {
+            border-radius: 12px;
+            box-shadow: 0 4px 20px rgba(0,0,0,0.15);
+        }
+
+        #estimationModal .modal-header {
+            border-bottom: 1px solid rgba(255,255,255,0.1);
+        }
+
+        #estimationModal .modal-body {
+            padding: 2rem;
+        }
+
+        #estimationModal .modal-footer {
+            border-top: 1px solid #eee;
+        }
     </style>
 {% endblock %}
 
@@ -199,28 +241,6 @@
                     </a>
                 </div>
             </div>
-            
-
-            <div class="row">
-                {% for projet in projets %}
-                    {% set etatRaw = projet.etat|default('En cours') %}
-                    {% set etat = etatRaw|trim|lower %}
-                    {% set color = 
-                        etat == 'Terminé' ? 'success' :
-                        (etat == 'en cours' ? 'info' :
-                        (etat == 'en attente' ? 'secondary' :
-                        (etat == 'annulé' ? 'danger' : 'info')))
-                    %}
-                    
-                    <div class="col-lg-4 col-md-6 col-sm-12 mb-4">
-                        <div class="project-card">
-                            <div class="card-header p-3 bg-gradient-dark text-white">
-                                <div class="d-flex justify-content-between align-items-center">
-                                    <h5 class="mb-0">{{ projet.nomprojet }}</h5>
-                                    <span class="project-status badge status-{{ color }}">
-                                        {{ etatRaw }}
-                                    </span>
-                                </div>
 
             <!-- Filter Section -->
             <div class="filter-section">
@@ -261,7 +281,6 @@
                                 <a href="{{ path('app_projet_front_index') }}" class="btn btn-secondary">
                                     <i class="fas fa-times"></i>
                                 </a>
-
                             </div>
                         </form>
                     </div>
@@ -389,6 +408,14 @@
                                                 {% endif %}
                                             </div>
                                         </div>
+                                        
+                                        {# Add the estimation button #}
+                                        <a href="{{ path('app_project_estimation', {'id': projet.idProjet}) }}" 
+                                           class="btn btn-sm btn-primary estimation-btn"
+                                           data-project-id="{{ projet.idProjet }}"
+                                           data-project-name="{{ projet.nomprojet }}">
+                                            <i class="fas fa-calculator me-1"></i> Estimation
+                                        </a>
                                     </div>
                                 {% endif %}
                             </div>
@@ -404,6 +431,29 @@
         </div>
     </div>
     <!-- Projects End -->
+
+    {# Modal for estimation #}
+    <div class="modal fade" id="estimationModal" tabindex="-1" aria-labelledby="estimationModalLabel" aria-hidden="true">
+        <div class="modal-dialog modal-lg">
+            <div class="modal-content">
+                <div class="modal-header bg-primary text-white">
+                    <h5 class="modal-title" id="estimationModalLabel">Estimation du Projet</h5>
+                    <button type="button" class="btn-close btn-close-white" data-bs-dismiss="modal" aria-label="Close"></button>
+                </div>
+                <div class="modal-body" id="estimationModalBody">
+                    <div class="text-center py-4">
+                        <div class="spinner-border text-primary" role="status">
+                            <span class="visually-hidden"> </span>
+                        </div>
+                        <p>Chargement de l'estimation...</p>
+                    </div>
+                </div>
+                <div class="modal-footer">
+                    <button type="button" class="btn btn-secondary" data-bs-dismiss="modal">Fermer</button>
+                </div>
+            </div>
+        </div>
+    </div>
 {% endblock %}
 
 {% block javascripts %}
@@ -437,6 +487,56 @@
         document.querySelectorAll('select[name="status"]').forEach(select => {
             select.addEventListener('change', function() {
                 this.form.submit();
+            });
+        });
+
+        // Handle estimation button clicks
+        document.querySelectorAll('.estimation-btn').forEach(button => {
+            button.addEventListener('click', function(e) {
+                e.preventDefault();
+                const projectId = this.getAttribute('data-project-id');
+                const projectName = this.getAttribute('data-project-name');
+                const modal = new bootstrap.Modal(document.getElementById('estimationModal'));
+                
+                // Update modal title with project name
+                document.getElementById('estimationModalLabel').textContent = `Estimation pour: ${projectName}`;
+                
+                // Show loading state
+                document.getElementById('estimationModalBody').innerHTML = `
+                    <div class="text-center py-4">
+                        <div class="spinner-border text-primary" role="status">
+                            <span class="visually-hidden"> </span>
+                        </div>
+                        <p>Chargement de l'estimation...</p>
+                    </div>
+                `;
+                
+                // Show modal
+                modal.show();
+                
+                // Fetch estimation
+                fetch(this.href)
+                    .then(response => {
+                        if (!response.ok) {
+                            throw new Error('Network response was not ok');
+                        }
+                        return response.json();
+                    })
+                    .then(data => {
+                        // Display the estimation
+                        document.getElementById('estimationModalBody').innerHTML = `
+                            <div class="estimation-content">
+                                ${data.estimation.replace(/\n/g, '<br>')}
+                            </div>
+                        `;
+                    })
+                    .catch(error => {
+                        document.getElementById('estimationModalBody').innerHTML = `
+                            <div class="alert alert-danger">
+                                Erreur lors du chargement de l'estimation: ${error.message}
+                            </div>
+                        `;
+                    });
             });
         });
     </script>

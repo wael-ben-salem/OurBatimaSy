@@ -98,7 +98,15 @@
                             </tr>
                             <tr>
                                 <th class="text-uppercase text-secondary text-xxs font-weight-bolder opacity-7">Remarques</th>
-                                <td class="px-4">{{ plannification.remarques }}</td>
+                                <td class="px-4">
+                                    <div class="d-flex align-items-center">
+                                        {{ plannification.remarques }}
+                                        <button class="btn btn-sm btn-link text-dark p-0 ms-2 play-remarques"
+                                                data-text="{{ plannification.remarques }}">
+                                            <i class="material-symbols-rounded">volume_up</i>
+                                        </button>
+                                    </div>
+                                </td>
                             </tr>
                             <tr>
                                 <th class="text-uppercase text-secondary text-xxs font-weight-bolder opacity-7">Statut</th>
@@ -236,6 +244,36 @@
 
             contactModal.addEventListener('hidden.bs.modal', function () {
                 clearInterval(pollInterval);
+            });
+
+            // Text-to-speech functionality
+            const playButtons = document.querySelectorAll('.play-remarques');
+
+            playButtons.forEach(button => {
+                button.addEventListener('click', async function() {
+                    const text = this.dataset.text;
+                    if (!text) return;
+
+                    try {
+                        const audio = new Audio();
+                        const response = await fetch('{{ path('app_text_to_speech') }}', {
+                            method: 'POST',
+                            headers: {
+                                'Content-Type': 'application/x-www-form-urlencoded',
+                            },
+                            body: new URLSearchParams({ text })
+                        });
+
+                        if (!response.ok) throw new Error('Speech synthesis failed');
+
+                        const blob = await response.blob();
+                        audio.src = URL.createObjectURL(blob);
+                        audio.play();
+                    } catch (error) {
+                        console.error('Error:', error);
+                        alert('Error generating speech: ' + error.message);
+                    }
+                });
             });
         });
     </script>

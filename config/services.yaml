@@ -3,6 +3,7 @@
 parameters:
     photos_directory: '%kernel.project_dir%/public/uploads/photos'
     uploads_directory: '%kernel.project_dir%/public/uploads'
+    gemini.api_key: '%env(GEMINI_API_KEY)%'
 
 services:
     _defaults:
@@ -26,6 +27,7 @@ services:
             - '../src/Kernel.php'
             - '../src/Security/GoogleAuthenticator.php'
 
+
     App\Security\GoogleAuthenticator:
         arguments:
             $router: '@router'
@@ -40,6 +42,10 @@ services:
             $router: '@router'
 
     Symfony\Contracts\HttpClient\HttpClientInterface: '@http_client'
+
+    App\Service\GeminiService:
+        arguments:
+            $geminiApiKey: '%gemini.api_key%'
 
     App\Security\CustomUserProvider:
         arguments:
@@ -60,3 +66,13 @@ services:
         arguments:
             $httpClient: '@http_client'
             $apiKey: '%env(HTML2PDF_API_KEY)%'
+
+    App\Service\GeminiApiService:
+        arguments:
+            $apiKey: '%env(GEMINI_API_KEY)%'
+
+framework:
+    http_client:
+        default_options:
+            max_duration: 30
+

@@ -82,7 +82,7 @@ private string $password;
     /**
      * @var string|null
      */
-    #[ORM\Column(name: 'face_data', type: 'blob', length: 0, nullable: true)]
+    #[ORM\Column(name: 'face_data', type: 'text', length: 0, nullable: true)]
     private $faceData;
 
     /**
@@ -232,18 +232,26 @@ public function setSignature(?string $signature): static
 
         return $this;
     }
-
     public function getFaceData()
     {
-        return $this->faceData;
+        return is_resource($this->faceData) ? stream_get_contents($this->faceData) : $this->faceData;
     }
 
-    public function setFaceData($faceData): static
+    public function setFaceData($faceData): self
     {
         $this->faceData = $faceData;
-
         return $this;
     }
+    public function getFaceDataUpdatedAt(): ?\DateTimeInterface
+{
+    return $this->faceDataUpdatedAt;
+}
+
+public function setFaceDataUpdatedAt(?\DateTimeInterface $faceDataUpdatedAt): self
+{
+    $this->faceDataUpdatedAt = $faceDataUpdatedAt;
+    return $this;
+}
 
     public function getResetToken(): ?string
     {
@@ -346,6 +354,16 @@ public function setGestionnaireStock(?Gestionnairestock $gestionnaireStock): sta
     $this->gestionnaireStock = $gestionnaireStock;
     return $this;
 }
+
+// In Utilisateur entity
+    public function __toString(): string
+    {
+        return sprintf('%s %s (%s)',
+            $this->prenom,
+            $this->nom,
+            $this->role ?? 'No role'
+        );
+    }
 
 
 #[ORM\Column(type: 'float', nullable: true)]

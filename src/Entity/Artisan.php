@@ -126,6 +126,21 @@ public function __toString(): string
 
         return $this;
     }
-    
+
+   // public function __toString(): string
+//{
+   // return $this->specialite ?? 'Artisan';
+//
+//}
+// In Artisan entity
+    public function __toString(): string
+    {
+        $user = $this->artisan?->getNom() . ' ' . $this->artisan?->getPrenom();
+        return sprintf('Artisan: %s (%s)',
+            $user ?? 'Unnamed',
+            $this->specialite ?? 'No specialty'
+        );
+    }
+
 
 }

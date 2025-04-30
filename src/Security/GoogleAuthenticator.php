@@ -21,7 +21,7 @@ use Symfony\Component\Security\Http\Authenticator\Passport\Badge\UserBadge;
 use Symfony\Component\Security\Http\EntryPoint\AuthenticationEntryPointInterface;
 use Symfony\Component\PasswordHasher\Hasher\UserPasswordHasherInterface;
 
-class GoogleAuthenticator extends AbstractAuthenticator implements AuthenticationEntryPointInterface
+class GoogleAuthenticator extends AbstractAuthenticator 
 {
     private Google $googleProvider;
     private bool $isGoogleProviderInitialized = false;
