@@ -1,8 +1,8 @@
 {% extends 'base_backOffice.html.twig' %}
 
-{% block title %}Projects{% endblock %}
+{% block title %}Projets{% endblock %}
 
-{% block breadcrumb %}Projects{% endblock %}
+{% block breadcrumb %}Projets{% endblock %}
 
 {% block stylesheets %}
   {{ parent() }}
@@ -41,6 +41,26 @@
       font-size: 0.7rem;
       padding: 0.25em 0.4em;
     }
+
+    .filter-form {
+      background: #f8f9fa;
+      padding: 1rem;
+      border-radius: 8px;
+      margin-bottom: 1.5rem;
+    }
+    .filter-form .form-group {
+      margin-bottom: 0.5rem;
+    }
+    .filter-form .btn-reset {
+      margin-left: 0.5rem;
+    }
+    .date-range-fields {
+      display: flex;
+      gap: 0.5rem;
+    }
+    .date-range-fields .form-group {
+      flex: 1;
+    }
   </style>
 {% endblock %}
 
@@ -50,25 +70,52 @@
       <div class="card my-4">
         <div class="card-header p-0 position-relative mt-n4 mx-3 z-index-2">
           <div class="bg-gradient-dark shadow-dark border-radius-lg pt-4 pb-3 d-flex justify-content-between align-items-center">
-            <h6 class="text-white text-capitalize ps-3">Projects table</h6>
+            <h6 class="text-white text-capitalize ps-3">Projets</h6>
             <a href="{{ path('app_projet_new') }}" class="btn btn-sm btn-light me-3">
-              <i class="material-symbols-rounded me-1">add</i>
-              New Project
+              <i class="material-symbols-rounded me-1">Add</i>
+              Nouveau Projet
             </a>
           </div>
         </div>
+        
+{# Filter Form #}
+<div class="filter-form mx-3 mt-3">
+  <form method="get" class="row g-3 align-items-end">
+    {{ form_start(filterForm) }}
+    <div class="col-md-5">
+      {{ form_row(filterForm.nomprojet, {
+        'attr': {'class': 'form-control form-control-sm'}
+      }) }}
+    </div>
+    <div class="col-md-5">
+      {{ form_row(filterForm.datecreation, {
+        'attr': {'class': 'form-control form-control-sm js-datepicker'}
+      }) }}
+    </div>
+    <div class="col-md-2">
+      <button type="submit" class="btn btn-sm btn-primary">
+        <i class="material-symbols-rounded">search</i> Chercher
+      </button>
+      <a href="{{ path('app_projet_index') }}" class="btn btn-sm btn-outline-secondary btn-reset">
+        <i class="material-symbols-rounded">refresh</i> Reset
+      </a>
+    </div>
+    {{ form_end(filterForm) }}
+  </form>
+</div>
+        
         <div class="card-body px-0 pb-2">
           <div class="table-responsive p-0">
             <table class="table align-items-center justify-content-center mb-0">
               <thead>
                 <tr>
-                  <th class="text-uppercase text-secondary text-xxs font-weight-bolder opacity-7">Project</th>
+                  <th class="text-uppercase text-secondary text-xxs font-weight-bolder opacity-7">Projet</th>
                   <th class="text-uppercase text-secondary text-xxs font-weight-bolder opacity-7 text-center">Client</th>
                   <th class="text-uppercase text-secondary text-xxs font-weight-bolder opacity-7 text-center">Type</th>
                   <th class="text-uppercase text-secondary text-xxs font-weight-bolder opacity-7 text-center">Budget</th>
                   <th class="text-uppercase text-secondary text-xxs font-weight-bolder opacity-7 text-center">Status</th>
-                  <th class="text-uppercase text-secondary text-xxs font-weight-bolder opacity-7 text-center">Étapes du projet</th>
-                  <th class="text-uppercase text-secondary text-xxs font-weight-bolder opacity-7 text-center">Creation Date</th>
+                  <th class="text-uppercase text-secondary text-xxs font-weight-bolder opacity-7 text-center">Étapes Projet</th>
+                  <th class="text-uppercase text-secondary text-xxs font-weight-bolder opacity-7 text-center">Date de Création</th>
                   <th class="text-uppercase text-secondary text-xxs font-weight-bolder opacity-7 text-center">Actions</th>
                 </tr>
               </thead>
@@ -152,7 +199,7 @@
                         </ul>
                       </div>
                     {% else %}
-                      <span class="badge bg-secondary">En Attente</span>
+                      <span class="badge bg-secondary">En attente</span>
                     {% endif %}
                   </td>
                   <td class="text-center align-middle">
@@ -169,11 +216,16 @@
                 </tr>
                 {% else %}
                 <tr>
-                  <td colspan="8" class="text-center">No projects found</td>
+                  <td colspan="8" class="text-center">Aucun projets trouvé</td>
                 </tr>
                 {% endfor %}
               </tbody>
             </table>
+          </div>
+          
+          {# Pagination #}
+          <div class="px-3 mt-3">
+            {{ knp_pagination_render(projets) }}
           </div>
         </div>
       </div>
@@ -193,6 +245,13 @@
       // Prevent dropdown from closing when clicking inside
       $('.dropdown-menu').on('click', function(e) {
         e.stopPropagation();
+      });
+      
+      // Initialize date pickers for the date range filter
+      $('.js-datepicker').datepicker({
+        format: 'yyyy-mm-dd',
+        autoclose: true,
+        todayHighlight: true
       });
     });
   </script>

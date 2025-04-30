@@ -1,9 +1,10 @@
+
 parameters:
     photos_directory: '%kernel.project_dir%/public/uploads/photos'
     uploads_directory: '%kernel.project_dir%/public/uploads'
     app.sender_email: 'ourbatima@gmail.com'
     app.sender_name: 'OurBatima Team'
-
+    gemini.api_key: '%env(GEMINI_API_KEY)%'
 services:
     _defaults:
         autowire: true
@@ -12,6 +13,11 @@ services:
             string $googleClientId: '%env(GOOGLE_CLIENT_ID)%'
             string $googleClientSecret: '%env(GOOGLE_CLIENT_SECRET)%'
             string $googleRedirectUri: '%env(GOOGLE_REDIRECT_URI)%'
+            string $html2pdfApiKey: '%env(HTML2PDF_API_KEY)%'
+
+            # ... other binds
+            
+    
 
     App\:
         resource: '../src/'
@@ -20,6 +26,7 @@ services:
             - '../src/Entity/'
             - '../src/Kernel.php'
             - '../src/Security/GoogleAuthenticator.php'
+
 
     App\Security\GoogleAuthenticator:
         arguments:
@@ -36,6 +43,11 @@ services:
 
     Symfony\Contracts\HttpClient\HttpClientInterface: '@http_client'
 
+
+    App\Service\GeminiService:
+        arguments:
+            $geminiApiKey: '%gemini.api_key%'
+
     App\Security\CustomUserProvider:
         arguments:
             $connection: '@doctrine.dbal.default_connection'
@@ -49,8 +61,24 @@ services:
             $connection: '@doctrine.dbal.default_connection'
             $passwordHasher: '@security.user_password_hasher'
 
-    ### ➡️ CORRECTION : Configuration de EmailService ICI en bas
     App\Service\EmailService:
         arguments:
             $senderEmail: '%app.sender_email%'
             $senderName: '%app.sender_name%'
+
+   
+
+    App\Service\HtmlToPdfService:
+        arguments:
+            $httpClient: '@http_client'
+            $apiKey: '%env(HTML2PDF_API_KEY)%'
+
+    App\Service\GeminiApiService:
+        arguments:
+            $apiKey: '%env(GEMINI_API_KEY)%'
+
+framework:
+    http_client:
+        default_options:
+            max_duration: 30
+

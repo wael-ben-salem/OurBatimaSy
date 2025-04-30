@@ -164,4 +164,15 @@ class Tache
 
         return $this;
     }
+
+    // In Tache entity (keep existing but add status)
+    public function __toString(): string
+    {
+        $status = $this->etat ?? 'No status';
+        return sprintf('Task#%d: %s [%s]',
+            $this->idTache,
+            $this->description ?? 'Unnamed',
+            $status
+        );
+    }
 }

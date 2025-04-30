@@ -4,7 +4,9 @@ namespace App\Controller;
 
 use App\Entity\Contrat;
 use App\Entity\Utilisateur;
-
+use App\Entity\Projet;
+use App\Entity\Equipe;
+use App\Entity\Terrain;
 use App\Form\ContratType;
 use Doctrine\ORM\EntityManagerInterface;
 use Symfony\Bundle\FrameworkBundle\Controller\AbstractController;
@@ -16,9 +18,21 @@ use SebastianBergmann\Environment\Console;
 use Jenssegers\ImageHash\ImageHash;
 use Jenssegers\ImageHash\Implementations\DifferenceHash;
 use Symfony\Component\DependencyInjection\ParameterBag\ParameterBagInterface;
+use Symfony\Contracts\HttpClient\HttpClientInterface; // Add this import
+
+use App\Service\HtmlToPdfService;
+
 #[Route('/contrat')]
 final class ContratController extends AbstractController
 {
+    
+    
+    private HtmlToPdfService $htmlToPdfService;
+
+    public function __construct(HtmlToPdfService $htmlToPdfService)
+    {
+        $this->htmlToPdfService = $htmlToPdfService;
+    }
     #[Route(name: 'app_contrat_index', methods: ['GET'])]
     public function index(EntityManagerInterface $entityManager): Response
     {
@@ -34,75 +48,75 @@ final class ContratController extends AbstractController
 
     #[Route('/new', name: 'app_contrat_new', methods: ['GET', 'POST'])]
     public function new(Request $request, EntityManagerInterface $entityManager, ParameterBagInterface $params): Response
-{
-    $contrat = new Contrat();
-    $form = $this->createForm(ContratType::class, $contrat);
-    $form->handleRequest($request);
+    {
+        $contrat = new Contrat();
+        $form = $this->createForm(ContratType::class, $contrat);
+        $form->handleRequest($request);
 
-    if ($form->isSubmitted() && $form->isValid()) {
-        $signatureData = $request->request->get('signatureData');
-        
-        if ($signatureData) {
-            // Process new signature
-            $data = explode(',', $signatureData)[1];
-            $decodedData = base64_decode($data);
-            $filename = uniqid() . '.png';
-            $path = $this->getParameter('kernel.project_dir') . '/public/signatures/' . $filename;
-            file_put_contents($path, $decodedData);
-            $contrat->setSignatureElectronique('/signatures/' . $filename);
-
-            /** @var Utilisateur $user */
-            $user = $this->getUser();
+        if ($form->isSubmitted() && $form->isValid()) {
+            $signatureData = $request->request->get('signatureData');
             
-            if ($user->getSignature()) {
-                // Compare signatures
-                $projectDir = $params->get('kernel.project_dir');
-                $file1 = $projectDir.'/public/signatures/'.$filename;
-                $file2 = $projectDir.'/public'.$user->getSignature();
+            if ($signatureData) {
+                // Process new signature
+                $data = explode(',', $signatureData)[1];
+                $decodedData = base64_decode($data);
+                $filename = uniqid() . '.png';
+                $path = $this->getParameter('kernel.project_dir') . '/public/signatures/' . $filename;
+                file_put_contents($path, $decodedData);
+                $contrat->setSignatureElectronique('/signatures/' . $filename);
+
+                /** @var Utilisateur $user */
+                $user = $this->getUser();
                 
-                if (!file_exists($file1)) {
-                    $this->addFlash('error', "Signature file not found: $file1");
-                }
-                
-                if (!file_exists($file2)) {
-                    $this->addFlash('error', "User signature file not found: $file2");
-                }
-                
-                $hasher = new ImageHash;
-                $hash1 = $hasher->hash($file1);
-                $hash2 = $hasher->hash($file2);
-                $distance = $hasher->distance($hash1, $hash2);
-                
-                if ($distance <= 5) {
-                    $entityManager->persist($contrat);
-                    $entityManager->flush();
-                    $this->addFlash('success', 'Contract created successfully!');
-                    return $this->redirectToRoute('app_contrat_index');
+                if ($user->getSignature()) {
+                    // Compare signatures
+                    $projectDir = $params->get('kernel.project_dir');
+                    $file1 = $projectDir.'/public/signatures/'.$filename;
+                    $file2 = $projectDir.'/public'.$user->getSignature();
+                    
+                    if (!file_exists($file1)) {
+                        $this->addFlash('error', "Signature file not found: $file1");
+                    }
+                    
+                    if (!file_exists($file2)) {
+                        $this->addFlash('error', "User signature file not found: $file2");
+                    }
+                    
+                    $hasher = new ImageHash;
+                    $hash1 = $hasher->hash($file1);
+                    $hash2 = $hasher->hash($file2);
+                    $distance = $hasher->distance($hash1, $hash2);
+                    
+                    if ($distance <= 5) {
+                        $entityManager->persist($contrat);
+                        $entityManager->flush();
+                        $this->addFlash('success', 'Contract created successfully!');
+                        return $this->redirectToRoute('app_contrat_index');
+                    } else {
+                        $this->addFlash('error', 'Signatures do not match (Difference: '.$distance.')');
+                        return $this->render('contrat/new.html.twig', [
+                            'contrat' => $contrat,
+                            'form' => $form,
+                        ]);
+                    }
                 } else {
-                    $this->addFlash('error', 'Signatures do not match (Difference: '.$distance.')');
-                    return $this->render('contrat/new.html.twig', [
-                        'contrat' => $contrat,
-                        'form' => $form,
-                    ]);
+                    // First-time signature setup
+                    $user->setSignature('/signatures/' . $filename);
+                    $entityManager->persist($user);
+                    $entityManager->flush();
+                    $this->addFlash('success', 'Signature saved successfully!');
+                    return $this->redirectToRoute('app_contrat_index');
                 }
             } else {
-                // First-time signature setup
-                $user->setSignature('/signatures/' . $filename);
-                $entityManager->persist($user);
-                $entityManager->flush();
-                $this->addFlash('success', 'Signature saved successfully!');
-                return $this->redirectToRoute('app_contrat_index');
+                $this->addFlash('error', 'No signature data provided');
             }
-        } else {
-            $this->addFlash('error', 'No signature data provided');
         }
-    }
 
-    return $this->render('contrat/new.html.twig', [
-        'contrat' => $contrat,
-        'form' => $form,
-    ]);
-}
+        return $this->render('contrat/new.html.twig', [
+            'contrat' => $contrat,
+            'form' => $form,
+        ]);
+    }
 
     #[Route('/{idContrat}', name: 'app_contrat_show', methods: ['GET'])]
     public function show(Contrat $contrat): Response
@@ -113,7 +127,7 @@ final class ContratController extends AbstractController
     }
 
     #[Route('/{idContrat}/edit', name: 'app_contrat_edit', methods: ['GET', 'POST'])]
-    public function edit(      Request $request, Contrat $contrat, EntityManagerInterface $entityManager,
+    public function edit(Request $request, Contrat $contrat, EntityManagerInterface $entityManager,
         ParameterBagInterface $params
     ): Response {
         // Store old signature path in case we need to revert
@@ -123,8 +137,7 @@ final class ContratController extends AbstractController
 
         $form->handleRequest($request);
     
-        if ($form->isSubmitted()   ) {
-           
+        if ($form->isSubmitted()) {
             $signatureData = $request->request->get('signatureData');
             
             if ($signatureData) {
@@ -197,5 +210,87 @@ final class ContratController extends AbstractController
     }
 
 
+    #[Route('/contrat/{idContrat}/form', name: 'app_contrat_showForm', methods: ['GET'])]
+    public function showontrat(Contrat $contrat, EntityManagerInterface $entityManager): Response
+    {
+        $projet = $entityManager->getRepository(Projet::class)->find($contrat->getIdProjet());
+        $terrain = $entityManager->getRepository(Terrain::class)->find($projet->getIdTerrain());
+        
+        $client = null;
+        $constructeur = null;
+    
+        if ($projet) {
+            if ($contrat->getTypeContrat() == "client") {
+                $client = $entityManager->getRepository(Utilisateur::class)->find($projet->getIdClient());
+            } elseif ($contrat->getTypeContrat() == "constructeur") {
+                $equipe = $entityManager->getRepository(Equipe::class)->find($projet->getIdEquipe());
+                
+                if ($equipe) {
+                    $constructeur = $entityManager->getRepository(Utilisateur::class)
+                        ->find($equipe->getIdConstructeur());
+                }
+            }
+        }
+    
+        return $this->render('contrat/showContrat.html.twig', [
+            'contrat' => $contrat,
+            'projet' => $projet, 
+            'client' => $client,
+            'constructeur' => $constructeur,
+            'terrain'=>$terrain,
+        ]);
+    }
 
+    #[Route('/generate-pdf/{idContrat}', name: 'generate_pdf', methods: ['GET'])]
+    public function generatePDF(
+        EntityManagerInterface $em,
+        int $idContrat
+    ): Response {
+            $contrat = $em->getRepository(Contrat::class)->find($idContrat);
+            if (!$contrat) {
+                throw $this->createNotFoundException('Contrat non trouvé');
+            }
+         
+            
+
+            $projet = $em->getRepository(Projet::class)->find($contrat->getIdProjet());
+            $terrain = $projet ? $em->getRepository(Terrain::class)->find($projet->getIdTerrain()) : null;
+
+            $client = null;
+            $constructeur = null;
+
+            if ($projet) {
+                if ($contrat->getTypeContrat() == "client") {
+                    $client = $em->getRepository(Utilisateur::class)->find($projet->getIdClient());
+                } elseif ($contrat->getTypeContrat() == "constructeur") {
+                    $equipe = $em->getRepository(Equipe::class)->find($projet->getIdEquipe());
+                    if ($equipe) {
+                        $constructeur = $em->getRepository(Utilisateur::class)
+                            ->find($equipe->getIdConstructeur());
+                    }
+                }
+            }
+
+            $htmlContent = $this->renderView('contrat/pdf_template.html.twig', [
+                'contrat' => $contrat,
+                'projet' => $projet,
+                'client' => $client,
+                'constructeur' => $constructeur,
+                'terrain' => $terrain,
+                'date_generation' => new \DateTime()
+            ]);
+            $pdfContent = $this->htmlToPdfService->generatePdf($htmlContent);
+
+
+            return new Response(
+                $pdfContent,
+                200,
+                [
+                    'Content-Type' => 'application/pdf',
+                    'Content-Disposition' => sprintf('attachment; filename="contrat_%d.pdf"', $contrat->getIdContrat())
+                ]
+            );
+
+     
+    }
 }

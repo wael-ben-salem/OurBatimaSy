@@ -103,6 +103,9 @@
             "./tests/bootstrap.php"
         ]
     },
+    "spiriitlabs/form-filter-bundle": {
+        "version": "v11.0.6"
+    },
     "symfony/asset-mapper": {
         "version": "6.4",
         "recipe": {

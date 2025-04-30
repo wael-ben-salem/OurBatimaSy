@@ -13,19 +13,50 @@ use Symfony\Component\HttpFoundation\Response;
 use Symfony\Component\Routing\Attribute\Route;
 use Symfony\Component\Form\FormError;
 use Symfony\Bundle\SecurityBundle\Security;
+use App\Form\Filter\ProjetFilterType;
+use Spiriit\Bundle\FormFilterBundle\Filter\FilterBuilderUpdaterInterface;
+use App\Service\GeminiApiService;
+use Psr\Log\LoggerInterface;
+
 
 #[Route('/projet')]
 final class ProjetController extends AbstractController
 {
     #[Route(name: 'app_projet_index', methods: ['GET'])]
-    public function index(EntityManagerInterface $entityManager): Response
-    {
-        $projets = $entityManager
+    public function index(
+        Request $request,
+        EntityManagerInterface $entityManager,
+        FilterBuilderUpdaterInterface $filterBuilderUpdater,
+        PaginatorInterface $paginator
+    ): Response {
+        $filterForm = $this->createForm(ProjetFilterType::class);
+        
+        $queryBuilder = $entityManager
             ->getRepository(Projet::class)
-            ->findAll();
-
+            ->createQueryBuilder('p')
+            ->leftJoin('p.idClient', 'c')
+            ->leftJoin('c.client', 'u')
+            ->addSelect('c', 'u');
+    
+        if ($request->query->has($filterForm->getName())) {
+            $filterForm->submit($request->query->all($filterForm->getName()));
+            
+            $filterBuilderUpdater->addFilterConditions($filterForm, $queryBuilder);
+        }
+    
+        $projets = $paginator->paginate(
+            $queryBuilder->getQuery(),
+            $request->query->getInt('page', 1),
+            10,
+            [
+                'defaultSortFieldName' => 'p.datecreation',
+                'defaultSortDirection' => 'DESC',
+            ]
+        );
+    
         return $this->render('projet/index.html.twig', [
             'projets' => $projets,
+            'filterForm' => $filterForm->createView()
         ]);
     }
 
@@ -264,6 +295,80 @@ public function frontNew(Request $request, EntityManagerInterface $entityManager
         return $this->render('projetFront/show.html.twig', [
             'projet' => $projet,
         ]);
+    }
+
+    #[Route('/projet/{idProjet}/generate-image', name: 'app_projet_generate_image', methods: ['GET'])]
+    public function generateProjectImage(
+        Projet $projet, 
+        GeminiApiService $geminiApiService,
+        Request $request,
+        EntityManagerInterface $entityManager,
+        LoggerInterface $logger
+    ): Response {
+        // Check if user can view this specific project
+        if (!$this->isGranted('VIEW', $projet)) {
+            $this->addFlash('error', "Vous n'avez pas accès à ce projet.");
+            return $this->redirectToRoute('app_projet_index');
+        }
+        $this->denyAccessUnlessGranted('VIEW', $projet);
+    
+        try {
+            // Get terrain details if available
+            $terrain = $projet->getIdTerrain();
+            
+            // Prepare parameters with proper fallbacks
+            $styleArch = method_exists($projet, 'getStyleArch') ? ($projet->getStyleArch() ?? 'Moderne') : 'Moderne';
+            $superficie = $terrain ? (string)$terrain->getSuperficie() : '100m2';
+            $emplacement = $terrain ? (string)$terrain->getEmplacement(): 'Zone urbaine';
+            $type = method_exists($projet, 'getType') ? ($projet->getType() ?? 'Résidentiel') : 'Résidentiel';
+    
+            // Call Gemini API to generate image
+            $result = $geminiApiService->generateProjectImage(
+                $styleArch,
+                $superficie,
+                $emplacement,
+                $type
+            );
+    
+            if (!$result['success']) {
+                throw new \RuntimeException($result['error']);
+            }
+    
+            if ($request->isXmlHttpRequest()) {
+                return $this->json([
+                    'success' => true,
+                    'image' => $result['image'],
+                    'mimeType' => $result['mimeType'],
+                    'project' => [
+                        'name' => $projet->getNomprojet(),
+                        'style' => $styleArch,
+                        'type' => $type
+                    ]
+                ]);
+            }
+    
+            return $this->render('projet/generated_image.html.twig', [
+                'projet' => $projet,
+                'imageData' => $result['image'],
+                'mimeType' => $result['mimeType']
+            ]);
+    
+        } catch (\Exception $e) {
+            $logger->error('Error generating project image:', [
+                'error' => $e->getMessage(),
+                'trace' => $e->getTraceAsString()
+            ]);
+            
+            if ($request->isXmlHttpRequest()) {
+                return $this->json([
+                    'success' => false,
+                    'error' => 'Erreur lors de la génération de l\'image: ' . $e->getMessage()
+                ], 500);
+            }
+    
+            $this->addFlash('error', 'Erreur lors de la génération de l\'image. Veuillez réessayer.');
+            return $this->redirectToRoute('app_projet_show', ['idProjet' => $projet->getIdProjet()]);
+        }
     }
     
 }
