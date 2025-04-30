@@ -4,12 +4,15 @@ namespace App\Controller;
 
 use App\Entity\Utilisateur;
 use App\Security\LoginSuccessHandler;
+use App\Service\EmailService;
 
 use App\Form\RegistrationFormType;
 use Doctrine\ORM\EntityManagerInterface;
 use Symfony\Bundle\FrameworkBundle\Controller\AbstractController;
 use Symfony\Component\HttpFoundation\Request;
 use Symfony\Component\HttpFoundation\Response;
+use Psr\Log\LoggerInterface;
+
 use Symfony\Component\HttpFoundation\JsonResponse;
 use Symfony\Component\Routing\Annotation\Route;
 use Symfony\Component\Security\Core\Authentication\Token\UsernamePasswordToken;
@@ -22,7 +25,9 @@ class RegistrationController extends AbstractController
     public function register(
         Request $request,
         UserPasswordHasherInterface $passwordHasher,
-        EntityManagerInterface $entityManager
+        EntityManagerInterface $entityManager,
+        EmailService $emailService,
+        LoggerInterface $logger
     ): Response {
         $user = new Utilisateur();
         $form = $this->createForm(RegistrationFormType::class, $user);
@@ -39,6 +44,14 @@ class RegistrationController extends AbstractController
 
             $entityManager->persist($user);
             $entityManager->flush();
+            // Envoi de l'email de bienvenue
+            if (!$emailService->sendConfirmationEmail(
+                $user->getEmail(),
+                $user->getFullName() // ou getUsername() selon votre entité
+            )) {
+                $this->addFlash('warning', 'L\'email de confirmation n\'a pas pu être envoyé.');
+            }
+
 
             return $this->redirectToRoute('app_face_upload', ['id' => $user->getId()]);
         }
