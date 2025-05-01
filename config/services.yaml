@@ -1,10 +1,10 @@
-# config/services.yaml
 
 parameters:
     photos_directory: '%kernel.project_dir%/public/uploads/photos'
     uploads_directory: '%kernel.project_dir%/public/uploads'
+    app.sender_email: 'ourbatima@gmail.com'
+    app.sender_name: 'OurBatima Team'
     gemini.api_key: '%env(GEMINI_API_KEY)%'
-
 services:
     _defaults:
         autowire: true
@@ -43,6 +43,7 @@ services:
 
     Symfony\Contracts\HttpClient\HttpClientInterface: '@http_client'
 
+
     App\Service\GeminiService:
         arguments:
             $geminiApiKey: '%gemini.api_key%'
@@ -59,6 +60,11 @@ services:
         arguments:
             $connection: '@doctrine.dbal.default_connection'
             $passwordHasher: '@security.user_password_hasher'
+
+    App\Service\EmailService:
+        arguments:
+            $senderEmail: '%app.sender_email%'
+            $senderName: '%app.sender_name%'
 
    
 

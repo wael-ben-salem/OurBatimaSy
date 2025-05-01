@@ -119,6 +119,15 @@ private ?string $signature = null;
     {
         return $this->nom;
     }
+    public function getFullName(): ?string
+{
+    if ($this->nom === null && $this->prenom === null) {
+        return null;
+    }
+
+    return trim($this->nom . ' ' . $this->prenom);
+}
+
 
     public function setNom(string $nom): static
     {
@@ -384,6 +393,7 @@ public function isCompleted(): bool
            $this->password !== null;
 }
 
+
     #[ORM\OneToMany(mappedBy: 'utilisateur', targetEntity: UserAbonnement::class, cascade: ['persist', 'remove'])]
     private Collection $userAbonnements;
 
@@ -420,6 +430,83 @@ public function isCompleted(): bool
         return $this;
     }
 
+
+// src/Entity/Utilisateur.php
+
+// Utilisez soit les annotations soit les attributs, mais pas les deux mélangés
+// Je recommande d'utiliser les attributs (syntaxe #[...]) pour Symfony 5.4+
+
+// Propriétés pour la réinitialisation de mot de passe
+#[ORM\Column(type: 'string', length: 6, nullable: true)]
+private ?string $resetPasswordCode = null;
+
+#[ORM\Column(type: 'integer', nullable: true)]
+private ?int $resetPasswordAttempts = 0;
+
+#[ORM\Column(type: 'datetime', nullable: true)]
+private ?\DateTimeInterface $resetPasswordCodeSentAt = null;
+
+#[ORM\Column(type: 'datetime', nullable: true)]
+private ?\DateTimeInterface $resetPasswordCodeExpiresAt = null;
+
+#[ORM\Column(type: 'integer', nullable: true)]
+private ?int $resetPasswordCodeResendCount = 0;
+
+// Getters et Setters (version optimisée)
+public function getResetPasswordCode(): ?string
+{
+    return $this->resetPasswordCode;
+}
+
+public function setResetPasswordCode(?string $resetPasswordCode): self
+{
+    $this->resetPasswordCode = $resetPasswordCode;
+    return $this;
+}
+
+public function getResetPasswordAttempts(): int
+{
+    return $this->resetPasswordAttempts ?? 0;
+}
+
+public function setResetPasswordAttempts(?int $resetPasswordAttempts): self
+{
+    $this->resetPasswordAttempts = $resetPasswordAttempts;
+    return $this;
+}
+
+public function getResetPasswordCodeSentAt(): ?\DateTimeInterface
+{
+    return $this->resetPasswordCodeSentAt;
+}
+
+public function setResetPasswordCodeSentAt(?\DateTimeInterface $resetPasswordCodeSentAt): self
+{
+    $this->resetPasswordCodeSentAt = $resetPasswordCodeSentAt;
+    return $this;
+}
+
+public function getResetPasswordCodeExpiresAt(): ?\DateTimeInterface
+{
+    return $this->resetPasswordCodeExpiresAt;
+}
+
+public function setResetPasswordCodeExpiresAt(?\DateTimeInterface $resetPasswordCodeExpiresAt): self
+{
+    $this->resetPasswordCodeExpiresAt = $resetPasswordCodeExpiresAt;
+    return $this;
+}
+
+public function getResetPasswordCodeResendCount(): int
+{
+    return $this->resetPasswordCodeResendCount ?? 0;
+}
+
+public function setResetPasswordCodeResendCount(?int $resetPasswordCodeResendCount): self
+{
+    $this->resetPasswordCodeResendCount = $resetPasswordCodeResendCount;
+    return $this;
+}
 
 
 }
