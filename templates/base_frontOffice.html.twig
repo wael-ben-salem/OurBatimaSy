@@ -30,11 +30,20 @@
     </head>
 <body>
 
-    {# ✅ C'est ici que le navbar doit être inclus #}
     {% include 'partials/navbar.html.twig' %}
 
     <div class="container mt-5">
         {% block body %}{% endblock %}
+    </div>
+            {# Footer Start #}
+        <div class="footer wow fadeIn" data-wow-delay="0.3s">
+            <div class="container">
+                <!-- Your footer content here -->
+            </div>
+        </div>
+        <!-- Footer End -->
+
+        <a href="#" class="back-to-top"><i class="fa fa-chevron-up"></i></a>
     </div>
 
     {# Scripts #}
