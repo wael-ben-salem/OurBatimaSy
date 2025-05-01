@@ -51,9 +51,9 @@ security:
         - { path: ^/plannification/\d+/unsave, roles: ROLE_USER }
         - { path: ^/notifications, roles: ROLE_USER }
 
-        - { path: ^/projet, roles: [ROLE_ARTISAN, ROLE_CONSTRUCTEUR, ROLE_ADMIN]  }
-        - { path: ^/terrain, roles: [ROLE_ARTISAN, ROLE_CONSTRUCTEUR, ROLE_ADMIN]  }
-        - { path: ^/etapeprojet, roles: [ROLE_ARTISAN, ROLE_CONSTRUCTEUR, ROLE_ADMIN]  }
+        - { path: ^/projet, roles: [ROLE_CLIENT, ROLE_ARTISAN, ROLE_CONSTRUCTEUR, ROLE_ADMIN]  }
+        - { path: ^/terrain, roles: [ROLE_CLIENT,ROLE_ARTISAN, ROLE_CONSTRUCTEUR, ROLE_ADMIN]  }
+        - { path: ^/etapeprojet, roles: [ROLE_CLIENT,ROLE_ARTISAN, ROLE_CONSTRUCTEUR, ROLE_ADMIN]  }
 
 
 
