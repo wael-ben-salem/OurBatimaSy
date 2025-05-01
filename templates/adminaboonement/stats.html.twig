@@ -1,0 +1,203 @@
+{% extends '@EasyAdmin/page/content.html.twig' %}
+
+{% block content %}
+    <style>
+        /* Layout Styles */
+       
+        .line-chart-container {
+            height: 300px;
+            width: calc(100% - 350px);
+            float: left;
+        }
+        .row {
+        margin-bottom: 20px;
+    }
+    .card {
+        height: 100%;
+        box-shadow: 0 2px 4px rgba(0,0,0,0.1);
+    }
+    .chart-container {
+        height: 300px;
+        width: 300px;
+        margin-right: 30px;
+        float: left;
+    }
+    .line-chart-container {
+        height: 300px;
+        width: calc(100% - 350px);
+        float: left;
+    }
+    .clearfix::after {
+        content: "";
+        display: table;
+        clear: both;
+    }
+        
+      
+        
+        /* Chart Enhancements */
+        canvas {
+            max-width: 100%;
+        }
+    </style>
+
+    <div class="clearfix">
+        <!-- Pie Chart (Top-Left) -->
+        <div class="chart-container">
+            <canvas id="subscriptionChart"></canvas>
+        </div>
+        
+        <!-- Line Chart -->
+        <div class="line-chart-container">
+            <canvas id="trendChart"></canvas>
+        </div>
+    
+    <div class="row mb-4">
+        <!-- Stats Cards Row -->
+        <div class="col-md-4">
+            <div class="card">
+                <div class="card-body text-center">
+                    <h5 class="card-title">Total Active</h5>
+                    <p class="display-4">{{ active_subscriptions }}</p>
+                </div>
+            </div>
+        </div>
+        
+        <div class="col-md-4">
+            <div class="card">
+                <div class="card-body text-center">
+                    <h5 class="card-title">Most Popular</h5>
+                    <p class="display-6">
+                        {{ most_popular.name ?? 'N/A' }}
+                        <small class="d-block text-muted">
+                            {{ most_popular.totalSubscriptions ?? 0 }} subs
+                        </small>
+                    </p>
+                </div>
+            </div>
+        </div>
+    
+    
+    
+    
+    
+    
+    </div>
+        
+        <div class="col-md-4">
+            <div class="card">
+                <div class="card-body text-center">
+                    <h5 class="card-title">Highest Revenue</h5>
+                    <p class="display-6">
+                        {{ highest_revenue.name ?? 'N/A' }}
+                        <small class="d-block text-muted">
+                            {{ highest_revenue.totalRevenue ?? 0|number_format(2) }} €
+                        </small>
+                    </p>
+                </div>
+            </div>
+        </div>
+    </div>
+
+
+    <script src="https://cdn.jsdelivr.net/npm/chart.js"></script>
+    <script>
+        document.addEventListener('DOMContentLoaded', function() {
+            // Pie Chart
+            new Chart(document.getElementById('subscriptionChart'), {
+                type: 'pie',
+                data: {
+                    labels: {{ distribution|map(d => d.name ~ ' (' ~ d.percentage ~ '%)')|json_encode|raw }},
+                    datasets: [{
+                        data: {{ distribution|map(d => d.count)|json_encode|raw }},
+                        backgroundColor: [
+                            '#FF6384', '#36A2EB', '#FFCE56', '#4BC0C0',
+                            '#9966FF', '#FF9F40', '#8AC24A', '#EA5F89'
+                        ],
+                        borderWidth: 1
+                    }]
+                },
+                options: {
+                    responsive: true,
+                    maintainAspectRatio: false,
+                    plugins: {
+                        legend: {
+                            position: 'right',
+                            labels: {
+                                boxWidth: 12,
+                                padding: 20
+                            }
+                        },
+                        tooltip: {
+                            callbacks: {
+                                label: (context) => {
+                                    return `${context.label}: ${context.raw} users`;
+                                }
+                            }
+                        }
+                    }
+                }
+            });
+
+            // Line Chart - Monthly Trends
+            new Chart(document.getElementById('trendChart'), {
+                type: 'line',
+                data: {
+                    labels: {{ months|json_encode|raw }},
+                    datasets: [
+                        {% for name, data in lineChartData %}
+                        {
+                            label: '{{ name }}',
+                            data: {{ data|json_encode|raw }},
+                            borderColor: '{{ cycle([
+                                '#FF6384', '#36A2EB', '#FFCE56', '#4BC0C0',
+                                '#9966FF', '#FF9F40', '#8AC24A', '#EA5F89'
+                            ], loop.index0) }}',
+                            borderWidth: 2,
+                            tension: 0.3,
+                            fill: false,
+                            pointRadius: 4,
+                            pointHoverRadius: 6
+                        }{% if not loop.last %},{% endif %}
+                        {% endfor %}
+                    ]
+                },
+                options: {
+                    responsive: true,
+                    maintainAspectRatio: false,
+                    plugins: {
+                        title: {
+                            display: true,
+                            text: 'Monthly Subscription Trends',
+                            font: { size: 16 }
+                        },
+                        tooltip: {
+                            mode: 'index',
+                            intersect: false
+                        }
+                    },
+                    scales: {
+                        x: {
+                            title: {
+                                display: true,
+                                text: 'Month'
+                            }
+                        },
+                        y: {
+                            beginAtZero: true,
+                            title: {
+                                display: true,
+                                text: 'Number of Subscriptions'
+                            }
+                        }
+                    },
+                    interaction: {
+                        mode: 'nearest',
+                        axis: 'x',
+                        intersect: false
+                    }
+                }
+            });
+        });
+    </script>
+{% endblock %}

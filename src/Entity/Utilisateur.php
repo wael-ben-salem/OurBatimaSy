@@ -4,6 +4,7 @@ namespace App\Entity;
 
 use Doctrine\Common\Collections\ArrayCollection;
 use Doctrine\Common\Collections\Collection;
+
 use Doctrine\DBAL\Types\Types;
 use Symfony\Component\Security\Core\User\UserInterface;
 use Symfony\Component\Security\Core\User\PasswordAuthenticatedUserInterface;
@@ -382,4 +383,43 @@ public function isCompleted(): bool
            $this->telephone !== null && 
            $this->password !== null;
 }
+
+    #[ORM\OneToMany(mappedBy: 'utilisateur', targetEntity: UserAbonnement::class, cascade: ['persist', 'remove'])]
+    private Collection $userAbonnements;
+
+    // Constructor
+    public function __construct()
+    {
+        $this->userAbonnements = new ArrayCollection();
+    }
+
+    // Getter and setter for userAbonnements
+    public function getUserAbonnements(): Collection
+    {
+        return $this->userAbonnements;
+    }
+
+    public function addUserAbonnement(UserAbonnement $userAbonnement): static
+    {
+        if (!$this->userAbonnements->contains($userAbonnement)) {
+            $this->userAbonnements[] = $userAbonnement;
+            $userAbonnement->setUtilisateur($this);
+        }
+
+        return $this;
+    }
+
+    public function removeUserAbonnement(UserAbonnement $userAbonnement): static
+    {
+        if ($this->userAbonnements->removeElement($userAbonnement)) {
+            if ($userAbonnement->getUtilisateur() === $this) {
+                $userAbonnement->setUtilisateur(null);
+            }
+        }
+
+        return $this;
+    }
+
+
+
 }

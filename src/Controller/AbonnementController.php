@@ -3,6 +3,9 @@
 namespace App\Controller;
 
 use App\Entity\Abonnement;
+use App\Entity\UserAbonnement;
+
+
 use App\Form\AbonnementType;
 use Doctrine\ORM\EntityManagerInterface;
 use Symfony\Bundle\FrameworkBundle\Controller\AbstractController;
@@ -82,7 +85,7 @@ final class AbonnementController extends AbstractController
         ]);
     }
 
-    #[Route('/{idAbonnement}', name: 'app_abonnement_delete', methods: ['POST'])]
+    #[Route('/delete/{idAbonnement}', name: 'app_abonnement_delete', methods: ['POST'])]
     public function delete(Request $request, Abonnement $abonnement, EntityManagerInterface $entityManager): Response
     {
         if ($this->isCsrfTokenValid('delete'.$abonnement->getIdAbonnement(), $request->getPayload()->getString('_token'))) {
@@ -92,4 +95,67 @@ final class AbonnementController extends AbstractController
 
         return $this->redirectToRoute('app_abonnement_index', [], Response::HTTP_SEE_OTHER);
     }
-}
+    #[Route('/create-user-abonnement', name: 'create_user_abonnement', methods: ['POST'])]
+    public function createUserAbonnement(Request $request, EntityManagerInterface $em)
+    {
+        $abonnementId = $request->request->get('abonnement_id');
+        dump($abonnementId); // Check if this matches what you expect
+        $abonnement = $em->getRepository(Abonnement::class)->find($abonnementId);
+        $utilisateur = $this->getUser();
+    
+        if (!$abonnement || !$utilisateur) {
+            $this->addFlash('error', 'Abonnement ou utilisateur introuvable.');
+            return $this->redirectToRoute('abonnement_liste');
+        }
+    
+        $userAbonnement = new UserAbonnement();
+        $userAbonnement->setAbonnement($abonnement);
+        $userAbonnement->setUtilisateur($utilisateur);
+        
+        $dateDebut = new \DateTime();
+        $userAbonnement->setDateDebut($dateDebut);
+        $duree = $abonnement->getDuree(); // e.g. "3mois"
+
+        $duree = str_replace(
+            ['mois', 'jours', 'ans'], 
+            ['months', 'days', 'years'], 
+            strtolower($duree)
+        );
+        
+        // Calculate end date (single calculation)
+        $dateFin = (clone $dateDebut)->modify('+' . $duree);
+        $userAbonnement->setDateFin($dateFin);
+    
+        $userAbonnement->setStatut('actif');
+    
+        $em->persist($userAbonnement);
+        $em->flush();
+    
+        $this->addFlash('success', 'Abonnement activé avec succès !');
+        return $this->render('welcomeFront/index.html.twig', [
+            'user' => $this->getUser()
+        ]);
+    }
+
+
+
+
+
+
+
+}    
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
