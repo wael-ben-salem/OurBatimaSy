@@ -16,22 +16,30 @@ use Symfony\Component\Validator\Constraints\NotNull;
 use Symfony\Component\Form\FormError;
 use Dompdf\Dompdf;
 use Dompdf\Options;
+use Knp\Component\Pager\PaginatorInterface;
 
 #[Route('/front/reclamation')]
 class FrontReclamationController extends AbstractController
 {
     #[Route('/', name: 'front_reclamation_index', methods: ['GET'])]
-    public function index(EntityManagerInterface $entityManager): Response
+    public function index(Request $request, EntityManagerInterface $entityManager, PaginatorInterface $paginator): Response
     {
         // Use a custom query to fetch all reclamations
         $conn = $entityManager->getConnection();
         $sql = 'SELECT * FROM reclamation ORDER BY date DESC';
         $stmt = $conn->prepare($sql);
         $resultSet = $stmt->executeQuery();
-        $reclamations = $resultSet->fetchAllAssociative();
+        $allReclamations = $resultSet->fetchAllAssociative();
+
+        // Paginate the results
+        $pagination = $paginator->paginate(
+            $allReclamations, // Data to paginate
+            $request->query->getInt('page', 1), // Current page number, default to 1
+            10 // Items per page
+        );
 
         return $this->render('front_reclamation/index.html.twig', [
-            'reclamations' => $reclamations,
+            'pagination' => $pagination,
         ]);
     }
 
