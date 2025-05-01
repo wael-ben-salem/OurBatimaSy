@@ -59,24 +59,22 @@ class Article
     /**
      * @var \Etapeprojet
      */
-    #[ORM\JoinColumn(name: 'etapeprojet_id', referencedColumnName: 'Id_etapeProjet')]
+    #[ORM\JoinColumn(name: 'etapeprojet_id', referencedColumnName: 'Id_etapeProjet', nullable: true)] // Made nullable
     #[ORM\ManyToOne(targetEntity: \Etapeprojet::class)]
     private $etapeprojet;
 
     /**
      * @var \Stock
      */
-    #[ORM\JoinColumn(name: 'stock_id', referencedColumnName: 'id', nullable: false)]
+    #[ORM\JoinColumn(name: 'stock_id', referencedColumnName: 'id', nullable: true)] // Made nullable
     #[ORM\ManyToOne(targetEntity: \Stock::class)]
-    #[Assert\NotNull(message: 'Le stock doit être sélectionné.')]
     private $stock;
 
     /**
      * @var \Fournisseur
      */
-    #[ORM\JoinColumn(name: 'fournisseur_id', referencedColumnName: 'fournisseur_id', nullable: false)]
+    #[ORM\JoinColumn(name: 'fournisseur_id', referencedColumnName: 'fournisseur_id', nullable: true)] // Made nullable
     #[ORM\ManyToOne(targetEntity: \Fournisseur::class)]
-    #[Assert\NotNull(message: 'Le fournisseur doit être sélectionné.')]
     private $fournisseur;
 
     public function getId(): ?int
