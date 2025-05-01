@@ -99,10 +99,11 @@
                             <tr>
                                 <th class="text-uppercase text-secondary text-xxs font-weight-bolder opacity-7">Remarques</th>
                                 <td class="px-4">
-                                    <div class="d-flex align-items-center">
-                                        {{ plannification.remarques }}
-                                        <button class="btn btn-sm btn-link text-dark p-0 ms-2 play-remarques"
-                                                data-text="{{ plannification.remarques }}">
+                                    <div class="d-flex align-items-center justify-content-between">
+                                        <div class="flex-grow-1 me-3">{{ plannification.remarques }}</div>
+                                        <button class="btn btn-outline-primary btn-icon-only rounded-circle play-audio"
+                                                data-text="{{ plannification.remarques }}"
+                                                title="Lire les remarques">
                                             <i class="material-symbols-rounded">volume_up</i>
                                         </button>
                                     </div>
@@ -118,7 +119,16 @@
                             </tr>
                             <tr>
                                 <th class="text-uppercase text-secondary text-xxs font-weight-bolder opacity-7">Tâche associée</th>
-                                <td class="px-4">{{ plannification.idTache.description }}</td>
+                                <td class="px-4">
+                                    <div class="d-flex align-items-center justify-content-between">
+                                        <div class="flex-grow-1 me-3">{{ plannification.idTache.description }}</div>
+                                        <button class="btn btn-outline-info btn-icon-only rounded-circle play-audio"
+                                                data-text="{{ plannification.idTache.description }}"
+                                                title="Lire la description de la tâche">
+                                            <i class="material-symbols-rounded">volume_up</i>
+                                        </button>
+                                    </div>
+                                </td>
                             </tr>
                             </tbody>
                         </table>
@@ -246,13 +256,18 @@
                 clearInterval(pollInterval);
             });
 
-            // Text-to-speech functionality
-            const playButtons = document.querySelectorAll('.play-remarques');
+            // Text-to-speech functionality for all audio buttons
+            const playButtons = document.querySelectorAll('.play-audio');
 
             playButtons.forEach(button => {
                 button.addEventListener('click', async function() {
                     const text = this.dataset.text;
                     if (!text) return;
+
+                    // Add loading state
+                    const icon = this.querySelector('i');
+                    const originalIcon = icon.textContent;
+                    icon.textContent = 'hourglass_top';
 
                     try {
                         const audio = new Audio();
@@ -268,9 +283,23 @@
 
                         const blob = await response.blob();
                         audio.src = URL.createObjectURL(blob);
+
+                        // Change icon while playing
+                        audio.onplay = () => {
+                            icon.textContent = 'volume_up';
+                        };
+
+                        audio.onended = () => {
+                            icon.textContent = originalIcon;
+                        };
+
                         audio.play();
                     } catch (error) {
                         console.error('Error:', error);
+                        icon.textContent = 'error';
+                        setTimeout(() => {
+                            icon.textContent = originalIcon;
+                        }, 2000);
                         alert('Error generating speech: ' + error.message);
                     }
                 });
