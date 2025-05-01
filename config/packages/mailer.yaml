@@ -1,3 +1,7 @@
+# config/packages/mailer.yaml
 framework:
     mailer:
-        dsn: '%env(MAILER_DSN)%'
+        transports:
+            main: '%env(MAILER_DSN)%'
+        # Ajoutez cette ligne ↓
+        message_bus: null

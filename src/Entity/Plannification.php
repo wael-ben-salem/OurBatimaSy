@@ -4,6 +4,8 @@ namespace App\Entity;
 
 use Doctrine\DBAL\Types\Types;
 use Doctrine\ORM\Mapping as ORM;
+use Doctrine\Common\Collections\ArrayCollection;
+use Doctrine\Common\Collections\Collection;
 use Symfony\Component\Validator\Constraints as Assert;
 
 /**
@@ -78,6 +80,17 @@ class Plannification
     #[ORM\ManyToOne(targetEntity: \Tache::class)]
     #[Assert\NotNull(message: "Une tâche doit être associée")]
     private $idTache;
+
+    /**
+     * @var Collection<int, SavedPlannification>
+     */
+    #[ORM\OneToMany(targetEntity: SavedPlannification::class, mappedBy: 'plannification')]
+    private $savedPlannifications;
+
+    public function __construct()
+    {
+        $this->savedPlannifications = new ArrayCollection();
+    }
 
     public function getIdPlannification(): ?int
     {
@@ -167,4 +180,51 @@ class Plannification
 
         return $this;
     }
+
+    /**
+     * @return Collection<int, SavedPlannification>
+     */
+    public function getSavedPlannifications(): Collection
+    {
+        return $this->savedPlannifications;
+    }
+
+    public function addSavedPlannification(SavedPlannification $savedPlannification): static
+    {
+        if (!$this->savedPlannifications->contains($savedPlannification)) {
+            $this->savedPlannifications->add($savedPlannification);
+            $savedPlannification->setPlannification($this);
+        }
+
+        return $this;
+    }
+
+    public function removeSavedPlannification(SavedPlannification $savedPlannification): static
+    {
+        if ($this->savedPlannifications->removeElement($savedPlannification)) {
+            // set the owning side to null (unless already changed)
+            if ($savedPlannification->getPlannification() === $this) {
+                $savedPlannification->setPlannification(null);
+            }
+        }
+
+        return $this;
+    }
+
+
+    public function __toString(): string
+    {
+        $task = $this->idTache ? (string)$this->idTache : 'No task';
+        $date = $this->datePlanifiee ? $this->datePlanifiee->format('Y-m-d') : 'No date';
+        $status = $this->statut ?? 'No status';
+        return sprintf('Plan#%d: %s | %s | Status: %s',
+            $this->idPlannification,
+            $task,
+            $date,
+            $status
+        );
+    }
 }
+
+//to string
+

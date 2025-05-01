@@ -18,10 +18,25 @@
                         {{ form_start(form) }}
                         <div class="row">
                             <div class="col-md-12">
-                                {{ form_row(form.idTache, {
-                                    'attr': {'class': 'form-select'},
-                                    'label_attr': {'class': 'form-label'}
-                                }) }}
+                                {% if plannification.idTache %}
+                                    {# Show pre-selected Tache #}
+                                    <div class="mb-3">
+                                        <label class="form-label">Linked Task</label>
+                                        <input type="text"
+                                               class="form-control"
+                                               value="{{ plannification.idTache }}"
+                                               readonly>
+                                        <input type="hidden"
+                                               name="{{ field_name(form.idTache) }}"
+                                               value="{{ plannification.idTache.idTache }}">
+                                    </div>
+                                {% else %}
+                                    {# Show dropdown if no Tache preselected #}
+                                    {{ form_row(form.idTache, {
+                                        'attr': {'class': 'form-select'},
+                                        'label_attr': {'class': 'form-label'}
+                                    }) }}
+                                {% endif %}
                             </div>
                         </div>
                         <div class="row">

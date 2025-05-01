@@ -1,11 +1,12 @@
 {% extends 'base_backOffice.html.twig' %}
 
-{% block title %}Terrain{% endblock %}
+{% block title %}Détails du Terrain{% endblock %}
 
 {% block stylesheets %}
   {{ parent() }}
   <link rel="stylesheet" href="https://fonts.googleapis.com/css?family=Inter:300,400,500,600,700,900" />
   <link rel="stylesheet" href="https://fonts.googleapis.com/css2?family=Material+Symbols+Rounded:opsz,wght,FILL,GRAD@24,400,0,0" />
+  <link rel="stylesheet" href="https://unpkg.com/leaflet@1.9.4/dist/leaflet.css" />
   <style>
     .card {
       border-radius: 12px;
@@ -27,6 +28,47 @@
       box-shadow: 0 4px 20px 0 rgba(167, 139, 109, 0.14),
                   0 7px 10px -5px rgba(167, 139, 109, 0.4);
     }
+    /* Map styles */
+    #map {
+      height: 400px;
+      border-radius: 12px;
+      margin: 15px;
+      border: 2px solid #dee2e6;
+    }
+    .map-info-panel {
+      background: rgba(255,255,255,0.95);
+      padding: 15px;
+      border-radius: 8px;
+      margin: 15px;
+      box-shadow: 0 2px 10px rgba(0,0,0,0.1);
+    }
+    .map-info-panel p {
+      margin-bottom: 5px;
+    }
+    /* Alert styles */
+    .alert {
+      border-radius: 8px;
+      margin: 15px;
+    }
+    .alert-success {
+      background-color: #d1e7dd;
+      color: #0f5132;
+      border-color: #badbcc;
+    }
+    .alert-warning {
+      background-color: #fff3cd;
+      color: #664d03;
+      border-color: #ffecb5;
+    }
+    .alert-danger {
+      background-color: #f8d7da;
+      color: #842029;
+      border-color: #f5c2c7;
+    }
+    .alert .material-symbols-rounded {
+      vertical-align: middle;
+      margin-right: 8px;
+    }
   </style>
 {% endblock %}
 
@@ -44,6 +86,22 @@
           </div>
         </div>
         <div class="card-body px-0 pb-2">
+          {% for type, messages in app.flashes %}
+            {% for message in messages %}
+              <div class="alert alert-{{ type }} alert-dismissible fade show">
+                {% if type == 'success' %}
+                  <i class="material-symbols-rounded">check_circle</i>
+                {% elseif type == 'warning' %}
+                  <i class="material-symbols-rounded">warning</i>
+                {% elseif type == 'danger' %}
+                  <i class="material-symbols-rounded">error</i>
+                {% endif %}
+                {{ message }}
+                <button type="button" class="btn-close" data-bs-dismiss="alert" aria-label="Close"></button>
+              </div>
+            {% endfor %}
+          {% endfor %}
+
           <div class="table-responsive p-3">
             <table class="table align-items-center mb-0">
               <tbody>
@@ -67,6 +125,13 @@
             </table>
           </div>
 
+          {{ mapHTML|raw }}
+
+          <div class="map-info-panel">
+            <p>📍 <span id="coordinates">{{ terrain.detailsgeo }}</span></p>
+            <p>🏠 <span id="address">{{ terrain.emplacement }}</span></p>
+          </div>
+
           <div class="ps-3 btn-action-group">
             <a class="btn btn-outline-secondary" href="{{ path('app_terrain_index') }}">
               <i class="material-symbols-rounded me-1">arrow_back</i>
@@ -87,9 +152,5 @@
 
 {% block javascripts %}
   {{ parent() }}
-  <script>
-    if (typeof M !== 'undefined') {
-      M.AutoInit();
-    }
-  </script>
+  <script src="https://unpkg.com/leaflet@1.9.4/dist/leaflet.js"></script>
 {% endblock %}

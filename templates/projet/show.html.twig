@@ -20,6 +20,25 @@
     .table th {
       width: 30%;
     }
+    .terrain-container {
+      display: flex;
+      align-items: center;
+      height: 100%;
+    }
+    .terrain-text {
+      flex-grow: 1;
+    }
+    .terrain-button {
+      margin-left: 10px;
+    }
+    /* Modal spinner styles */
+    .modal-spinner {
+      display: flex;
+      flex-direction: column;
+      align-items: center;
+      justify-content: center;
+      padding: 2rem 0;
+    }
   </style>
 {% endblock %}
 
@@ -72,26 +91,24 @@
                   <th class="text-uppercase text-secondary text-xs font-weight-bolder opacity-7">Emplacement du Terrain</th>
                   <td class="text-sm">
                     {% if projet.idTerrain %}
-                      {{ projet.idTerrain.emplacement }}
+                      <div class="terrain-container">
+                        <span class="terrain-text">{{ projet.idTerrain.emplacement }}</span>
+                        <a href="{{ path('app_terrain_show', {'idTerrain': projet.idTerrain.idTerrain}) }}" 
+                           class="btn btn-sm btn-outline-primary terrain-button">
+                          <i class="material-symbols-rounded" style="font-size: 16px">visibility</i>
+                          Voir
+                        </a>
+                      </div>
                     {% else %}
                       <span class="text-muted">Aucun terrain associé</span>
-                    {% endif %}
-                  </td>
-                </tr>
-                <tr>
-                  <th class="text-uppercase text-secondary text-xs font-weight-bolder opacity-7">Équipe Responsable</th>
-                  <td class="text-sm">
-                    {% if projet.idEquipe %}
-                      {{ projet.idEquipe.nomEquipe }}
-                    {% else %}
-                      <span class="text-muted">Aucune équipe assignée</span>
                     {% endif %}
                   </td>
                 </tr>
               </tbody>
             </table>
           </div>
-          
+
+
           <div class="ps-3 btn-action-group">
             <a class="btn btn-outline-secondary" href="{{ path('app_projet_index') }}">
               <i class="material-symbols-rounded me-1">arrow_back</i>
@@ -114,13 +131,77 @@
     </div>
   </div>
 </div>
+
+<!-- Modal -->
+<div class="modal fade" id="estimation3DModal" tabindex="-1" aria-labelledby="estimation3DModalLabel" aria-hidden="true">
+    <div class="modal-dialog modal-lg">
+        <div class="modal-content">
+            <div class="modal-header bg-gradient-info text-white">
+                <h5 class="modal-title" id="estimation3DModalLabel">Estimation 3D pour {{ projet.nomprojet }}</h5>
+                <button type="button" class="btn-close" data-bs-dismiss="modal" aria-label="Close"></button>
+            </div>
+            <div class="modal-body" id="estimation3DContent">
+                <div class="modal-spinner">
+                    <div class="spinner-border text-primary" role="status">
+                        <span class="visually-hidden">Loading...</span>
+                    </div>
+                    <p class="mt-2">Génération de l'estimation en cours...</p>
+                </div>
+            </div>
+            <div class="modal-footer">
+                <button type="button" class="btn btn-secondary" data-bs-dismiss="modal">Fermer</button>
+                <button type="button" class="btn btn-primary" onclick="window.print()">Imprimer</button>
+            </div>
+        </div>
+    </div>
+</div>
 {% endblock %}
 
 {% block javascripts %}
   {{ parent() }}
   <script>
-    if (typeof M !== 'undefined') {
-      M.AutoInit();
-    }
+    document.addEventListener('DOMContentLoaded', function() {
+        const modal = document.getElementById('estimation3DModal');
+        
+        modal.addEventListener('show.bs.modal', function() {
+            fetch('{{ path('app_projet_generate_image', {'idProjet': projet.idProjet}) }}')
+                .then(response => {
+                    if (!response.ok) {
+                        throw new Error('Network response was not ok');
+                    }
+                    return response.json();
+                })
+                .then(data => {
+                    document.getElementById('estimation3DContent').innerHTML = 
+                        `<div class="p-3">
+                            <h6>Détails du projet:</h6>
+                            <ul class="mb-3">
+                                <li><strong>Style:</strong> ${projet.stylearch || 'Non spécifié'}</li>
+                                <li><strong>Type:</strong> ${projet.type || 'Non spécifié'}</li>
+                                <li><strong>Emplacement:</strong> ${projet.emplacement || 'Non spécifié'}</li>
+                            </ul>
+                            <div class="bg-light p-3 rounded">
+                                ${data.estimation.replace(/\n/g, '<br>')}
+                            </div>
+                        </div>`;
+                })
+                .catch(error => {
+                    console.error('Error:', error);
+                    document.getElementById('estimation3DContent').innerHTML = 
+                        '<div class="alert alert-danger">Erreur lors de la génération de l\'estimation. Veuillez réessayer.</div>';
+                });
+        });
+        
+        // Reset modal content when closed
+        modal.addEventListener('hidden.bs.modal', function() {
+            document.getElementById('estimation3DContent').innerHTML = `
+                <div class="modal-spinner">
+                    <div class="spinner-border text-primary" role="status">
+                        <span class="visually-hidden">Loading...</span>
+                    </div>
+                    <p class="mt-2">Génération de l'estimation en cours...</p>
+                </div>`;
+        });
+    });
   </script>
 {% endblock %}

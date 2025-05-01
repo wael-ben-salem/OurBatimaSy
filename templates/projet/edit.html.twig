@@ -165,7 +165,6 @@
                       {% endfor %}
                     </div>
                   {% endif %}
-                  <small class="form-text">Terrain associé à ce projet</small>
                 </div>
                 <div class="ms-3" style="margin-top: 28px;">
                   <a href="{{ path('app_terrain_new') }}" class="btn btn-sm btn-primary" target="_blank">
@@ -178,24 +177,24 @@
 
             <div class="row">
               <div class="col-md-6">
-                <div class="form-group">
-                  {{ form_label(form.nomprojet) }}
-                  {{ form_widget(form.nomprojet, {
-                    'attr': {
-                      'class': 'form-control' ~ (form.nomprojet.vars.errors|length ? ' is-invalid' : ''),
-                      'placeholder': 'Ex: Villa moderne à Sousse'
-                    }
-                  }) }}
-                  {% if form.nomprojet.vars.errors|length %}
-                    <div class="form-error-message">
-                      <i class="fas fa-exclamation-circle form-error-icon"></i>
-                      {% for error in form.nomprojet.vars.errors %}
-                        <span>{{ error.message }}</span>
-                      {% endfor %}
-                    </div>
-                  {% endif %}
-                  <small class="form-text">Entrez un nom descriptif pour votre projet</small>
-                </div>
+<div class="form-group">
+    {{ form_label(form.nomprojet) }}
+    {{ form_widget(form.nomprojet, {
+        'attr': {
+            'class': 'form-control' ~ (form.nomprojet.vars.errors|length ? ' is-invalid' : ''),
+            'placeholder': 'Ex: Villa moderne à Sousse',
+            'required': 'required'
+        }
+    }) }}
+    {% if form.nomprojet.vars.errors|length %}
+        <div class="form-error-message">
+            <i class="fas fa-exclamation-circle form-error-icon"></i>
+            {% for error in form.nomprojet.vars.errors %}
+                <span>{{ error.message }}</span>
+            {% endfor %}
+        </div>
+    {% endif %}
+</div>
               </div>
               <div class="col-md-6">
                 <div class="form-group">
@@ -214,7 +213,6 @@
                       {% endfor %}
                     </div>
                   {% endif %}
-                  <small class="form-text">Choisissez le type de construction</small>
                 </div>
               </div>
             </div>
@@ -237,7 +235,6 @@
                       {% endfor %}
                     </div>
                   {% endif %}
-                  <small class="form-text">Décrivez le style architectural</small>
                 </div>
               </div>
               <div class="col-md-6">
@@ -260,7 +257,6 @@
                       {% endfor %}
                     </div>
                   {% endif %}
-                  <small class="form-text">Estimation du budget total</small>
                 </div>
               </div>
             </div>
@@ -283,7 +279,6 @@
                       {% endfor %}
                     </div>
                   {% endif %}
-                  <small class="form-text">État actuel du projet</small>
                 </div>
               </div>
               <div class="col-md-6">
@@ -291,7 +286,6 @@
                   <label class="form-label">Date de création</label>
                   <input type="text" class="form-control" readonly 
                          value="{{ projet.datecreation ? projet.datecreation|date('d/m/Y H:i') : '' }}">
-                  <small class="form-text">Date de création du projet</small>
                 </div>
               </div>
             </div>
@@ -314,7 +308,6 @@
                       {% endfor %}
                     </div>
                   {% endif %}
-                  <small class="form-text">Équipe en charge du projet</small>
                 </div>
               </div>
               <div class="col-md-6">
@@ -336,7 +329,6 @@
                       {% endfor %}
                     </div>
                   {% endif %}
-                  <small class="form-text">Email du client associé</small>
                 </div>
               </div>
             </div>

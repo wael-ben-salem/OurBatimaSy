@@ -62,11 +62,25 @@ class Constructeur
         return $this->constructeur;
     }
 
+    public function getId(): ?int
+    {
+        return $this->constructeur?->getId(); // ou $this->getConstructeur()?->getId()
+    }
     public function setConstructeur(?Utilisateur $constructeur): static
     {
         $this->constructeur = $constructeur;
 
         return $this;
+    }
+
+    // In Constructeur entity
+    public function __toString(): string
+    {
+        $user = $this->constructeur?->getNom() . ' ' . $this->constructeur?->getPrenom();
+        return sprintf('Constructeur: %s (%s)',
+            $user ?? 'Unnamed',
+            $this->specialite ?? 'No specialty'
+        );
     }
 
 

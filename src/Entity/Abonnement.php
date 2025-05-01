@@ -5,6 +5,8 @@ namespace App\Entity;
 use Doctrine\DBAL\Types\Types;
 use Doctrine\ORM\Mapping as ORM;
 use Symfony\Component\Validator\Constraints as Assert;
+use Doctrine\Common\Collections\ArrayCollection;
+use Doctrine\Common\Collections\Collection;
 
 /**
  * Abonnement
@@ -82,4 +84,45 @@ class Abonnement
 
         return $this;
     }
+
+    #[ORM\OneToMany(mappedBy: 'abonnement', targetEntity: UserAbonnement::class)]
+    private Collection $userAbonnements;
+    
+    public function __construct()
+    {
+        $this->userAbonnements = new ArrayCollection();
+    }
+    
+    public function getUserAbonnements(): Collection
+    {
+        return $this->userAbonnements;
+    }
+    
+    public function addUserAbonnement(UserAbonnement $userAbonnement): static
+    {
+        if (!$this->userAbonnements->contains($userAbonnement)) {
+            $this->userAbonnements[] = $userAbonnement;
+            $userAbonnement->setAbonnement($this);
+        }
+    
+        return $this;
+    }
+    
+    public function removeUserAbonnement(UserAbonnement $userAbonnement): static
+    {
+        if ($this->userAbonnements->removeElement($userAbonnement)) {
+            if ($userAbonnement->getAbonnement() === $this) {
+                $userAbonnement->setAbonnement(null);
+            }
+        }
+    
+        return $this;
+    }
+
+
+
+
+
+
+
 }

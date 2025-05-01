@@ -1,0 +1,102 @@
+{# templates/team_room/list.html.twig #}
+{% extends 'base.html.twig' %}
+
+{% block title %}Mes salons d'équipe{% endblock %}
+
+{% block body %}
+<div class="container py-4">
+    <div class="d-flex justify-content-between align-items-center mb-4">
+        <h1 class="h3 mb-0">Mes salons d'équipe</h1>
+        
+    </div>
+
+    {% if rooms is empty %}
+    <div class="card border-0 shadow-sm">
+        <div class="card-body text-center py-5">
+            <i class="material-symbols-rounded text-muted mb-3" style="font-size: 3rem;">forum</i>
+            <h4 class="text-muted">Aucun salon disponible</h4>
+            <p class="text-muted mb-4">Vous n'avez accès à aucun salon d'équipe pour le moment</p>
+            <a href="#" class="btn btn-primary">
+                <i class="material-symbols-rounded me-1">add</i>
+                Créer un salon
+            </a>
+        </div>
+    </div>
+    {% else %}
+    <div class="row g-4">
+        {% for room in rooms %}
+        <div class="col-md-6 col-lg-4">
+            <div class="card h-100 border-0 shadow-sm">
+                <div class="card-body">
+                    <div class="d-flex align-items-center mb-3">
+                        <div class="icon-container me-3">
+                            <i class="material-symbols-rounded {% if room.isGeneral %}text-primary{% else %}text-info{% endif %}">
+                                {% if room.isGeneral %}forum{% else %}groups{% endif %}
+                            </i>
+                        </div>
+                        <h5 class="mb-0">{{ room.name }}</h5>
+                    </div>
+                    
+                    <div class="mb-3">
+                        <span class="badge bg-light text-dark mb-2">
+                            <i class="material-symbols-rounded me-1" style="font-size: 1rem;">group</i>
+                            {{ room.equipe.nom }}
+                        </span>
+                    </div>
+                    
+                    <div class="d-flex justify-content-between text-muted small mb-3">
+                        <span>
+                            <i class="material-symbols-rounded me-1" style="font-size: 1rem;">person</i>
+                            {{ room.members|length }} membres
+                        </span>
+                        <span>
+                            <i class="material-symbols-rounded me-1" style="font-size: 1rem;">chat</i>
+                            {{ room.messages|length }} messages
+                        </span>
+                    </div>
+                    
+                    {% if room.lastMessage %}
+                    <div class="last-message bg-light p-3 rounded">
+                        <div class="d-flex justify-content-between mb-1">
+                            <strong class="text-truncate">{{ room.lastMessage.sender.nom }}</strong>
+                            <small>{{ room.lastMessage.sentAt|date('H:i') }}</small>
+                        </div>
+                        <p class="mb-0 text-truncate">{{ room.lastMessage.content }}</p>
+                    </div>
+                    {% endif %}
+                </div>
+                <div class="card-footer bg-transparent border-0 pt-0">
+                    <a href="{{ path('app_team_room_show', {'id': room.id}) }}" 
+                       class="btn btn-outline-primary w-100">
+                        Accéder
+                    </a>
+                </div>
+            </div>
+        </div>
+        {% endfor %}
+    </div>
+    {% endif %}
+</div>
+
+<style>
+.icon-container {
+    width: 40px;
+    height: 40px;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    background-color: rgba(13, 110, 253, 0.1);
+    border-radius: 50%;
+}
+.last-message {
+    border-left: 3px solid #0d6efd;
+}
+.card {
+    transition: transform 0.2s, box-shadow 0.2s;
+}
+.card:hover {
+    transform: translateY(-2px);
+    box-shadow: 0 0.5rem 1rem rgba(0, 0, 0, 0.1) !important;
+}
+</style>
+{% endblock %}

@@ -1,0 +1,26 @@
+{# templates/notification/index.html.twig #}
+{% extends 'base_backOffice.html.twig' %}
+
+{% block title %}Notifications{% endblock %}
+
+{% block body %}
+    <div class="container">
+        <h1>Your Notifications</h1>
+        <div class="list-group">
+            {% for notification in notifications %}
+                <a href="{{ path('mark_notification_read', {'id': notification.id}) }}"
+                   class="list-group-item list-group-item-action {% if not notification.isRead %}list-group-item-primary{% endif %}">
+                    <div class="d-flex w-100 justify-content-between">
+                        <h5 class="mb-1">{{ notification.message }}</h5>
+                        <small>{{ notification.createdAt|date('Y-m-d H:i') }}</small>
+                    </div>
+{% if notification.plannification is not null %}
+    <small>Related to plannification #{{ notification.plannification.idPlannification }}</small>
+{% endif %}
+                </a>
+            {% else %}
+                <div class="alert alert-info">No notifications found</div>
+            {% endfor %}
+        </div>
+    </div>
+{% endblock %}

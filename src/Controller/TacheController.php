@@ -5,6 +5,8 @@ namespace App\Controller;
 use App\Entity\Tache;
 use App\Form\TacheType;
 use App\Entity\Constructeur;
+use App\Repository\TacheRepository;
+use App\Service\ProfanityFilterService;
 use Doctrine\ORM\EntityManagerInterface;
 use Symfony\Bundle\FrameworkBundle\Controller\AbstractController;
 use Symfony\Component\HttpFoundation\Request;
@@ -23,42 +25,67 @@ class TacheController extends AbstractController
     }
 
     #[Route('/', name: 'app_tache_index', methods: ['GET'])]
-    public function index(EntityManagerInterface $entityManager): Response
+    public function index(TacheRepository $tacheRepository): Response
     {
-        $taches = $entityManager
-            ->getRepository(Tache::class)
-            ->findAll();
+        $user = $this->getUser();
+        $userRole = null;
+        $userId = null;
+
+        if ($user) {
+            if ($user->getRole() === 'constructeur' && $user->getConstructeur()) {
+                $userRole = 'constructeur';
+                $userId = $user->getConstructeur()->getConstructeur()->getId();
+            } elseif ($user->getRole() === 'artisan' && $user->getArtisan()) {
+                $userRole = 'artisan';
+                $userId = $user->getArtisan()->getArtisan()->getId();
+            }
+        }
 
         return $this->render('tache/index.html.twig', [
-            'taches' => $taches,
+            'taches' => $tacheRepository->findAll(),
+            'userRole' => $userRole,
+            'userId' => $userId,
         ]);
     }
 
     #[Route('/new', name: 'app_tache_new', methods: ['GET', 'POST'])]
-    public function new(Request $request, EntityManagerInterface $entityManager): Response
-    {
+    public function new(
+        Request $request,
+        EntityManagerInterface $entityManager,
+        ProfanityFilterService $profanityFilter
+    ): Response {
         $tache = new Tache();
         $form = $this->createForm(TacheType::class, $tache);
         $form->handleRequest($request);
 
         if ($form->isSubmitted() && $form->isValid()) {
-            // Get the currently authenticated user
             $user = $this->security->getUser();
 
-            // Find the Constructeur entity related to the current user
-            $constructeur = $entityManager->getRepository(Constructeur::class)->findOneBy(['constructeur' => $user]);
+            $constructeur = $entityManager
+                ->getRepository(Constructeur::class)
+                ->findOneBy(['constructeur' => $user]);
 
             if (!$constructeur) {
                 throw $this->createAccessDeniedException('Only constructeurs can create tasks.');
             }
 
-            // Associate the task with the constructeur
+            // Filter the description
+            $originalDescription = $tache->getDescription();
+            $filteredDescription = $profanityFilter->filterText($originalDescription);
+            $tache->setDescription($filteredDescription);
+
             $tache->setConstructeur($constructeur);
 
             $entityManager->persist($tache);
             $entityManager->flush();
 
-            return $this->redirectToRoute('app_tache_index', [], Response::HTTP_SEE_OTHER);
+            if ($originalDescription !== $filteredDescription) {
+                $this->addFlash('warning', 'Your task description contained inappropriate language and has been filtered.');
+            }
+
+            return $this->redirectToRoute('app_plannification_new', [
+                'tache_id' => $tache->getIdTache()
+            ]);
         }
 
         return $this->render('tache/new.html.twig', [
@@ -76,12 +103,27 @@ class TacheController extends AbstractController
     }
 
     #[Route('/{idTache}/edit', name: 'app_tache_edit', methods: ['GET', 'POST'])]
-    public function edit(Request $request, Tache $tache, EntityManagerInterface $entityManager): Response
-    {
+    public function edit(
+        Request $request,
+        Tache $tache,
+        EntityManagerInterface $entityManager,
+        ProfanityFilterService $profanityFilter
+    ): Response {
+        $originalDescription = $tache->getDescription();
+
         $form = $this->createForm(TacheType::class, $tache);
         $form->handleRequest($request);
 
         if ($form->isSubmitted() && $form->isValid()) {
+            if ($tache->getDescription() !== $originalDescription) {
+                $filteredDescription = $profanityFilter->filterText($tache->getDescription());
+                $tache->setDescription($filteredDescription);
+
+                if ($originalDescription !== $filteredDescription) {
+                    $this->addFlash('warning', 'Your task description contained inappropriate language and has been filtered.');
+                }
+            }
+
             $entityManager->flush();
 
             return $this->redirectToRoute('app_tache_index', [], Response::HTTP_SEE_OTHER);

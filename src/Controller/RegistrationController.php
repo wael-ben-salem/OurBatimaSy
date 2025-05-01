@@ -3,26 +3,38 @@
 namespace App\Controller;
 
 use App\Entity\Utilisateur;
-use App\Entity\Constructeur; // Changed from Artisan to Constructeur
+use App\Security\LoginSuccessHandler;
+use App\Service\EmailService;
+
 use App\Form\RegistrationFormType;
 use Doctrine\ORM\EntityManagerInterface;
 use Symfony\Bundle\FrameworkBundle\Controller\AbstractController;
 use Symfony\Component\HttpFoundation\Request;
 use Symfony\Component\HttpFoundation\Response;
-use Symfony\Component\PasswordHasher\Hasher\UserPasswordHasherInterface;
+use Psr\Log\LoggerInterface;
+
+use Symfony\Component\HttpFoundation\JsonResponse;
 use Symfony\Component\Routing\Annotation\Route;
+use Symfony\Component\Security\Core\Authentication\Token\UsernamePasswordToken;
+
+use Symfony\Component\PasswordHasher\Hasher\UserPasswordHasherInterface;
 
 class RegistrationController extends AbstractController
 {
     #[Route('/register', name: 'app_register')]
-    public function register(Request $request, UserPasswordHasherInterface $passwordHasher, EntityManagerInterface $entityManager): Response
-    {
+    public function register(
+        Request $request,
+        UserPasswordHasherInterface $passwordHasher,
+        EntityManagerInterface $entityManager,
+        EmailService $emailService,
+        LoggerInterface $logger
+    ): Response {
         $user = new Utilisateur();
         $form = $this->createForm(RegistrationFormType::class, $user);
         $form->handleRequest($request);
 
         if ($form->isSubmitted() && $form->isValid()) {
-            // Hash the plain password
+            // Enregistrement sans face_data
             $user->setPassword(
                 $passwordHasher->hashPassword(
                     $user,
@@ -30,27 +42,71 @@ class RegistrationController extends AbstractController
                 )
             );
 
-            // Set default role to constructeur
-            $user->setRole('constructeur');
-
-            // Persist the user first
             $entityManager->persist($user);
-
-            // Create and associate Constructeur entity
-            $constructeur = new Constructeur();
-            $constructeur->setConstructeur($user); // Make sure this matches your Constructeur entity's method
-            $constructeur->setSpecialite('Default Speciality'); // Set default or get from form
-            $constructeur->setSalaireHeure('0.00'); // Default value
-
-            $entityManager->persist($constructeur);
-
             $entityManager->flush();
+            // Envoi de l'email de bienvenue
+            if (!$emailService->sendConfirmationEmail(
+                $user->getEmail(),
+                $user->getFullName() // ou getUsername() selon votre entité
+            )) {
+                $this->addFlash('warning', 'L\'email de confirmation n\'a pas pu être envoyé.');
+            }
 
-            return $this->redirectToRoute('app_welcome');
+
+            return $this->redirectToRoute('app_face_upload', ['id' => $user->getId()]);
         }
 
         return $this->render('registration/register.html.twig', [
             'registrationForm' => $form->createView(),
         ]);
+    }
+
+    #[Route('/face-upload/{id}', name: 'app_face_upload')]
+    public function faceUpload(Utilisateur $user): Response
+    {
+        return $this->render('registration/face_upload.html.twig', [
+            'user' => $user,
+        ]);
+    }
+
+    #[Route('/save-face/{id}', name: 'app_save_face', methods: ['POST'])]
+    public function saveFace(
+        Request $request,
+        Utilisateur $user,
+        EntityManagerInterface $entityManager,
+        LoginSuccessHandler $loginSuccessHandler
+    ): JsonResponse {
+        $data = json_decode($request->getContent(), true);
+        
+        if (!isset($data['face_data'])) {
+            return $this->json(['success' => false, 'message' => 'No face data provided'], 400);
+        }
+    
+        try {
+            $user->setFaceData($data['face_data'])
+                 ->setFaceDataUpdatedAt(new \DateTime());
+            
+            $entityManager->flush();
+    
+            // Créez un token pour l'utilisateur
+            $token = new UsernamePasswordToken($user, 'main', $user->getRoles());
+            $this->container->get('security.token_storage')->setToken($token);
+    
+            // Utilisez le LoginSuccessHandler pour la redirection
+            $response = $loginSuccessHandler->onAuthenticationSuccess(
+                $request,
+                $token
+            );
+    
+            return $this->json([
+                'success' => true,
+                'redirect' => $response->getTargetUrl()
+            ]);
+        } catch (\Exception $e) {
+            return $this->json([
+                'success' => false,
+                'message' => 'Error saving face data: ' . $e->getMessage()
+            ], 500);
+        }
     }
 }

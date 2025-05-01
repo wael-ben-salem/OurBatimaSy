@@ -4,6 +4,7 @@ namespace App\Entity;
 
 use Doctrine\Common\Collections\ArrayCollection;
 use Doctrine\Common\Collections\Collection;
+
 use Doctrine\DBAL\Types\Types;
 use Symfony\Component\Security\Core\User\UserInterface;
 use Symfony\Component\Security\Core\User\PasswordAuthenticatedUserInterface;
@@ -66,8 +67,7 @@ class Utilisateur implements UserInterface, PasswordAuthenticatedUserInterface
      * @var string
      */
     #[ORM\Column(name: 'mot_de_passe', type: 'string', length: 255, nullable: false)]
-    private $password;
-
+private string $password;
     /**
      * @var string|null
      */
@@ -83,7 +83,7 @@ class Utilisateur implements UserInterface, PasswordAuthenticatedUserInterface
     /**
      * @var string|null
      */
-    #[ORM\Column(name: 'face_data', type: 'blob', length: 0, nullable: true)]
+    #[ORM\Column(name: 'face_data', type: 'text', length: 0, nullable: true)]
     private $faceData;
 
     /**
@@ -91,6 +91,9 @@ class Utilisateur implements UserInterface, PasswordAuthenticatedUserInterface
      */
     #[ORM\Column(name: 'reset_token', type: 'string', length: 255, nullable: true)]
     private $resetToken;
+
+    #[ORM\Column(name: 'signature', type: 'string', length: 255, nullable: true)]
+private ?string $signature = null;
 
     /**
      * @var \DateTime|null
@@ -116,6 +119,15 @@ class Utilisateur implements UserInterface, PasswordAuthenticatedUserInterface
     {
         return $this->nom;
     }
+    public function getFullName(): ?string
+{
+    if ($this->nom === null && $this->prenom === null) {
+        return null;
+    }
+
+    return trim($this->nom . ' ' . $this->prenom);
+}
+
 
     public function setNom(string $nom): static
     {
@@ -165,10 +177,10 @@ class Utilisateur implements UserInterface, PasswordAuthenticatedUserInterface
         return $this->role;
     }
 
-    // src/Entity/Utilisateur.php
     public function setRole(?string $role): static
     {
-        $this->role = strtolower($role);
+        $this->role = $role;
+
         return $this;
     }
 
@@ -193,6 +205,16 @@ class Utilisateur implements UserInterface, PasswordAuthenticatedUserInterface
 {
     $this->password = $password;
 
+    return $this;
+}
+public function getSignature(): ?string
+{
+    return $this->signature;
+}
+
+public function setSignature(?string $signature): static
+{
+    $this->signature = $signature;
     return $this;
 }
 
@@ -220,18 +242,26 @@ class Utilisateur implements UserInterface, PasswordAuthenticatedUserInterface
 
         return $this;
     }
-
     public function getFaceData()
     {
-        return $this->faceData;
+        return is_resource($this->faceData) ? stream_get_contents($this->faceData) : $this->faceData;
     }
 
-    public function setFaceData($faceData): static
+    public function setFaceData($faceData): self
     {
         $this->faceData = $faceData;
-
         return $this;
     }
+    public function getFaceDataUpdatedAt(): ?\DateTimeInterface
+{
+    return $this->faceDataUpdatedAt;
+}
+
+public function setFaceDataUpdatedAt(?\DateTimeInterface $faceDataUpdatedAt): self
+{
+    $this->faceDataUpdatedAt = $faceDataUpdatedAt;
+    return $this;
+}
 
     public function getResetToken(): ?string
     {
@@ -286,6 +316,7 @@ private ?Artisan $artisan = null;
 #[ORM\OneToOne(mappedBy: 'constructeur', targetEntity: Constructeur::class)]
 private ?Constructeur $constructeur = null;
 
+
 public function getArtisan(): ?Artisan
 {
     return $this->artisan;
@@ -305,6 +336,175 @@ public function getConstructeur(): ?Constructeur
 public function setConstructeur(?Constructeur $constructeur): static
 {
     $this->constructeur = $constructeur;
+    return $this;
+}
+#[ORM\OneToOne(mappedBy: 'client', targetEntity: Client::class)]
+private ?Client $client = null;
+
+public function getClient(): ?Client
+{
+    return $this->client;
+}
+
+public function setClient(?Client $client): static
+{
+    $this->client = $client;
+    return $this;
+}
+#[ORM\OneToOne(mappedBy: 'gestionnairestock', targetEntity: Gestionnairestock::class)]
+private ?Gestionnairestock $gestionnaireStock = null;
+
+public function getGestionnaireStock(): ?Gestionnairestock
+{
+    return $this->gestionnaireStock;
+}
+
+public function setGestionnaireStock(?Gestionnairestock $gestionnaireStock): static
+{
+    $this->gestionnaireStock = $gestionnaireStock;
+    return $this;
+}
+
+// In Utilisateur entity
+    public function __toString(): string
+    {
+        return sprintf('%s %s (%s)',
+            $this->prenom,
+            $this->nom,
+            $this->role ?? 'No role'
+        );
+    }
+
+
+#[ORM\Column(type: 'float', nullable: true)]
+private ?float $latitude = null;
+
+#[ORM\Column(type: 'float', nullable: true)]
+private ?float $longitude = null;
+public function getLatitude(): ?float { return $this->latitude; }
+public function setLatitude(?float $latitude): self { $this->latitude = $latitude; return $this; }
+
+public function getLongitude(): ?float { return $this->longitude; }
+public function setLongitude(?float $longitude): self { $this->longitude = $longitude; return $this; }
+public function isCompleted(): bool
+{
+    return $this->adresse !== null && 
+           $this->telephone !== null && 
+           $this->password !== null;
+}
+
+
+    #[ORM\OneToMany(mappedBy: 'utilisateur', targetEntity: UserAbonnement::class, cascade: ['persist', 'remove'])]
+    private Collection $userAbonnements;
+
+    // Constructor
+    public function __construct()
+    {
+        $this->userAbonnements = new ArrayCollection();
+    }
+
+    // Getter and setter for userAbonnements
+    public function getUserAbonnements(): Collection
+    {
+        return $this->userAbonnements;
+    }
+
+    public function addUserAbonnement(UserAbonnement $userAbonnement): static
+    {
+        if (!$this->userAbonnements->contains($userAbonnement)) {
+            $this->userAbonnements[] = $userAbonnement;
+            $userAbonnement->setUtilisateur($this);
+        }
+
+        return $this;
+    }
+
+    public function removeUserAbonnement(UserAbonnement $userAbonnement): static
+    {
+        if ($this->userAbonnements->removeElement($userAbonnement)) {
+            if ($userAbonnement->getUtilisateur() === $this) {
+                $userAbonnement->setUtilisateur(null);
+            }
+        }
+
+        return $this;
+    }
+
+
+// src/Entity/Utilisateur.php
+
+// Utilisez soit les annotations soit les attributs, mais pas les deux mélangés
+// Je recommande d'utiliser les attributs (syntaxe #[...]) pour Symfony 5.4+
+
+// Propriétés pour la réinitialisation de mot de passe
+#[ORM\Column(type: 'string', length: 6, nullable: true)]
+private ?string $resetPasswordCode = null;
+
+#[ORM\Column(type: 'integer', nullable: true)]
+private ?int $resetPasswordAttempts = 0;
+
+#[ORM\Column(type: 'datetime', nullable: true)]
+private ?\DateTimeInterface $resetPasswordCodeSentAt = null;
+
+#[ORM\Column(type: 'datetime', nullable: true)]
+private ?\DateTimeInterface $resetPasswordCodeExpiresAt = null;
+
+#[ORM\Column(type: 'integer', nullable: true)]
+private ?int $resetPasswordCodeResendCount = 0;
+
+// Getters et Setters (version optimisée)
+public function getResetPasswordCode(): ?string
+{
+    return $this->resetPasswordCode;
+}
+
+public function setResetPasswordCode(?string $resetPasswordCode): self
+{
+    $this->resetPasswordCode = $resetPasswordCode;
+    return $this;
+}
+
+public function getResetPasswordAttempts(): int
+{
+    return $this->resetPasswordAttempts ?? 0;
+}
+
+public function setResetPasswordAttempts(?int $resetPasswordAttempts): self
+{
+    $this->resetPasswordAttempts = $resetPasswordAttempts;
+    return $this;
+}
+
+public function getResetPasswordCodeSentAt(): ?\DateTimeInterface
+{
+    return $this->resetPasswordCodeSentAt;
+}
+
+public function setResetPasswordCodeSentAt(?\DateTimeInterface $resetPasswordCodeSentAt): self
+{
+    $this->resetPasswordCodeSentAt = $resetPasswordCodeSentAt;
+    return $this;
+}
+
+public function getResetPasswordCodeExpiresAt(): ?\DateTimeInterface
+{
+    return $this->resetPasswordCodeExpiresAt;
+}
+
+public function setResetPasswordCodeExpiresAt(?\DateTimeInterface $resetPasswordCodeExpiresAt): self
+{
+    $this->resetPasswordCodeExpiresAt = $resetPasswordCodeExpiresAt;
+    return $this;
+}
+
+public function getResetPasswordCodeResendCount(): int
+{
+    return $this->resetPasswordCodeResendCount ?? 0;
+}
+
+public function setResetPasswordCodeResendCount(?int $resetPasswordCodeResendCount): self
+{
+    $this->resetPasswordCodeResendCount = $resetPasswordCodeResendCount;
     return $this;
 }
 

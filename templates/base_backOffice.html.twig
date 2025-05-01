@@ -41,6 +41,51 @@
             Scrollbar.init(document.querySelector('#sidenav-scrollbar'), options);
         }
     </script>
+    <script>
+    // Fonction globale pour la navbar (à mettre dans base.html.twig)
+window.addNavbarNotification = function(notification) {
+    const navbarMessagerie = document.getElementById('navbar-messagerie');
+    if (!navbarMessagerie) return;
+
+    const notifItem = document.createElement('a');
+    notifItem.href = `/team-room/${notification.roomId}`;
+    notifItem.className = 'dropdown-item notification-item py-2 border-bottom';
+    
+    notifItem.innerHTML = `
+        <div class="d-flex align-items-center">
+            <i class="fas fa-video jitsi-notification me-2"></i>
+            <div class="flex-grow-1">
+                <div class="fw-bold small">${notification.sender}</div>
+                <div class="small text-truncate">${notification.content}</div>
+            </div>
+            <small class="text-muted ms-2">${notification.time}</small>
+        </div>
+    `;
+
+    // Ajouter en haut de la liste
+    navbarMessagerie.insertBefore(notifItem, navbarMessagerie.firstChild);
+    
+    // Mettre à jour le compteur
+    const counter = document.getElementById('notification-counter');
+    if (counter) {
+        const currentCount = parseInt(counter.textContent) || 0;
+        counter.textContent = currentCount + 1;
+        counter.classList.remove('d-none');
+    }
+    
+    // Notification toast optionnelle
+    if (typeof showToast === 'function') {
+        showToast({
+            title: 'Nouvelle participation',
+            message: notification.content,
+            icon: 'video',
+            url: `/team-room/${notification.roomId}`
+        });
+    }
+};
+    
+    </script>
+    
     {% block javascripts %}{% endblock %}
 </body>
 </html>

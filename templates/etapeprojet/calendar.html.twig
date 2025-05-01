@@ -1,0 +1,80 @@
+{% extends 'base_backOffice.html.twig' %}
+
+{% block title %}Calendrier des Étapes{% endblock %}
+
+{% block stylesheets %}
+    {{ parent() }}
+    <link href='https://cdn.jsdelivr.net/npm/fullcalendar@5.11.3/main.min.css' rel='stylesheet' />
+    <style>
+        #calendar {
+            max-width: 1100px;
+            margin: 30px auto;
+            padding: 20px;
+            background: white;
+            border-radius: 8px;
+            box-shadow: 0 2px 10px rgba(0,0,0,0.1);
+        }
+    </style>
+{% endblock %}
+
+{% block body %}
+<div class="container-fluid py-4">
+    <div class="row">
+        <div class="col-12">
+            <div class="card my-4">
+                <div class="card-header p-0 position-relative mt-n4 mx-3 z-index-2">
+                    <div class="bg-gradient-dark shadow-dark border-radius-lg pt-4 pb-3">
+                        <h6 class="text-white text-capitalize ps-3">Calendrier des Étapes</h6>
+                    </div>
+                </div>
+                <div class="card-body px-0 pb-2">
+                    <div id="calendar"></div>
+                </div>
+            </div>
+        </div>
+    </div>
+</div>
+{% endblock %}
+
+{% block javascripts %}
+    {{ parent() }}
+    <script src='https://cdn.jsdelivr.net/npm/fullcalendar@5.11.3/main.min.js'></script>
+    <script>
+        document.addEventListener('DOMContentLoaded', function() {
+            const calendarEl = document.getElementById('calendar');
+            const calendar = new FullCalendar.Calendar(calendarEl, {
+                initialView: 'dayGridMonth',
+                headerToolbar: {
+                    left: 'prev,next today',
+                    center: 'title',
+                    right: 'dayGridMonth,timeGridWeek,timeGridDay'
+                },
+                events: [
+                    {% for etape in etapes %}
+                    {% if etape.datedebut %}
+                    {
+                        title: '{{ etape.nometape|e('js') }}',
+                        start: '{{ etape.datedebut|date('Y-m-d') }}',
+                        {% if etape.datefin %}
+                        end: '{{ etape.datefin|date('Y-m-d') }}',
+                        {% endif %}
+                        color: '{{ etape.statut == "Terminé" ? "#28a745" : 
+                                 (etape.statut == "Annulé" ? "#dc3545" : "#17a2b8") }}',
+                        {% if etape.idEtapeprojet %}
+                        url: '{{ path('app_etapeprojet_show', {idEtapeprojet: etape.idEtapeprojet}) }}'
+                        {% endif %}
+                    },
+                    {% endif %}
+                    {% endfor %}
+                ],
+                eventClick: function(info) {
+                    info.jsEvent.preventDefault();
+                    if (info.event.url) {
+                        window.location.href = info.event.url;
+                    }
+                }
+            });
+            calendar.render();
+        });
+    </script>
+{% endblock %}
