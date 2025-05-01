@@ -76,6 +76,11 @@ services:
     App\Service\GeminiApiService:
         arguments:
             $apiKey: '%env(GEMINI_API_KEY)%'
+            $httpClient: '@http_client'
+            
+    App\Service\TeamNotificationService:
+        arguments:
+            $em: '@doctrine.orm.entity_manager'
 
 framework:
     http_client:

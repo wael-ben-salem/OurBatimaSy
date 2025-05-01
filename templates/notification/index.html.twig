@@ -1,5 +1,5 @@
 {# templates/notification/index.html.twig #}
-{% extends 'base.html.twig' %}
+{% extends 'base_backOffice.html.twig' %}
 
 {% block title %}Notifications{% endblock %}
 
@@ -14,7 +14,9 @@
                         <h5 class="mb-1">{{ notification.message }}</h5>
                         <small>{{ notification.createdAt|date('Y-m-d H:i') }}</small>
                     </div>
-                    <small>Related to plannification #{{ notification.plannification.idPlannification }}</small>
+{% if notification.plannification is not null %}
+    <small>Related to plannification #{{ notification.plannification.idPlannification }}</small>
+{% endif %}
                 </a>
             {% else %}
                 <div class="alert alert-info">No notifications found</div>

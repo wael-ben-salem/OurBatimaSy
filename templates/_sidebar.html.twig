@@ -17,12 +17,17 @@
           <span class="nav-link-text ms-1">Dashboard</span>
         </a>
       </li>
-      <li class="nav-item">
-        <a class="nav-link {{ current_route starts with 'app_tables' ? 'active bg-gradient-dark text-white' : 'text-dark' }}" href="{{ path('app_tables') }}">
-          <i class="material-symbols-rounded opacity-5">table_view</i>
-          <span class="nav-link-text ms-1">Utilisateurs</span>
-        </a>
-      </li>
+
+      {# Hide "Utilisateurs" for Artisan and Constructeur #}
+      {% if app.user and 'ROLE_ARTISAN' not in app.user.roles and 'ROLE_CONSTRUCTEUR' not in app.user.roles %}
+        <li class="nav-item">
+          <a class="nav-link {{ current_route starts with 'app_tables' ? 'active bg-gradient-dark text-white' : 'text-dark' }}" href="{{ path('app_tables') }}">
+            <i class="material-symbols-rounded opacity-5">table_view</i>
+            <span class="nav-link-text ms-1">Utilisateurs</span>
+          </a>
+        </li>
+      {% endif %}
+
       <li class="nav-item">
         <a class="nav-link {{ current_route starts with 'app_projet_' ? 'active bg-gradient-dark text-white' : 'text-dark' }}" href="{{ path('app_projet_index') }}">
           <i class="material-symbols-rounded opacity-5">construction</i>
@@ -52,7 +57,6 @@
         </a>
       </li>
 
-
       <li class="nav-item">
         <a class="nav-link {{ current_route starts with 'app_chat' ? 'active bg-gradient-dark text-white' : 'text-dark' }}"
            href="{{ path('app_chat') }}">
@@ -73,14 +77,35 @@
           <span class="nav-link-text ms-1">Étapes des projets</span>
         </a>
       </li>
-      <!-- New Items from Main Branch -->
+
+      {# Hide "Abonnements" for Artisan only #}
+      {% if app.user and 'ROLE_ARTISAN' not in app.user.roles %}
+        <li class="nav-item">
+          <a class="nav-link {{ current_route starts with 'app_abonnement_' ? 'active bg-gradient-dark text-white' : 'text-dark' }}" href="{{ path('app_abonnement_index') }}">
+            <i class="material-symbols-rounded opacity-5">list_alt</i>
+            <span class="nav-link-text ms-1">Abonnements</span>
+          </a>
+        </li>
+      {% endif %}
+
       <li class="nav-item">
-        <a class="nav-link {{ current_route starts with 'app_abonnement_' ? 'active bg-gradient-dark text-white' : 'text-dark' }}" href="{{ path('app_abonnement_index') }}">
-          <i class="material-symbols-rounded opacity-5">list_alt</i>
-          <span class="nav-link-text ms-1">Abonnements</span>
-        </a>
-      </li>
+
+
+ 
+      
       <li class="nav-item">
+    <a class="nav-link {{ current_route starts with  'admin_stats' ? 'active bg-gradient-dark text-white' : 'text-dark' }}" 
+       href="{{ path('admin_stats') }}">
+        <i class="material-symbols-rounded opacity-5">list_alt</i>
+        <span class="nav-link-text ms-1">Abonnements Stats</span>
+    </a>
+</li>
+      
+      <li class="nav-item">
+
+
+
+
 
         <a class="nav-link {{ current_route starts with 'app_contrat_' ? 'active bg-gradient-dark text-white' : 'text-dark' }}" href="{{path('app_contrat_index') }}">
           <i class="material-symbols-rounded opacity-5">list_alt</i>
@@ -88,32 +113,33 @@
         </a>
       </li>
 
-      <!-- Add other menu items as needed -->
-
-        <a class="nav-link {{ current_route starts with 'app_stock_index' ? 'active bg-gradient-dark text-white' : 'text-dark' }}" href="{{ path('app_stock_index') }}">
-          <i class="material-symbols-rounded opacity-5">table_view</i>
-          <span class="nav-link-text ms-1">Stock</span>
-        </a>
-      </li>
-      <li class="nav-item">
-        <a class="nav-link {{ current_route starts with 'app_fournisseur_index' ? 'active bg-gradient-dark text-white' : 'text-dark' }}" href="{{ path('app_fournisseur_index') }}">
-          <i class="material-symbols-rounded opacity-5">table_view</i>
-          <span class="nav-link-text ms-1">Fournisseur</span>
-        </a>
-      </li>
-      <li class="nav-item">
-        <a class="nav-link {{ current_route starts with 'app_article_index' ? 'active bg-gradient-dark text-white' : 'text-dark' }}" href="{{ path('app_article_index') }}">
-          <i class="material-symbols-rounded opacity-5">table_view</i>
-          <span class="nav-link-text ms-1">Article</span>
-        </a>
-      </li>
-       <li class="nav-item">
-        <a class="nav-link {{ current_route starts with 'app_equipe_index' ? 'active bg-gradient-dark text-white' : 'text-dark' }}" href="{{ path('app_equipe_index') }}">
-          <i class="material-symbols-rounded opacity-5">table_view</i>
-          <span class="nav-link-text ms-1">Euipe</span>
-        </a>
-      </li>
-
+      {# Hide Stock/Fournisseur/Article/Equipe for Artisan and Constructeur #}
+      {% if app.user and 'ROLE_ARTISAN' not in app.user.roles and 'ROLE_CONSTRUCTEUR' not in app.user.roles %}
+        <li class="nav-item">
+          <a class="nav-link {{ current_route starts with 'app_stock_index' ? 'active bg-gradient-dark text-white' : 'text-dark' }}" href="{{ path('app_stock_index') }}">
+            <i class="material-symbols-rounded opacity-5">table_view</i>
+            <span class="nav-link-text ms-1">Stock</span>
+          </a>
+        </li>
+        <li class="nav-item">
+          <a class="nav-link {{ current_route starts with 'app_fournisseur_index' ? 'active bg-gradient-dark text-white' : 'text-dark' }}" href="{{ path('app_fournisseur_index') }}">
+            <i class="material-symbols-rounded opacity-5">table_view</i>
+            <span class="nav-link-text ms-1">Fournisseur</span>
+          </a>
+        </li>
+        <li class="nav-item">
+          <a class="nav-link {{ current_route starts with 'app_article_index' ? 'active bg-gradient-dark text-white' : 'text-dark' }}" href="{{ path('app_article_index') }}">
+            <i class="material-symbols-rounded opacity-5">table_view</i>
+            <span class="nav-link-text ms-1">Article</span>
+          </a>
+        </li>
+        <li class="nav-item">
+          <a class="nav-link {{ current_route starts with 'app_equipe_index' ? 'active bg-gradient-dark text-white' : 'text-dark' }}" href="{{ path('app_equipe_index') }}">
+            <i class="material-symbols-rounded opacity-5">table_view</i>
+            <span class="nav-link-text ms-1">Equipe</span>
+          </a>
+        </li>
+      {% endif %}
     </ul>
   </div>
   <div class="sidenav-footer position-absolute w-100 bottom-0">

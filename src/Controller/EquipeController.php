@@ -4,15 +4,22 @@
 namespace App\Controller;
 
 use App\Entity\Equipe;
+use App\Entity\TeamRoom;
 use App\Entity\Constructeur;
+use App\Entity\Gestionnairestock;
+use App\Service\TeamNotificationService;
+
 use App\Entity\Artisan;
 use App\Entity\Projet;
+use Psr\Log\LoggerInterface;
+
 use App\Entity\Client;
 use App\Entity\Etapeprojet;
 
 
 use App\Repository\ProjetRepository;
 
+use Doctrine\ORM\Exception\ORMException;
 
 use Symfony\Component\Security\Core\Security;
 
@@ -20,13 +27,13 @@ use App\Form\EquipeType;
 use App\Repository\EquipeRepository;
 use App\Repository\TacheRepository;
 use App\Repository\ArticleRepository;
-
-use Doctrine\ORM\EntityManagerInterface;
-use Proxies\__CG__\App\Entity\Gestionnairestock;
+use Doctrine\Persistence\ManagerRegistry;
 use Symfony\Bundle\FrameworkBundle\Controller\AbstractController;
-use Symfony\Component\HttpFoundation\Request;
 use Symfony\Component\HttpFoundation\Response;
 use Symfony\Component\Routing\Annotation\Route;
+use Doctrine\ORM\EntityManagerInterface;
+
+use Symfony\Component\HttpFoundation\Request;
 
 #[Route('/equipe')]
 class EquipeController extends AbstractController
@@ -78,49 +85,106 @@ class EquipeController extends AbstractController
         'user' => $user  // On passe l'utilisateur directement
     ]);
 }
+#[Route('/new', name: 'app_equipe_new', methods: ['GET', 'POST'])]
+public function new(
+    Request $request, 
+    EntityManagerInterface $em, 
+    TeamNotificationService $notificationService,
+    LoggerInterface $logger
+): Response {
+    // Récupération des utilisateurs pour le formulaire GET
+    $constructeurs = $em->getRepository(Constructeur::class)->findAll();
+    $gestionnaires = $em->getRepository(Gestionnairestock::class)->findAll();
+    $artisans = $em->getRepository(Artisan::class)->findAll();
 
-    #[Route('/new', name: 'app_equipe_new', methods: ['GET', 'POST'])]
-    public function new(Request $request, EntityManagerInterface $em): Response
-    {
-        $equipe = new Equipe();
+    // Traitement du formulaire POST
+    if ($request->isMethod('POST')) {
+        $data = json_decode($request->getContent(), true);
         
-        // Récupérer tous les utilisateurs par rôle
-        $constructeurs = $em->getRepository(Constructeur::class)->findAll();
-        $gestionnaires = $em->getRepository(Gestionnairestock::class)->findAll();
-        $artisans = $em->getRepository(Artisan::class)->findAll();
-    
-        if ($request->isMethod('POST')) {
-            $data = json_decode($request->getContent(), true);
-            
-            // Récupérer les IDs sélectionnés
-            $constructeurId = $data['constructeur'];
-            $gestionnaireId = $data['gestionnaire'];
-            $artisansIds = $data['artisans'] ?? [];
-    
-            // Assigner à l'équipe
-            $equipe->setNom($data['nom']);
-            $equipe->setRating($data['rating'] ?? 0);
-            $equipe->setConstructeur($em->find(Constructeur::class, $constructeurId));
-            $equipe->setGestionnairestock($em->find(Gestionnairestock::class, $gestionnaireId));
-            
-            // Ajouter les artisans
-            foreach ($artisansIds as $artisanId) {
-                $artisan = $em->find(Artisan::class, $artisanId);
-                $equipe->addArtisan($artisan);
-            }
-    
-            $em->persist($equipe);
-            $em->flush();
-    
-            return $this->json(['success' => true, 'id' => $equipe->getId()]);
+        // Validation des données requises
+        if (!isset($data['nom'], $data['constructeur'], $data['gestionnaire'])) {
+            return $this->json(['error' => 'Données manquantes'], Response::HTTP_BAD_REQUEST);
         }
-    
-        return $this->render('equipe/new.html.twig', [
-            'constructeurs' => $constructeurs,
-            'gestionnaires' => $gestionnaires,
-            'artisans' => $artisans,
-        ]);
+
+        // Début de la transaction
+        $em->beginTransaction();
+
+        try {
+            // Création de l'équipe
+            $equipe = new Equipe();
+            $equipe->setNom($data['nom']);
+            $equipe->setDateCreation(new \DateTimeImmutable());
+            $equipe->setRating($data['rating'] ?? 0);
+
+            // Assignation du constructeur
+            $constructeur = $em->find(Constructeur::class, $data['constructeur']);
+            if (!$constructeur) {
+                throw new \Exception('Constructeur non trouvé');
+            }
+            $equipe->setConstructeur($constructeur);
+
+            // Assignation du gestionnaire
+            $gestionnaire = $em->find(Gestionnairestock::class, $data['gestionnaire']);
+            if (!$gestionnaire) {
+                throw new \Exception('Gestionnaire non trouvé');
+            }
+            $equipe->setGestionnairestock($gestionnaire);
+
+            // Ajout des artisans
+            foreach ($data['artisans'] ?? [] as $artisanId) {
+                $artisan = $em->find(Artisan::class, $artisanId);
+                if ($artisan) {
+                    $equipe->addArtisan($artisan);
+                }
+            }
+
+            // Persistance de l'équipe
+            $em->persist($equipe);
+
+            // Création du salon principal
+            $room = new TeamRoom();
+            $room->setEquipe($equipe)
+                ->setName('Discussion Générale - ' . $equipe->getNom());
+            $em->persist($room);
+
+            // Premier flush pour générer les IDs
+            $em->flush();
+
+            // Envoi des notifications
+            $notificationService->sendTeamCreationNotifications($equipe);
+            $notificationService->sendRoomInvitation($equipe, $room);
+
+            // Validation de la transaction
+            $em->commit();
+
+            return $this->json([
+                'success' => true,
+                'id' => $equipe->getId(),
+                'message' => 'Équipe créée avec succès'
+            ]);
+
+        } catch (\Exception $e) {
+            // Rollback en cas d'erreur
+            $em->rollback();
+            $logger->error('Échec de création d\'équipe', [
+                'error' => $e->getMessage(),
+                'trace' => $e->getTraceAsString()
+            ]);
+
+            return $this->json([
+                'error' => 'Erreur lors de la création',
+                'message' => $e->getMessage()
+            ], Response::HTTP_INTERNAL_SERVER_ERROR);
+        }
     }
+
+    // Rendu du formulaire pour les requêtes GET
+    return $this->render('equipe/new.html.twig', [
+        'constructeurs' => $constructeurs,
+        'gestionnaires' => $gestionnaires,
+        'artisans' => $artisans,
+    ]);
+}
 
     #[Route('/{id}', name: 'app_equipe_show', methods: ['GET'])]
 public function show(

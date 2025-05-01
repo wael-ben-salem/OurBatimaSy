@@ -5,6 +5,7 @@ namespace App\Controller;
 use App\Entity\Tache;
 use App\Form\TacheType;
 use App\Entity\Constructeur;
+use App\Repository\TacheRepository;
 use App\Service\ProfanityFilterService;
 use Doctrine\ORM\EntityManagerInterface;
 use Symfony\Bundle\FrameworkBundle\Controller\AbstractController;
@@ -24,14 +25,26 @@ class TacheController extends AbstractController
     }
 
     #[Route('/', name: 'app_tache_index', methods: ['GET'])]
-    public function index(EntityManagerInterface $entityManager): Response
+    public function index(TacheRepository $tacheRepository): Response
     {
-        $taches = $entityManager
-            ->getRepository(Tache::class)
-            ->findAll();
+        $user = $this->getUser();
+        $userRole = null;
+        $userId = null;
+
+        if ($user) {
+            if ($user->getRole() === 'constructeur' && $user->getConstructeur()) {
+                $userRole = 'constructeur';
+                $userId = $user->getConstructeur()->getConstructeur()->getId();
+            } elseif ($user->getRole() === 'artisan' && $user->getArtisan()) {
+                $userRole = 'artisan';
+                $userId = $user->getArtisan()->getArtisan()->getId();
+            }
+        }
 
         return $this->render('tache/index.html.twig', [
-            'taches' => $taches,
+            'taches' => $tacheRepository->findAll(),
+            'userRole' => $userRole,
+            'userId' => $userId,
         ]);
     }
 

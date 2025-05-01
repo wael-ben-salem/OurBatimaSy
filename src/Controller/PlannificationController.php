@@ -24,12 +24,24 @@ class PlannificationController extends AbstractController
     #[Route('/', name: 'app_plannification_index', methods: ['GET'])]
     public function index(EntityManagerInterface $entityManager): Response
     {
-        $plannifications = $entityManager
-            ->getRepository(Plannification::class)
-            ->findAll();
+        $user = $this->getUser();
+        $userRole = null;
+        $userId = null;
+
+        if ($user) {
+            if ($user->getRole() === 'constructeur' && $user->getConstructeur()) {
+                $userRole = 'constructeur';
+                $userId = $user->getConstructeur()->getConstructeur()->getId();
+            } elseif ($user->getRole() === 'artisan' && $user->getArtisan()) {
+                $userRole = 'artisan';
+                $userId = $user->getArtisan()->getArtisan()->getId();
+            }
+        }
 
         return $this->render('plannification/index.html.twig', [
-            'plannifications' => $plannifications,
+            'plannifications' => $entityManager->getRepository(Plannification::class)->findAll(),
+            'userRole' => $userRole,
+            'userId' => $userId,
         ]);
     }
 

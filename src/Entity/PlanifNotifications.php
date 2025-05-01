@@ -22,7 +22,7 @@ class PlanifNotifications
     private $isRead = false;
 
     #[ORM\ManyToOne(targetEntity: Utilisateur::class)]
-    #[ORM\JoinColumn(nullable: false)]
+    #[ORM\JoinColumn(nullable: false, name: 'recipient_id', referencedColumnName: 'id')]
     private $recipient;
 
     #[ORM\ManyToOne(targetEntity: Plannification::class)]
