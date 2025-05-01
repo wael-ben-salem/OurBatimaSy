@@ -17,12 +17,17 @@
           <span class="nav-link-text ms-1">Dashboard</span>
         </a>
       </li>
-      <li class="nav-item">
-        <a class="nav-link {{ current_route starts with 'app_tables' ? 'active bg-gradient-dark text-white' : 'text-dark' }}" href="{{ path('app_tables') }}">
-          <i class="material-symbols-rounded opacity-5">table_view</i>
-          <span class="nav-link-text ms-1">Utilisateurs</span>
-        </a>
-      </li>
+
+      {# Hide "Utilisateurs" for Artisan and Constructeur #}
+      {% if app.user and 'ROLE_ARTISAN' not in app.user.roles and 'ROLE_CONSTRUCTEUR' not in app.user.roles %}
+        <li class="nav-item">
+          <a class="nav-link {{ current_route starts with 'app_tables' ? 'active bg-gradient-dark text-white' : 'text-dark' }}" href="{{ path('app_tables') }}">
+            <i class="material-symbols-rounded opacity-5">table_view</i>
+            <span class="nav-link-text ms-1">Utilisateurs</span>
+          </a>
+        </li>
+      {% endif %}
+
       <li class="nav-item">
         <a class="nav-link {{ current_route starts with 'app_projet_' ? 'active bg-gradient-dark text-white' : 'text-dark' }}" href="{{ path('app_projet_index') }}">
           <i class="material-symbols-rounded opacity-5">construction</i>
@@ -72,13 +77,17 @@
           <span class="nav-link-text ms-1">Étapes des projets</span>
         </a>
       </li>
-      <!-- New Items from Main Branch -->
-      <li class="nav-item">
-        <a class="nav-link {{ current_route starts with 'app_abonnement_' ? 'active bg-gradient-dark text-white' : 'text-dark' }}" href="{{ path('app_abonnement_index') }}">
-          <i class="material-symbols-rounded opacity-5">list_alt</i>
-          <span class="nav-link-text ms-1">Abonnements</span>
-        </a>
-      </li>
+
+      {# Hide "Abonnements" for Artisan only #}
+      {% if app.user and 'ROLE_ARTISAN' not in app.user.roles %}
+        <li class="nav-item">
+          <a class="nav-link {{ current_route starts with 'app_abonnement_' ? 'active bg-gradient-dark text-white' : 'text-dark' }}" href="{{ path('app_abonnement_index') }}">
+            <i class="material-symbols-rounded opacity-5">list_alt</i>
+            <span class="nav-link-text ms-1">Abonnements</span>
+          </a>
+        </li>
+      {% endif %}
+
       <li class="nav-item">
 
 
@@ -104,7 +113,7 @@
         </a>
       </li>
 
-      {# Only show these items if user is NOT Artisan or Constructeur #}
+      {# Hide Stock/Fournisseur/Article/Equipe for Artisan and Constructeur #}
       {% if app.user and 'ROLE_ARTISAN' not in app.user.roles and 'ROLE_CONSTRUCTEUR' not in app.user.roles %}
         <li class="nav-item">
           <a class="nav-link {{ current_route starts with 'app_stock_index' ? 'active bg-gradient-dark text-white' : 'text-dark' }}" href="{{ path('app_stock_index') }}">
