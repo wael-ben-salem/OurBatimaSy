@@ -7,7 +7,7 @@
   <style>
     .card {
       border-radius: 12px;
-      box-shadow: 0 4px 20px 0 rgba(0, 0, 0, 0.14), 
+      box-shadow: 0 4px 20px 0 rgba(0, 0, 0, 0.14),
                   0 7px 10px -5px rgba(0, 0, 0, 0.4);
     }
     .avatar-sm {
@@ -128,10 +128,17 @@
         <i class="material-symbols-rounded me-1">report_problem</i>
         Retour aux Réclamations
       </a>
+      {% if app.user %}
       <a href="{{ path('app_logout') }}" class="btn btn-outline-secondary ms-2">
         <i class="material-symbols-rounded me-1">logout</i>
         Déconnexion
       </a>
+      {% else %}
+      <a href="{{ path('app_login') }}" class="btn btn-outline-primary ms-2">
+        <i class="material-symbols-rounded me-1">login</i>
+        Connexion
+      </a>
+      {% endif %}
     </div>
   </div>
 {% endblock %}

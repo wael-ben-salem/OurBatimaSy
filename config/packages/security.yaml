@@ -33,6 +33,6 @@ security:
         - { path: ^/reponse/new, roles: [ROLE_ADMIN] }
         - { path: ^/reponse/[0-9]+/edit, roles: [ROLE_ADMIN] }
         - { path: ^/reponse/[0-9]+/delete, roles: [ROLE_ADMIN] }
-        - { path: ^/reponse, roles: [ROLE_USER] }
+        - { path: ^/reponse, roles: PUBLIC_ACCESS }
 
 
