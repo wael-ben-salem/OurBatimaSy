@@ -50,4 +50,16 @@ class TacheRepository extends ServiceEntityRepository
         ->getQuery()
         ->getResult();
 }
+
+// In TacheRepository.php
+    public function findAll(): array
+    {
+        return $this->createQueryBuilder('t')
+            ->leftJoin('t.constructeur', 'c')
+            ->addSelect('c')
+            ->leftJoin('t.artisan', 'a')
+            ->addSelect('a')
+            ->getQuery()
+            ->getResult();
+    }
 }
