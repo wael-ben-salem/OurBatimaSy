@@ -45,10 +45,12 @@ class Conversation
     /**
      * @var \Doctrine\Common\Collections\Collection
      */
-    #[ORM\JoinTable(name: 'conversation_membre')]
-    #[ORM\JoinColumn(name: 'conversation_id', referencedColumnName: 'id')]
-    #[ORM\InverseJoinColumn(name: 'utilisateur_id', referencedColumnName: 'id')]
-    #[ORM\ManyToMany(targetEntity: \Utilisateur::class, inversedBy: 'conversation')]
+    #[ORM\ManyToMany(targetEntity: \Utilisateur::class, inversedBy: 'conversations')]
+#[ORM\JoinTable(name: 'conversation_membre',
+    joinColumns: [new ORM\JoinColumn(name: 'conversation_id', referencedColumnName: 'id')],
+    inverseJoinColumns: [new ORM\JoinColumn(name: 'utilisateur_id', referencedColumnName: 'id')]
+)]
+
     private $utilisateur = array();
 
     /**

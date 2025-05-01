@@ -48,6 +48,10 @@ class Artisan
     {
         $this->equipe = new \Doctrine\Common\Collections\ArrayCollection();
     }
+    public function getId(): ?int
+    {
+        return $this->artisan?->getId(); 
+    }
 
     public function getSpecialite(): ?string
     {
@@ -78,10 +82,12 @@ class Artisan
         return $this->artisan;
     }
 
-    public function setArtisan(?Utilisateur $artisan): static
+    public function setArtisan(?Utilisateur $utilisateur): static
     {
-        $this->artisan = $artisan;
-
+        $this->artisan = $utilisateur;
+        if ($utilisateur !== null && $utilisateur->getArtisan() !== $this) {
+            $utilisateur->setArtisan($this); // Met à jour la relation inverse
+        }
         return $this;
     }
 
@@ -110,6 +116,20 @@ class Artisan
         }
 
         return $this;
+    }
+   // public function __toString(): string
+//{
+   // return $this->specialite ?? 'Artisan';
+//
+//}
+// In Artisan entity
+    public function __toString(): string
+    {
+        $user = $this->artisan?->getNom() . ' ' . $this->artisan?->getPrenom();
+        return sprintf('Artisan: %s (%s)',
+            $user ?? 'Unnamed',
+            $this->specialite ?? 'No specialty'
+        );
     }
 
 }

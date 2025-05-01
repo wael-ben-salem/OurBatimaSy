@@ -1,0 +1,257 @@
+{% extends 'base_backOffice.html.twig' %}
+
+{% block title %}Nouveau Contrat{% endblock %}
+
+{% block stylesheets %}
+  {{ parent() }}
+  <style>
+   .form-error {
+        color: #dc3545;
+        font-size: 0.875em;
+        margin-top: 0.25rem;
+    }
+    .is-invalid {
+        border-color: #dc3545;
+    }
+    .card {
+      border-radius: 12px;
+      box-shadow: 0 4px 20px 0 rgba(0, 0, 0, 0.14), 
+                  0 7px 10px -5px rgba(0, 0, 0, 0.4);
+    }
+    .form-group {
+      margin-bottom: 1.5rem;
+    }
+    .form-control {
+      border-radius: 8px;
+      padding: 10px 15px;
+      border: 1px solid #d2d6da;
+      transition: all 0.3s;
+    }
+    .form-control:focus {
+      border-color: #e91e63;
+      box-shadow: 0 0 0 2px rgba(233, 30, 99, 0.1);
+    }
+    .form-text {
+      font-size: 0.8rem;
+      color: #6c757d;
+      margin-top: 0.25rem;
+    }
+    .btn-action-group {
+      display: flex;
+      gap: 10px;
+      margin-top: 20px;
+    }
+    .input-group-text {
+      background-color: #f8f9fa;
+      border: 1px solid #d2d6da;
+    }
+    .datepicker {
+      z-index: 9999 !important;
+    }
+    .hidden-field {
+      display: none;
+    }
+  </style>
+{% endblock %}
+
+{% block body %}
+<div class="container-fluid py-4">
+  <div class="row">
+    <div class="col-12">
+      <div class="card my-4">
+        <div class="card-header p-0 position-relative mt-n4 mx-3 z-index-2">
+          <div class="bg-gradient-primary shadow-primary border-radius-lg pt-4 pb-3">
+            <h6 class="text-white text-capitalize ps-3">
+              <i class="material-symbols-rounded me-2">description</i>
+              Créer un nouveau Contrat
+            </h6>
+          </div>
+        </div>
+        <div class="card-body px-4 pb-2">
+          {# Flash messages #}
+          {% for message in app.flashes('success') %}
+            <div class="alert alert-success alert-dismissible fade show">
+              {{ message }}
+              <button type="button" class="btn-close" data-bs-dismiss="alert" aria-label="Close"></button>
+            </div>
+          {% endfor %}
+
+          {% for message in app.flashes('error') %}
+            <div class="alert alert-danger alert-dismissible fade show">
+              {{ message }}
+              <button type="button" class="btn-close" data-bs-dismiss="alert" aria-label="Close"></button>
+            </div>
+          {% endfor %}
+
+          {{ form_start(form, {'attr': {'class': 'form-horizontal'}}) }}
+
+            {# Hidden field to prevent duplicate rendering #}
+            {{ form_widget(form.typeContrat, {'attr': {'class': 'hidden-field'}}) }}
+{{ form_errors(form.typeContrat) }}
+{{ form_errors(form.dateDebut) }}
+{{ form_errors(form.dateFin) }}
+{{ form_errors(form.montantTotal) }}
+{{ form_errors(form.idProjet) }}
+
+            <div class="row">
+              <div class="col-md-6">
+                <div class="form-group">
+                  <label for="{{ form.typeContrat.vars.id }}">Type de contrat</label>
+                  <select id="{{ form.typeContrat.vars.id }}" 
+                          name="{{ form.typeContrat.vars.full_name }}" 
+                          class="form-control">
+                    <option value="">Sélectionnez un type</option>
+                    <option value="client" {{ form.typeContrat.vars.value == 'client' ? 'selected' }}>
+                      Contrat Client
+                    </option>
+                    <option value="constructeur" {{ form.typeContrat.vars.value == 'constructeur' ? 'selected' }}>
+                      Contrat Constructeur
+                    </option>
+                  </select>
+                  <small class="form-text">Choisissez entre client ou constructeur</small>
+                </div>
+              </div>
+              <div class="col-md-6">
+                <div class="form-group">
+                  {{ form_label(form.idProjet) }}
+                  {{ form_widget(form.idProjet, {
+                    'attr': {
+                      'class': 'form-control',
+                      'placeholder': 'Sélectionnez un projet'
+                    }
+                  }) }}
+                  <small class="form-text">Projet associé à ce contrat</small>
+                </div>
+              </div>
+            </div>
+
+            <div class="row">
+              <div class="col-md-4">
+                <div class="form-group">
+                  {{ form_label(form.dateDebut) }}
+                  {{ form_widget(form.dateDebut, {
+                    'attr': {
+                      'class': 'form-control datepicker',
+                    }
+                  }) }}
+                  <small class="form-text">Date de début</small>
+                </div>
+              </div>
+              <div class="col-md-4">
+                <div class="form-group">
+                  {{ form_label(form.dateFin) }}
+                  {{ form_widget(form.dateFin, {
+                    'attr': {
+                      'class': 'form-control datepicker',
+                    }
+                  }) }}
+                  <small class="form-text">Date de fin</small>
+                </div>
+              </div>
+            </div>
+
+            <div class="row">
+              <div class="col-md-6">
+                <div class="form-group">
+                <div class="form-group">
+                   <label>Signature</label>
+                            <canvas id="signature-canvas" width="400" height="150" style="border:1px solid #ccc; border-radius:8px;"></canvas>
+                          <div class="btn-action-group mt-2">
+                        <button type="button" class="btn btn-outline-danger" id="clear-signature">
+                      <i class="material-symbols-rounded me-1">delete</i>
+                                   Effacer
+                          </button>
+                                <button type="button" class="btn btn-outline-primary" id="validate-signature">
+                              <i class="material-symbols-rounded me-1">check_circle</i>
+                            Valider la signature
+                       </button>
+  </div>
+  <input type="hidden" name="signatureData" id="signatureData">
+</div>
+                </div>
+              </div>
+              <div class="col-md-6">
+                <div class="form-group">
+                  {{ form_label(form.montantTotal) }}
+                  <div class="input-group">
+                    {{ form_widget(form.montantTotal, {
+                      'attr': {
+                        'class': 'form-control',
+                        'placeholder': 'Ex: 50000'
+                      }
+                    }) }}
+                    <span class="input-group-text">TND</span>
+                  </div>
+                  <small class="form-text">Montant total du contrat</small>
+                </div>
+              </div>
+            </div>
+
+            <div class="btn-action-group">
+              <button type="submit" class="btn btn-success">
+                <i class="material-symbols-rounded me-1">save</i>
+                Enregistrer
+              </button>
+              <a href="{{ path('app_contrat_index') }}" class="btn btn-outline-secondary">
+                <i class="material-symbols-rounded me-1">arrow_back</i>
+                Retour à la liste
+              </a>
+            </div>
+
+          {{ form_end(form) }}
+        </div>
+      </div>
+    </div>
+  </div>
+</div>
+{% endblock %}
+
+{% block javascripts %}
+<script src="https://code.jquery.com/jquery-3.6.0.min.js"></script>
+
+  {{ parent() }}
+  <script>
+    
+ 
+    const canvas = document.getElementById("signature-canvas");
+    const ctx = canvas.getContext("2d");
+    let isDrawing = false;
+
+    canvas.addEventListener("mousedown", (e) => {
+      isDrawing = true;
+      ctx.beginPath();
+      ctx.moveTo(e.offsetX, e.offsetY);
+    });
+
+    canvas.addEventListener("mousemove", (e) => {
+      if (isDrawing) {
+        ctx.lineTo(e.offsetX, e.offsetY);
+        ctx.stroke();
+      }
+    });
+
+    canvas.addEventListener("mouseup", () => {
+      isDrawing = false;
+    });
+
+    canvas.addEventListener("mouseleave", () => {
+      isDrawing = false;
+    });
+
+    $("#clear-signature").on("click", function () {
+      ctx.clearRect(0, 0, canvas.width, canvas.height);
+      $("#signatureData").val(""); // Clear hidden input too
+    });
+
+    $("#validate-signature").on("click", function () {
+      const dataURL = canvas.toDataURL("image/png");
+      $("#signatureData").val(dataURL); // Save to hidden input
+      alert("Signature enregistrée !");
+    });
+  ;
+</script>
+
+
+
+
+{% endblock %}

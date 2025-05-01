@@ -1,0 +1,40 @@
+{% extends 'base_frontOffice.html.twig' %}
+
+{% block title %}Estimation du Projet - {{ project.nomprojet }}{% endblock %}
+
+{% block body %}
+    <div class="container mt-5">
+        <div class="row">
+            <div class="col-md-8 offset-md-2">
+                <div class="card">
+                    <div class="card-header bg-primary text-white">
+                        <h3>Estimation pour: {{ project.nomprojet }}</h3>
+                    </div>
+                    <div class="card-body">
+                        <div class="estimation-content">
+                            {{ estimation|nl2br }}
+                        </div>
+                    </div>
+                    <div class="card-footer">
+                        <a href="{{ path('app_projet_front_index', {'mine': true}) }}" class="btn btn-secondary">
+                            Retour à mes projets
+                        </a>
+                    </div>
+                </div>
+            </div>
+        </div>
+    </div>
+{% endblock %}
+
+{% block stylesheets %}
+    {{ parent() }}
+    <style>
+        .estimation-content {
+            white-space: pre-line;
+            line-height: 1.6;
+        }
+        .estimation-content strong {
+            color: #fd7e14;
+        }
+    </style>
+{% endblock %}

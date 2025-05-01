@@ -1,0 +1,99 @@
+{% extends 'base_frontOffice.html.twig' %}
+
+{% block title %}OurBatima - Services{% endblock %}
+
+{% block body %}
+    <!-- Page Header Start -->
+    <div class="page-header">
+        <div class="container">
+            <div class="row">
+                <div class="col-12">
+                    <h2>Nos Services</h2>
+                </div>
+                <div class="col-12">
+                    <a href="{{ path('home') }}">Accueil</a>
+                    <a href="{{ path('services') }}">Nos Services</a>
+                </div>
+            </div>
+        </div>
+    </div>
+    <!-- Page Header End -->
+
+    <!-- Service Start -->
+    <div class="service">
+        <div class="container">
+            <div class="section-header text-center">
+                <p>Nos Services</p>
+                <h2>Ce Que Nous Proposons</h2>
+            </div>
+            <div class="row">
+                {% for service in services %}
+                <div class="col-lg-4 col-md-6 wow fadeInUp" data-wow-delay="0.{{ loop.index }}s">
+                    <div class="service-item">
+                        <div class="service-img">
+                            <img src="{{ asset('img/service-' ~ loop.index ~ '.jpg') }}" alt="{{ service.name }}">
+                            <div class="service-overlay">
+                                <p>{{ service.description }}</p>
+                            </div>
+                        </div>
+                        <div class="service-text">
+                            <h3>{{ service.name }}</h3>
+                            <a class="btn" href="{{ asset('img/service-' ~ loop.index ~ '.jpg') }}" data-lightbox="service">+</a>
+                        </div>
+                    </div>
+                </div>
+                {% endfor %}
+            </div>
+        </div>
+    </div>
+    <!-- Service End -->
+    
+    <!-- FAQs Start -->
+    <div class="faqs">
+        <div class="container">
+            <div class="section-header text-center">
+                <p>Questions Fréquentes</p>
+                <h2>Vous Pourriez Demander</h2>
+            </div>
+            <div class="row">
+                <div class="col-md-6">
+                    <div id="accordion-1">
+                        {% for faq in faqs|slice(0, 5) %}
+                        <div class="card wow fadeInLeft" data-wow-delay="0.{{ loop.index }}s">
+                            <div class="card-header">
+                                <a class="card-link collapsed" data-toggle="collapse" href="#collapse{{ loop.index }}">
+                                    {{ faq.question }}
+                                </a>
+                            </div>
+                            <div id="collapse{{ loop.index }}" class="collapse" data-parent="#accordion-1">
+                                <div class="card-body">
+                                    {{ faq.answer }}
+                                </div>
+                            </div>
+                        </div>
+                        {% endfor %}
+                    </div>
+                </div>
+                <div class="col-md-6">
+                    <div id="accordion-2">
+                        {% for faq in faqs|slice(5, 5) %}
+                        <div class="card wow fadeInRight" data-wow-delay="0.{{ loop.index }}s">
+                            <div class="card-header">
+                                <a class="card-link collapsed" data-toggle="collapse" href="#collapse{{ loop.index + 5 }}">
+                                    {{ faq.question }}
+                                </a>
+                            </div>
+                            <div id="collapse{{ loop.index + 5 }}" class="collapse" data-parent="#accordion-2">
+                                <div class="card-body">
+                                    {{ faq.answer }}
+                                </div>
+                            </div>
+                        </div>
+                        {% endfor %}
+                    </div>
+                </div>
+            </div>
+        </div>
+    </div>
+    <!-- FAQs End -->
+{% endblock %}

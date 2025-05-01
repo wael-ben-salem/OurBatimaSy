@@ -1,0 +1,55 @@
+{# templates/team_room/_room_item.html.twig #}
+<div class="room-item" data-room-id="{{ room.id }}">
+    <div class="d-flex justify-content-between align-items-center">
+        <div>
+            <h6 class="mb-0">
+                {% if room.isGeneral %}
+                    <i class="material-symbols-rounded me-1">forum</i>
+                {% else %}
+                    <i class="material-symbols-rounded me-1">groups</i>
+                {% endif %}
+                {{ room.name }}
+            </h6>
+            <small class="text-muted">{{ room.equipe.nom }}</small>
+        </div>
+        {% set unreadCount = message_repo.countUnreadMessages(room, app.user) %}
+        {% if unreadCount > 0 %}
+            <span class="badge bg-danger">{{ unreadCount }}</span>
+        {% endif %}
+    </div>
+    {% set lastMessage = room.getOrderedMessages().first() %}
+    {% if lastMessage %}
+        <div class="last-message mt-2">
+            <small>
+                {% if not room.isGeneral %}
+                    <strong>{{ lastMessage.sender.getFullName() }}:</strong> 
+                {% endif %}
+                {{ lastMessage.content|u.truncate(30, '...') }}
+            </small>
+            <small class="text-muted">{{ lastMessage.sentAt|date('H:i') }}</small>
+        </div>
+    {% endif %}
+</div>
+
+<style>
+.room-item {
+    padding: 12px;
+    border-radius: 8px;
+    margin-bottom: 8px;
+    transition: all 0.2s;
+    border-left: 3px solid {% if room.isGeneral %}#0d6efd{% else %}#6c757d{% endif %};
+    background-color: white;
+    box-shadow: 0 1px 3px rgba(0,0,0,0.1);
+}
+.room-item:hover {
+    box-shadow: 0 4px 6px rgba(0,0,0,0.1);
+    transform: translateY(-2px);
+}
+.last-message {
+    display: flex;
+    justify-content: space-between;
+    padding-top: 8px;
+    margin-top: 8px;
+    border-top: 1px solid #eee;
+}
+</style>

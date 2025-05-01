@@ -1,0 +1,182 @@
+{% extends 'base_backOffice.html.twig' %}
+
+{% block title %}Tâches{% endblock %}
+
+{% block breadcrumb %}Gestion des Tâches{% endblock %}
+
+{% block stylesheets %}
+    {{ parent() }}
+    <style>
+        .card {
+            border-radius: 12px;
+            box-shadow: 0 4px 20px 0 rgba(0, 0, 0, 0.14),
+            0 7px 10px -5px rgba(0, 0, 0, 0.4);
+        }
+
+        .horizontal-filter {
+            display: flex;
+            gap: 8px;
+            padding: 12px 0;
+            margin-bottom: 20px;
+            overflow-x: auto;
+        }
+
+        .filter-btn {
+            border-radius: 20px;
+            padding: 8px 20px;
+            transition: all 0.3s ease;
+            border: 1px solid #dee2e6;
+            background: white;
+            white-space: nowrap;
+            flex-shrink: 0;
+        }
+
+        .filter-btn.active {
+            background: #007bff;
+            color: white !important;
+            border-color: #007bff;
+            box-shadow: 0 2px 6px rgba(0, 123, 255, 0.4);
+        }
+
+        .status-badge {
+            font-size: 0.75rem;
+            padding: 0.35em 0.65em;
+            border-radius: 8px;
+        }
+
+        .bg-en-attente { background: #ffc107; color: black; }
+        .bg-en-cours { background: #17a2b8; color: white; }
+        .bg-termine { background: #28a745; color: white; }
+        .bg-annule { background: #dc3545; color: white; }
+    </style>
+{% endblock %}
+
+{% block body %}
+    {# Add user data container #}
+    <div id="user-data"
+         data-role="{{ userRole }}"
+         data-id="{{ userId }}"
+         style="display: none;">
+    </div>
+
+    <div class="row">
+        <div class="col-12">
+            <div class="card my-4">
+                <div class="card-header p-0 position-relative mt-n4 mx-3 z-index-2">
+                    <div class="bg-gradient-dark shadow-dark border-radius-lg pt-4 pb-3 d-flex justify-content-between align-items-center">
+                        <h6 class="text-white text-capitalize ps-3">Liste des Tâches</h6>
+                        <a href="{{ path('app_tache_new') }}" class="btn btn-sm btn-light me-3">
+                            <i class="material-symbols-rounded me-1">add</i>
+                            Nouvelle Tâche
+                        </a>
+                    </div>
+                </div>
+                <div class="card-body px-0 pb-2">
+                    <div class="horizontal-filter">
+                        <button class="filter-btn active" data-status="all">Toutes</button>
+                        <button class="filter-btn" data-status="mine">Miennes</button>
+                    </div>
+
+                    <table class="table align-items-center mb-0">
+                        <thead>
+                        <tr>
+                            <th>Description</th>
+                            <th>Dates</th>
+                            <th>État</th>
+                            <th>Artisan</th>
+                            <th>Projet</th>
+                            <th>Actions</th>
+                        </tr>
+                        </thead>
+                        <tbody id="task-table-body">
+                        {% for tache in taches %}
+                            <tr data-status="{{ tache.etat }}"
+                                data-constructeur-id="{{ tache.constructeur ? tache.constructeur.constructeur.id }}"
+                                data-artisan-id="{{ tache.artisan ? tache.artisan.artisan.id }}">
+                                <td>{{ tache.description|slice(0, 30) }}...</td>
+                                <td>
+                                        <span class="badge badge-sm bg-gradient-dark">
+                                            {{ tache.dateDebut|date('d/m/Y') }}
+                                        </span> →
+                                    <span class="badge badge-sm bg-gradient-secondary">
+                                            {{ tache.dateFin ? tache.dateFin|date('d/m/Y') : '─' }}
+                                        </span>
+                                </td>
+                                <td>
+                                        <span class="status-badge bg-{{ tache.etat|lower|replace({' ': '-', 'é': 'e'}) }}">
+                                            {{ tache.etat }}
+                                        </span>
+                                </td>
+                                <td>{{ tache.artisan }}</td>
+                                <td>{{ tache.idProjet }}</td>
+                                <td>
+                                    <a href="{{ path('app_tache_show', {'idTache': tache.idTache}) }}"
+                                       class="btn btn-sm btn-outline-info px-3">
+                                        <i class="material-symbols-rounded">visibility</i>
+                                    </a>
+                                    <a href="{{ path('app_tache_edit', {'idTache': tache.idTache}) }}"
+                                       class="btn btn-sm btn-outline-warning px-3">
+                                        <i class="material-symbols-rounded">edit</i>
+                                    </a>
+                                </td>
+                            </tr>
+                        {% else %}
+                            <tr>
+                                <td colspan="6" class="text-center">Aucune tâche trouvée</td>
+                            </tr>
+                        {% endfor %}
+                        </tbody>
+                    </table>
+                </div>
+            </div>
+        </div>
+    </div>
+{% endblock %}
+
+{% block javascripts %}
+    {{ parent() }}
+    <script>
+        document.addEventListener('DOMContentLoaded', function() {
+            const filterBtns = document.querySelectorAll('.filter-btn');
+            const tableBody = document.getElementById('task-table-body');
+            const userData = document.getElementById('user-data');
+            const userRole = userData.dataset.role;
+            const userId = userData.dataset.id;
+
+            function filterTasks(status) {
+                const rows = tableBody.querySelectorAll('tr');
+                rows.forEach(row => {
+                    let shouldShow = false;
+
+                    if (status === 'all') {
+                        shouldShow = true;
+                    }
+                    else if (status === 'mine') {
+                        if (userRole === 'constructeur') {
+                            shouldShow = row.dataset.constructeurId === userId;
+                        }
+                        else if (userRole === 'artisan') {
+                            shouldShow = row.dataset.artisanId === userId;
+                        }
+                    }
+                    else {
+                        shouldShow = row.dataset.status === status;
+                    }
+
+                    row.style.display = shouldShow ? 'table-row' : 'none';
+                });
+            }
+
+            filterBtns.forEach(btn => {
+                btn.addEventListener('click', function() {
+                    filterBtns.forEach(b => b.classList.remove('active'));
+                    this.classList.add('active');
+                    filterTasks(this.dataset.status);
+                });
+            });
+
+            // Initialize filter
+            filterTasks('all');
+        });
+    </script>
+{% endblock %}

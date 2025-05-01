@@ -1,0 +1,359 @@
+{% extends 'base.html.twig' %}
+
+{% block title %}Validation Biométrique | Finalisation Inscription{% endblock %}
+
+{% block stylesheets %}
+{{ parent() }}
+<style>
+    .biometric-container {
+        background: linear-gradient(135deg, #f8f9fa 0%, #e9ecef 100%);
+        border-radius: 15px;
+        box-shadow: 0 10px 30px rgba(0,0,0,0.1);
+        overflow: hidden;
+    }
+    
+    .camera-feed {
+        width: 100%;
+        height: 400px;
+        background: #000;
+        position: relative;
+        border-radius: 10px;
+        overflow: hidden;
+        transform: scaleX(-1); /* Miroir pour un effet plus naturel */
+    }
+    
+    .camera-overlay {
+        position: absolute;
+        top: 0;
+        left: 0;
+        width: 100%;
+        height: 100%;
+        border: 3px solid rgba(255,255,255,0.3);
+        border-radius: 10px;
+        pointer-events: none;
+    }
+    
+    .face-preview {
+        max-width: 100%;
+        border-radius: 10px;
+        box-shadow: 0 5px 15px rgba(0,0,0,0.1);
+        border: 2px solid #dee2e6;
+    }
+    
+    .step-indicator {
+        display: flex;
+        justify-content: center;
+        margin-bottom: 2rem;
+    }
+    
+    .step {
+        width: 30px;
+        height: 30px;
+        border-radius: 50%;
+        background: #dee2e6;
+        color: #6c757d;
+        display: flex;
+        align-items: center;
+        justify-content: center;
+        margin: 0 10px;
+        font-weight: bold;
+        position: relative;
+    }
+    
+    .step.active {
+        background: #0d6efd;
+        color: white;
+    }
+    
+    .step.completed {
+        background: #198754;
+        color: white;
+    }
+    
+    .step::after {
+        content: '';
+        position: absolute;
+        width: 20px;
+        height: 2px;
+        background: #dee2e6;
+        right: -20px;
+    }
+    
+    .step:last-child::after {
+        display: none;
+    }
+    
+    .instruction-card {
+        background: white;
+        border-left: 4px solid #0d6efd;
+        border-radius: 8px;
+    }
+    
+    .btn-capture {
+        padding: 12px 25px;
+        font-size: 1.1rem;
+        font-weight: 500;
+        letter-spacing: 0.5px;
+    }
+    
+    .status-message {
+        transition: all 0.3s ease;
+    }
+    
+    .pose-guide {
+        position: absolute;
+        bottom: 20px;
+        left: 0;
+        right: 0;
+        background: rgba(0,0,0,0.7);
+        color: white;
+        padding: 10px;
+        border-radius: 8px;
+        text-align: center;
+        margin: 0 auto;
+        max-width: 80%;
+        animation: pulse 2s infinite;
+    }
+    
+    @keyframes pulse {
+        0% { transform: scale(1); }
+        50% { transform: scale(1.02); }
+        100% { transform: scale(1); }
+    }
+</style>
+{% endblock %}
+
+{% block body %}
+<div class="container py-5">
+    <div class="row justify-content-center">
+        <div class="col-lg-8">
+            <div class="biometric-container p-4 p-md-5 mb-5">
+                <h2 class="text-center mb-4">Finalisation de votre inscription</h2>
+                <p class="text-center text-muted mb-5">Pour votre sécurité, nous avons besoin de valider votre identité</p>
+                
+                <!-- Indicateur d'étapes -->
+                <div class="step-indicator">
+                    <div class="step completed">
+                        <i class="fas fa-check"></i>
+                    </div>
+                    <div class="step active">
+                        2
+                    </div>
+                    <div class="step">
+                        3
+                    </div>
+                </div>
+                
+                <!-- Étape 1: Capture (visible par défaut) -->
+                <div id="captureStep">
+                    <div class="instruction-card p-4 mb-4">
+                        <h5><i class="fas fa-lightbulb text-primary me-2"></i>Conseils pour une bonne capture</h5>
+                        <ul class="mb-0">
+                            <li>Placez-vous dans un endroit bien éclairé</li>
+                            <li>Retirez vos lunettes et casquette</li>
+                            <li>Regardez directement la caméra</li>
+                        </ul>
+                    </div>
+                    
+                    <div class="camera-feed mb-4">
+                        <video id="videoFeed" autoplay playsinline class="h-100 w-100"></video>
+                        <div class="camera-overlay"></div>
+                        <div class="pose-guide">Positionnez votre visage dans le cadre</div>
+                    </div>
+                    
+                    <div class="text-center">
+                        <button id="captureBtn" class="btn btn-primary btn-capture">
+                            <i class="fas fa-camera me-2"></i>Capturer
+                        </button>
+                    </div>
+                </div>
+                
+                <!-- Étape 2: Prévisualisation (cachée par défaut) -->
+                <div id="previewStep" style="display: none;">
+                    <h4 class="text-center mb-4">Vérifiez votre photo</h4>
+                    
+                    <div class="text-center mb-4">
+                        <img id="facePreview" class="face-preview" src="" alt="Capture de votre visage">
+                    </div>
+                    
+                    <div class="alert alert-info">
+                        <i class="fas fa-info-circle me-2"></i>Vérifiez que votre visage est bien visible et reconnaissable
+                    </div>
+                    
+                    <div class="d-flex justify-content-center gap-3">
+                        <button id="confirmBtn" class="btn btn-success btn-capture">
+                            <i class="fas fa-check-circle me-2"></i>Confirmer
+                        </button>
+                        <button id="retryBtn" class="btn btn-outline-secondary">
+                            <i class="fas fa-redo me-2"></i>Reprendre
+                        </button>
+                    </div>
+                </div>
+                
+                <!-- Messages de statut -->
+                <div id="statusMessage" class="status-message mt-4 text-center"></div>
+            </div>
+            
+            <div class="text-center text-muted mt-3">
+                <small>Ces données seront utilisées uniquement pour vérifier votre identité et sécuriser votre compte.</small>
+            </div>
+        </div>
+    </div>
+</div>
+{% endblock %}
+
+{% block javascripts %}
+{{ parent() }}
+<script>
+document.addEventListener('DOMContentLoaded', function() {
+    const userId = {{ user.id }};
+    const video = document.getElementById('videoFeed');
+    const canvas = document.createElement('canvas');
+    const ctx = canvas.getContext('2d');
+    let stream = null;
+    let faceData = null;
+
+    // Éléments d'interface
+    const captureStep = document.getElementById('captureStep');
+    const previewStep = document.getElementById('previewStep');
+    const statusMessage = document.getElementById('statusMessage');
+    
+    // Démarrer la caméra
+    async function startCamera() {
+        try {
+            statusMessage.innerHTML = '';
+            stream = await navigator.mediaDevices.getUserMedia({ 
+                video: { 
+                    width: { ideal: 1280 }, 
+                    height: { ideal: 720 },
+                    facingMode: 'user'
+                } 
+            });
+            video.srcObject = stream;
+        } catch (err) {
+            console.error("Erreur caméra:", err);
+            showError(`
+                <i class="fas fa-exclamation-triangle me-2"></i>
+                Impossible d'accéder à la caméra. Veuillez vérifier les permissions.
+                <br><small class="text-muted">${err.message}</small>
+            `);
+        }
+    }
+
+    // Capturer l'image
+    document.getElementById('captureBtn').addEventListener('click', function() {
+        canvas.width = video.videoWidth;
+        canvas.height = video.videoHeight;
+        ctx.drawImage(video, 0, 0, canvas.width, canvas.height);
+        
+        // Optimisation de l'image
+        faceData = canvas.toDataURL('image/jpeg', 0.85);
+        document.getElementById('facePreview').src = faceData;
+        
+        // Basculer vers l'étape de prévisualisation
+        captureStep.style.display = 'none';
+        previewStep.style.display = 'block';
+        
+        // Arrêter la caméra
+        stopCamera();
+    });
+
+    // Confirmer l'image
+    document.getElementById('confirmBtn').addEventListener('click', function() {
+        if (!faceData) {
+            showError('Aucune image valide capturée');
+            return;
+        }
+
+        showStatus(`
+            <div class="spinner-border spinner-border-sm me-2" role="status">
+                <span class="visually-hidden">Chargement...</span>
+            </div>
+            Enregistrement de vos données biométriques...
+        `, 'info');
+        
+        // Désactiver le bouton pendant l'envoi
+        document.getElementById('confirmBtn').disabled = true;
+        
+        fetch('/save-face/' + userId, {
+            method: 'POST',
+            headers: {
+                'Content-Type': 'application/json',
+            },
+            body: JSON.stringify({ face_data: faceData })
+        })
+        .then(response => {
+            if (!response.ok) {
+                throw new Error('Erreur serveur: ' + response.status);
+            }
+            return response.json();
+        })
+        .then(data => {
+            if (data.success) {
+                showStatus(`
+                    <i class="fas fa-check-circle me-2"></i>
+                    Enregistrement réussi! Redirection en cours...
+                `, 'success');
+                
+                // Redirection après 1.5s
+                setTimeout(() => {
+                    window.location.href = data.redirect;
+                }, 1500);
+            } else {
+                throw new Error(data.message || "Erreur lors de l'enregistrement");
+            }
+        })
+        .catch(error => {
+            console.error('Error:', error);
+            showError(`
+                <i class="fas fa-exclamation-triangle me-2"></i>
+                ${error.message || "Une erreur est survenue"}
+            `);
+            
+            // Réactiver le bouton
+            document.getElementById('confirmBtn').disabled = false;
+        });
+    });
+
+    // Recommencer la capture
+    document.getElementById('retryBtn').addEventListener('click', function() {
+        previewStep.style.display = 'none';
+        captureStep.style.display = 'block';
+        faceData = null;
+        startCamera();
+    });
+
+    // Arrêter la caméra
+    function stopCamera() {
+        if (stream) {
+            stream.getTracks().forEach(track => track.stop());
+        }
+    }
+
+    // Afficher un message d'erreur
+    function showError(message) {
+        statusMessage.innerHTML = `
+            <div class="alert alert-danger d-flex align-items-center">
+                ${message}
+            </div>
+        `;
+    }
+
+    // Afficher un message de statut
+    function showStatus(message, type = 'info') {
+        const alertClass = type === 'info' ? 'alert-info' : 'alert-success';
+        statusMessage.innerHTML = `
+            <div class="alert ${alertClass} d-flex align-items-center">
+                ${message}
+            </div>
+        `;
+    }
+
+    // Démarrer la caméra au chargement
+    startCamera();
+
+    // Nettoyer à la fermeture
+    window.addEventListener('beforeunload', stopCamera);
+});
+</script>
+{% endblock %}

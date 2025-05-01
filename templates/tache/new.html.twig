@@ -1,0 +1,73 @@
+{% extends 'base_backOffice.html.twig' %}
+
+{% block title %}Nouvelle Tâche{% endblock %}
+
+{% block breadcrumb %}Nouvelle Tâche{% endblock %}
+
+{% block body %}
+    <div class="row">
+        <div class="col-12">
+            <div class="card my-4">
+                <div class="card-header p-0 position-relative mt-n4 mx-3 z-index-2">
+                    <div class="bg-gradient-dark shadow-dark border-radius-lg pt-4 pb-3">
+                        <h6 class="text-white text-capitalize ps-3">Créer une nouvelle Tâche</h6>
+                    </div>
+                </div>
+                <div class="card-body px-0 pb-2">
+                    <div class="px-4 py-3">
+                        {{ form_start(form) }}
+                        <div class="row">
+                            <div class="col-md-12">
+                                {{ form_row(form.description, {
+                                    'attr': {'class': 'form-control'},
+                                    'label_attr': {'class': 'form-label'}
+                                }) }}
+                            </div>
+                        </div>
+                        <div class="row">
+                            <div class="col-md-6">
+                                {{ form_row(form.dateDebut, {
+                                    'attr': {'class': 'form-control'},
+                                    'label_attr': {'class': 'form-label'}
+                                }) }}
+                            </div>
+                            <div class="col-md-6">
+                                {{ form_row(form.dateFin, {
+                                    'attr': {'class': 'form-control'},
+                                    'label_attr': {'class': 'form-label'}
+                                }) }}
+                            </div>
+                        </div>
+                        <div class="row">
+                            <div class="col-md-6">
+                                {{ form_row(form.etat, {
+                                    'attr': {'class': 'form-select'},
+                                    'label_attr': {'class': 'form-label'}
+                                }) }}
+                            </div>
+                            <div class="col-md-6">
+                                {{ form_row(form.artisan, {
+                                    'attr': {'class': 'form-select'},
+                                    'label_attr': {'class': 'form-label'}
+                                }) }}
+                            </div>
+                        </div>
+                        <div class="row">
+                            <div class="col-md-12">
+                                {{ form_row(form.idProjet, {
+                                    'attr': {'class': 'form-select'},
+                                    'label_attr': {'class': 'form-label'}
+                                }) }}
+                            </div>
+                        </div>
+                        <div class="mt-4 d-flex justify-content-between">
+                            <button class="btn btn-dark">{{ button_label|default('Créer') }}</button>
+                            <a href="{{ path('app_tache_index') }}" class="btn btn-secondary">Retour à la liste</a>
+                        </div>
+                        {{ form_end(form) }}
+                    </div>
+                </div>
+            </div>
+        </div>
+    </div>
+{% endblock %}

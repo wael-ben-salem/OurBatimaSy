@@ -1,0 +1,775 @@
+{% extends 'base.html.twig' %}
+
+{% block title %}Détails de l'Équipe - {{ equipe.nom }}{% endblock %}
+
+{% block stylesheets %}
+    {{ parent() }}
+    <link href="https://cdn.jsdelivr.net/npm/bootstrap-icons@1.8.0/font/bootstrap-icons.css" rel="stylesheet">
+    <style>
+        :root {
+            --primary-color: #4361ee;
+            --secondary-color: #3f37c9;
+            --accent-color: #4895ef;
+            --success-color: #4cc9f0;
+            --warning-color: #f72585;
+            --light-bg: #f8f9fa;
+            --dark-text: #2b2d42;
+        }
+        
+        .team-details-container {
+            max-width: 1200px;
+            margin: 30px auto;
+            padding: 30px;
+            background: #fff;
+            border-radius: 12px;
+            box-shadow: 0 5px 30px rgba(0,0,0,0.08);
+        }
+        
+        .team-header {
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
+            margin-bottom: 30px;
+            padding-bottom: 20px;
+            border-bottom: 1px solid #eee;
+        }
+        
+        .team-title {
+            font-size: 1.8rem;
+            color: var(--dark-text);
+            margin: 0;
+        }
+        
+        .team-id {
+            background: var(--primary-color);
+            color: white;
+            padding: 0.5rem 1rem;
+            border-radius: 50px;
+            font-size: 1rem;
+            font-weight: 600;
+        }
+        
+        /* Tabs styling */
+        .nav-tabs-custom {
+            border-bottom: 2px solid #eee;
+            margin-bottom: 2rem;
+        }
+        
+        .nav-tabs-custom .nav-link {
+            border: none;
+            color: #6c757d;
+            font-weight: 500;
+            padding: 12px 20px;
+            transition: all 0.3s;
+            position: relative;
+        }
+        
+        .nav-tabs-custom .nav-link:hover {
+            color: var(--primary-color);
+        }
+        
+        .nav-tabs-custom .nav-link.active {
+            color: var(--primary-color);
+            background: none;
+            border-bottom: 3px solid var(--primary-color);
+        }
+        
+        .nav-tabs-custom .nav-link i {
+            margin-right: 8px;
+        }
+        
+        /* Tab content */
+        .tab-content {
+            padding: 20px 0;
+        }
+        
+        /* Cards styling */
+        .card-grid {
+            display: grid;
+            grid-template-columns: repeat(auto-fill, minmax(280px, 1fr));
+            gap: 20px;
+        }
+        
+        .custom-card {
+            background: white;
+            border-radius: 10px;
+            padding: 20px;
+            box-shadow: 0 4px 12px rgba(0,0,0,0.05);
+            border-left: 4px solid var(--primary-color);
+            transition: all 0.3s ease;
+            height: 100%;
+        }
+        
+        .custom-card:hover {
+            transform: translateY(-5px);
+            box-shadow: 0 8px 20px rgba(0,0,0,0.1);
+        }
+        
+        .card-header {
+            display: flex;
+            align-items: center;
+            margin-bottom: 15px;
+        }
+        
+        .card-avatar {
+            width: 60px;
+            height: 60px;
+            border-radius: 50%;
+            margin-right: 15px;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            font-size: 1.5rem;
+            color: white;
+        }
+        
+        .avatar-constructor { background: linear-gradient(135deg, #4361ee, #3f37c9); }
+        .avatar-manager { background: linear-gradient(135deg, #f72585, #b5179e); }
+        .avatar-artisan { background: linear-gradient(135deg, #4cc9f0, #4895ef); }
+        .avatar-project { background: linear-gradient(135deg, #7209b7, #b5179e); }
+        .avatar-task { background: linear-gradient(135deg, #3a0ca3, #4361ee); }
+        .avatar-material { background: linear-gradient(135deg, #f8961e, #f3722c); }
+        
+        .card-info {
+            flex: 1;
+        }
+        
+        .card-title {
+            font-weight: 600;
+            margin-bottom: 3px;
+            color: var(--dark-text);
+        }
+        
+        .card-subtitle {
+            font-size: 0.8rem;
+            color: var(--accent-color);
+            font-weight: 500;
+            text-transform: uppercase;
+        }
+        
+        .card-details {
+            font-size: 0.85rem;
+            color: #6c757d;
+            margin-top: 5px;
+        }
+        
+        .card-progress {
+            margin-top: 15px;
+        }
+        
+        .progress-label {
+            display: flex;
+            justify-content: space-between;
+            margin-bottom: 5px;
+            font-size: 0.8rem;
+            color: #6c757d;
+        }
+        
+        .progress-bar {
+            height: 6px;
+            border-radius: 3px;
+            background: #f0f0f0;
+            overflow: hidden;
+        }
+        
+        .progress-fill {
+            height: 100%;
+            background: linear-gradient(90deg, #4361ee, #4895ef);
+            border-radius: 3px;
+        }
+        
+        /* Status badges */
+        .status-badge {
+            padding: 5px 10px;
+            border-radius: 50px;
+            font-size: 0.75rem;
+            font-weight: 600;
+            display: inline-block;
+        }
+        
+        .status-active { background: #e3f2fd; color: #1976d2; }
+        .status-completed { background: #e8f5e9; color: #388e3c; }
+        .status-pending { background: #fff8e1; color: #ff8f00; }
+        
+        /* Stats Cards */
+        .stats-grid {
+            display: grid;
+            grid-template-columns: repeat(auto-fit, minmax(220px, 1fr));
+            gap: 1.5rem;
+            margin-bottom: 2rem;
+        }
+        
+        .stat-card {
+            background: white;
+            border-radius: 12px;
+            padding: 1.5rem;
+            box-shadow: 0 4px 12px rgba(0,0,0,0.05);
+            border-left: 4px solid var(--primary-color);
+            transition: all 0.3s ease;
+        }
+        
+        .stat-card:hover {
+            transform: translateY(-5px);
+            box-shadow: 0 8px 20px rgba(0,0,0,0.1);
+        }
+        
+        .stat-icon {
+            width: 48px;
+            height: 48px;
+            border-radius: 12px;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            margin-bottom: 1rem;
+            font-size: 1.5rem;
+            color: white;
+        }
+        
+        .icon-tasks { background: linear-gradient(135deg, #7209b7, #b5179e); }
+        .icon-completed { background: linear-gradient(135deg, #4cc9f0, #4895ef); }
+        .icon-projects { background: linear-gradient(135deg, #4361ee, #3f37c9); }
+        .icon-members { background: linear-gradient(135deg, #f72585, #b5179e); }
+        .icon-budget { background: linear-gradient(135deg, #43aa8b, #90be6d); }
+        
+        .stat-value {
+            font-size: 2rem;
+            font-weight: 700;
+            color: var(--dark-text);
+            margin-bottom: 0.25rem;
+        }
+        
+        .stat-label {
+            font-size: 0.9rem;
+            color: #6c757d;
+            font-weight: 500;
+        }
+        
+        /* Charts Section */
+        .charts-container {
+            display: grid;
+            grid-template-columns: 1fr 1fr;
+            gap: 1.5rem;
+            margin-bottom: 2rem;
+        }
+        
+        @media (max-width: 992px) {
+            .charts-container {
+                grid-template-columns: 1fr;
+            }
+        }
+        
+        .chart-card {
+            background: white;
+            border-radius: 12px;
+            padding: 1.5rem;
+            box-shadow: 0 4px 12px rgba(0,0,0,0.05);
+        }
+        
+        .chart-title {
+            font-weight: 600;
+            color: var(--dark-text);
+            margin-top: 0;
+            margin-bottom: 1rem;
+            font-size: 1.1rem;
+        }
+        
+        .chart-container {
+            width: 100%;
+            height: 250px;
+            display: flex;
+            justify-content: center;
+            align-items: center;
+        }
+        
+        .chart-legend {
+            display: flex;
+            flex-wrap: wrap;
+            gap: 1rem;
+            justify-content: center;
+            margin-top: 1rem;
+        }
+        
+        .legend-item {
+            display: flex;
+            align-items: center;
+            gap: 0.5rem;
+        }
+        
+        .legend-color {
+            width: 16px;
+            height: 16px;
+            border-radius: 4px;
+        }
+        
+        /* Empty state */
+        .empty-state {
+            text-align: center;
+            padding: 3rem;
+            color: #6c757d;
+        }
+        
+        .empty-state i {
+            font-size: 3rem;
+            color: #dee2e6;
+            margin-bottom: 1rem;
+        }
+        
+        /* Action Buttons */
+        .action-buttons {
+            display: flex;
+            justify-content: flex-end;
+            margin-top: 30px;
+            padding-top: 20px;
+            border-top: 1px solid #eee;
+        }
+        
+        .btn-custom {
+            padding: 10px 25px;
+            font-size: 1rem;
+            font-weight: 500;
+            border-radius: 8px;
+            transition: all 0.2s;
+        }
+        
+        .btn-custom i {
+            margin-right: 8px;
+        }
+        
+        /* Custom scrollbar */
+        ::-webkit-scrollbar {
+            width: 8px;
+        }
+        
+        ::-webkit-scrollbar-track {
+            background: #f1f1f1;
+            border-radius: 4px;
+        }
+        
+        ::-webkit-scrollbar-thumb {
+            background: #adb5bd;
+            border-radius: 4px;
+        }
+        
+        ::-webkit-scrollbar-thumb:hover {
+            background: #868e96;
+        }
+        
+        /* Responsive adjustments */
+        @media (max-width: 768px) {
+            .team-header {
+                flex-direction: column;
+                align-items: flex-start;
+                gap: 1rem;
+            }
+            
+            .nav-tabs-custom .nav-link {
+                padding: 8px 12px;
+                font-size: 0.9rem;
+            }
+        }
+    </style>
+{% endblock %}
+
+{% block body %}
+<div class="team-details-container">
+    <div class="team-header">
+        <h1 class="team-title">Équipe: <span style="color: var(--primary-color);">{{ equipe.nom }}</span></h1>
+        <div class="team-id">ID: {{ equipe.id }}</div>
+    </div>
+    
+    <!-- Stats Overview -->
+    <div class="stats-grid">
+        <div class="stat-card">
+            <div class="stat-icon icon-members">
+                <i class="bi bi-people"></i>
+            </div>
+            <div class="stat-value">{{ equipe.artisan|length + (equipe.constructeur ? 1 : 0) + (equipe.gestionnairestock ? 1 : 0) }}</div>
+            <div class="stat-label">Membres Totaux</div>
+        </div>
+        <div class="stat-card">
+            <div class="stat-icon icon-projects">
+                <i class="bi bi-clipboard-check"></i>
+            </div>
+            <div class="stat-value">{{ projets|length }}</div>
+            <div class="stat-label">Projets Assignés</div>
+        </div>
+        <div class="stat-card">
+            <div class="stat-icon icon-tasks">
+                <i class="bi bi-list-task"></i>
+            </div>
+            <div class="stat-value">{{ total_taches }}</div>
+            <div class="stat-label">Tâches Totales</div>
+        </div>
+        <div class="stat-card">
+            <div class="stat-icon icon-budget">
+                <i class="bi bi-cash-stack"></i>
+            </div>
+            <div class="stat-value">{{ stats.budget_total }} DT</div>
+            <div class="stat-label">Budget Total</div>
+        </div>
+    </div>
+    
+    <!-- Charts Section -->
+    <div class="charts-container">
+        <div class="chart-card">
+            <h3 class="chart-title">Répartition des Membres</h3>
+            <div class="chart-container">
+                <div style="width: 300px; height: 300px; position: relative;">
+                    {% set total_members = equipe.artisan|length + (equipe.constructeur ? 1 : 0) + (equipe.gestionnairestock ? 1 : 0) %}
+                    {% if total_members > 0 %}
+                        {% set artisans_angle = (equipe.artisan|length / total_members) * 360 %}
+                        {% set constructor_angle = (equipe.constructeur ? 1 / total_members : 0) * 360 %}
+                        
+                        <svg viewBox="0 0 100 100" style="width: 100%; height: 100%;">
+                            <!-- Artisans -->
+                            <circle cx="50" cy="50" r="45" fill="none"
+                                    stroke="#4cc9f0" stroke-width="10"
+                                    stroke-dasharray="{{ artisans_angle/360 * 283 }} 283"
+                                    stroke-dashoffset="0"/>
+                            
+                            <!-- Constructor -->
+                            <circle cx="50" cy="50" r="45" fill="none"
+                                    stroke="#4361ee" stroke-width="10"
+                                    stroke-dasharray="{{ constructor_angle/360 * 283 }} 283"
+                                    stroke-dashoffset="{{ -artisans_angle/360 * 283 }}"/>
+                            
+                            <!-- Manager -->
+                            <circle cx="50" cy="50" r="45" fill="none"
+                                    stroke="#f72585" stroke-width="10"
+                                    stroke-dasharray="{{ (equipe.gestionnairestock ? 1 / total_members * 283 : 0) }} 283"
+                                    stroke-dashoffset="{{ -(artisans_angle + constructor_angle)/360 * 283 }}"/>
+                        </svg>
+                        
+                        <div style="position: absolute; top: 50%; left: 50%; transform: translate(-50%, -50%); text-align: center;">
+                            <div style="font-size: 1.5rem; font-weight: bold;">{{ total_members }}</div>
+                            <div style="font-size: 0.8rem;">membres</div>
+                        </div>
+                    {% else %}
+                        <div style="display: flex; justify-content: center; align-items: center; height: 100%;">
+                            <p>Aucun membre</p>
+                        </div>
+                    {% endif %}
+                </div>
+            </div>
+            <div class="chart-legend">
+                <div class="legend-item">
+                    <div class="legend-color" style="background-color: #4cc9f0;"></div>
+                    <span>Artisans ({{ equipe.artisan|length }})</span>
+                </div>
+                {% if equipe.constructeur %}
+                <div class="legend-item">
+                    <div class="legend-color" style="background-color: #4361ee;"></div>
+                    <span>Constructeur (1)</span>
+                </div>
+                {% endif %}
+                {% if equipe.gestionnairestock %}
+                <div class="legend-item">
+                    <div class="legend-color" style="background-color: #f72585;"></div>
+                    <span>Gestionnaire (1)</span>
+                </div>
+                {% endif %}
+            </div>
+        </div>
+        
+        <div class="chart-card">
+            <h3 class="chart-title">Progression des Tâches</h3>
+            <div class="chart-container">
+                <div style="width: 300px; height: 300px; position: relative;">
+                    {% if total_taches > 0 %}
+                        {% set completed_angle = (taches_terminees / total_taches) * 360 %}
+                        {% set inprogress_angle = (taches_en_cours / total_taches) * 360 %}
+                        
+                        <svg viewBox="0 0 100 100" style="width: 100%; height: 100%;">
+                            <!-- Completed -->
+                            <circle cx="50" cy="50" r="45" fill="none"
+                                    stroke="#4cc9f0" stroke-width="10"
+                                    stroke-dasharray="{{ completed_angle/360 * 283 }} 283"
+                                    stroke-dashoffset="0"/>
+                            
+                            <!-- In Progress -->
+                            <circle cx="50" cy="50" r="45" fill="none"
+                                    stroke="#4361ee" stroke-width="10"
+                                    stroke-dasharray="{{ inprogress_angle/360 * 283 }} 283"
+                                    stroke-dashoffset="{{ -completed_angle/360 * 283 }}"/>
+                            
+                            <!-- Pending -->
+                            <circle cx="50" cy="50" r="45" fill="none"
+                                    stroke="#f72585" stroke-width="10"
+                                    stroke-dasharray="{{ ((total_taches - taches_terminees - taches_en_cours) / total_taches * 283) }} 283"
+                                    stroke-dashoffset="{{ -(completed_angle + inprogress_angle)/360 * 283 }}"/>
+                        </svg>
+                        
+                        <div style="position: absolute; top: 50%; left: 50%; transform: translate(-50%, -50%); text-align: center;">
+                            <div style="font-size: 1.5rem; font-weight: bold;">{{ ((taches_terminees / total_taches) * 100)|round(1) }}%</div>
+                            <div style="font-size: 0.8rem;">complétées</div>
+                        </div>
+                    {% else %}
+                        <div style="display: flex; justify-content: center; align-items: center; height: 100%;">
+                            <p>Aucune tâche</p>
+                        </div>
+                    {% endif %}
+                </div>
+            </div>
+            <div class="chart-legend">
+                <div class="legend-item">
+                    <div class="legend-color" style="background-color: #4cc9f0;"></div>
+                    <span>Terminées ({{ taches_terminees }})</span>
+                </div>
+                <div class="legend-item">
+                    <div class="legend-color" style="background-color: #4361ee;"></div>
+                    <span>En cours ({{ taches_en_cours }})</span>
+                </div>
+                <div class="legend-item">
+                    <div class="legend-color" style="background-color: #f72585;"></div>
+                    <span>En attente ({{ total_taches - taches_terminees - taches_en_cours }})</span>
+                </div>
+            </div>
+        </div>
+    </div>
+    
+    <!-- Tabs Navigation -->
+    <ul class="nav nav-tabs nav-tabs-custom" id="teamTabs" role="tablist">
+        <li class="nav-item" role="presentation">
+            <button class="nav-link active" id="members-tab" data-bs-toggle="tab" data-bs-target="#members" type="button" role="tab">
+                <i class="bi bi-people me-1"></i> Membres
+            </button>
+        </li>
+        <li class="nav-item" role="presentation">
+            <button class="nav-link" id="projects-tab" data-bs-toggle="tab" data-bs-target="#projects" type="button" role="tab">
+                <i class="bi bi-clipboard-check me-1"></i> Projets
+            </button>
+        </li>
+        <li class="nav-item" role="presentation">
+            <button class="nav-link" id="tasks-tab" data-bs-toggle="tab" data-bs-target="#tasks" type="button" role="tab">
+                <i class="bi bi-list-task me-1"></i> Tâches
+            </button>
+        </li>
+        <li class="nav-item" role="presentation">
+            <button class="nav-link" id="materials-tab" data-bs-toggle="tab" data-bs-target="#materials" type="button" role="tab">
+                <i class="bi bi-box-seam me-1"></i> Matériels
+            </button>
+        </li>
+    </ul>
+    
+    <!-- Tabs Content -->
+    <div class="tab-content" id="teamTabsContent">
+        <!-- Members Tab -->
+        <div class="tab-pane fade show active" id="members" role="tabpanel">
+            <div class="card-grid">
+                {% if equipe.constructeur %}
+                    {% set constructor = equipe.constructeur %}
+                    <div class="custom-card">
+                        <div class="card-header">
+                            <div class="card-avatar avatar-constructor">
+                                <i class="bi bi-person-gear"></i>
+                            </div>
+                            <div class="card-info">
+                                <div class="card-title">{{ constructor.constructeur.nom }} {{ constructor.constructeur.prenom }}</div>
+                                <div class="card-subtitle">Constructeur</div>
+                                <div class="card-details">Responsable principal</div>
+                            </div>
+                        </div>
+                    </div>
+                {% endif %}
+                
+                {% if equipe.gestionnairestock %}
+                    {% set manager = equipe.gestionnairestock %}
+                    <div class="custom-card">
+                        <div class="card-header">
+                            <div class="card-avatar avatar-manager">
+                                <i class="bi bi-clipboard2-data"></i>
+                            </div>
+                            <div class="card-info">
+                                <div class="card-title">{{ manager.gestionnairestock.nom }} {{ manager.gestionnairestock.prenom }}</div>
+                                <div class="card-subtitle">Gestionnaire de Stock</div>
+                                <div class="card-details">Gestion des matériels</div>
+                            </div>
+                        </div>
+                    </div>
+                {% endif %}
+                
+                {% for artisan in equipe.artisan %}
+                    <div class="custom-card">
+                        <div class="card-header">
+                            <div class="card-avatar avatar-artisan">
+                                <i class="bi bi-tools"></i>
+                            </div>
+                            <div class="card-info">
+                                <div class="card-title">{{ artisan.artisan.nom }} {{ artisan.artisan.prenom }}</div>
+                                <div class="card-subtitle">Artisan</div>
+                                <div class="card-details">
+                                    {% if artisan.specialite %}
+                                        Spécialité: {{ artisan.specialite }}
+                                    {% else %}
+                                        Spécialité non spécifiée
+                                    {% endif %}
+                                </div>
+                            </div>
+                        </div>
+                    </div>
+                {% endfor %}
+                
+                {% if equipe.artisan|length == 0 and not equipe.constructeur and not equipe.gestionnairestock %}
+                    <div class="empty-state">
+                        <i class="bi bi-people"></i>
+                        <p>Aucun membre dans cette équipe</p>
+                    </div>
+                {% endif %}
+            </div>
+        </div>
+        
+        <!-- Projects Tab -->
+        <div class="tab-pane fade" id="projects" role="tabpanel">
+            {% if projets|length > 0 %}
+                <div class="card-grid">
+                    {% for projet in projets %}
+                        <div class="custom-card">
+                            <div class="card-header">
+                                <div class="card-avatar avatar-project">
+                                    <i class="bi bi-folder"></i>
+                                </div>
+                                <div class="card-info">
+                                    <div class="card-title">{{ projet.nomprojet }}</div>
+                                    <div class="card-subtitle">
+                                        <span class="status-badge status-{{ projet.etat|lower|replace({' ': '_', 'é':'e'}) }}">
+                                            {{ projet.etat }}
+                                        </span>
+                                    </div>
+                                    <div class="card-details">
+                                        Budget: {{ projet.budget }} DT | 
+                                        Date: {{ projet.datecreation|date('d/m/Y') }}
+                                    </div>
+                                </div>
+                            </div>
+                            <div class="card-progress">
+                                <div class="progress-label">
+                                    <span>Progression</span>
+                                    <span>{{ random(60, 95) }}%</span>
+                                </div>
+                                <div class="progress-bar">
+                                    <div class="progress-fill" style="width: {{ random(60, 95) }}%"></div>
+                                </div>
+                            </div>
+                        </div>
+                    {% endfor %}
+                </div>
+            {% else %}
+                <div class="empty-state">
+                    <i class="bi bi-clipboard"></i>
+                    <p>Aucun projet assigné à cette équipe</p>
+                </div>
+            {% endif %}
+        </div>
+        
+        <!-- Tasks Tab -->
+        <div class="tab-pane fade" id="tasks" role="tabpanel">
+            {% if taches|length > 0 %}
+                <div class="card-grid">
+                    {% for tache in taches %}
+                        <div class="custom-card">
+                            <div class="card-header">
+                                <div class="card-avatar avatar-task">
+                                    <i class="bi bi-list-check"></i>
+                                </div>
+                                <div class="card-info">
+                                <h3 class="task-title">{{ tache.description|u.truncate(60, '...') }}</h3>
+                                    <div class="card-subtitle">
+                                        <span class="status-badge status-{{ tache.etat|lower|replace({' ': '_', 'é':'e'}) }}">
+                                            {{ tache.etat }}
+                                        </span>
+                                    </div>
+                                    <div class="card-details">
+                                        Assignée à: {{ tache.artisan.artisan.nom ?? 'Non assignée' }}
+                                    </div>
+                                </div>
+                            </div>
+                            <div class="card-progress">
+                                <div class="progress-label">
+                                    <span>Échéance</span>
+                                    <span>{{ tache.dateFin|date('d/m/Y') }}</span>
+                                </div>
+                                {% set progress = tache.etat == 'Terminé' ? 100 : random(30, 90) %}
+                                <div class="progress-bar">
+                                    <div class="progress-fill" style="width: {{ progress }}%"></div>
+                                </div>
+                            </div>
+                        </div>
+                    {% endfor %}
+                </div>
+            {% else %}
+                <div class="empty-state">
+                    <i class="bi bi-list-check"></i>
+                    <p>Aucune tâche assignée à cette équipe</p>
+                </div>
+            {% endif %}
+        </div>
+        
+        <!-- Materials Tab -->
+        <div class="tab-pane fade" id="materials" role="tabpanel">
+            {% if materiels|length > 0 %}
+                <div class="card-grid">
+                    {% for materiel in materiels %}
+                        <div class="custom-card">
+                            <div class="card-header">
+                                <div class="card-avatar avatar-material">
+                                    <i class="bi bi-box-seam"></i>
+                                </div>
+                                <div class="card-info">
+                                    <div class="card-title">{{ materiel.nom }}</div>
+                                    <div class="card-subtitle">Matériel</div>
+                                    
+                                </div>
+                            </div>
+                        </div>
+                    {% endfor %}
+                </div>
+            {% else %}
+                <div class="empty-state">
+                    <i class="bi bi-box-seam"></i>
+                    <p>Aucun matériel associé à cette équipe</p>
+                </div>
+            {% endif %}
+        </div>
+    </div>
+    
+    <!-- Action Buttons -->
+    <div class="action-buttons">
+        <a href="{{ path('app_equipe_client') }}" class="btn btn-outline-secondary btn-custom">
+            <i class="bi bi-arrow-left"></i> Retour à la liste
+        </a>
+    </div>
+</div>
+{% endblock %}
+
+{% block javascripts %}
+    {{ parent() }}
+    <script>
+        // Activer les tooltips Bootstrap
+        document.addEventListener('DOMContentLoaded', function() {
+            // Initialiser les tooltips
+            var tooltipTriggerList = [].slice.call(document.querySelectorAll('[data-bs-toggle="tooltip"]'));
+            var tooltipList = tooltipTriggerList.map(function (tooltipTriggerEl) {
+                return new bootstrap.Tooltip(tooltipTriggerEl);
+            });
+            
+            // Gestion des onglets - sauvegarde de l'onglet actif
+            var teamTabs = document.getElementById('teamTabs');
+            if (teamTabs) {
+                teamTabs.addEventListener('click', function(e) {
+                    if (e.target && e.target.matches('button[data-bs-toggle="tab"]')) {
+                        localStorage.setItem('lastActiveTab', e.target.getAttribute('data-bs-target'));
+                    }
+                });
+                
+                // Restaurer l'onglet actif s'il existe
+                var lastActiveTab = localStorage.getItem('lastActiveTab');
+                if (lastActiveTab) {
+                    var tabTrigger = document.querySelector('[data-bs-target="' + lastActiveTab + '"]');
+                    if (tabTrigger) {
+                        bootstrap.Tab.getOrCreateInstance(tabTrigger).show();
+                    }
+                }
+            }
+        });
+    </script>
+{% endblock %}

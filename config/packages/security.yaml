@@ -1,35 +1,61 @@
 security:
     enable_authenticator_manager: true
-
     password_hashers:
         App\Entity\Utilisateur: auto
-
     providers:
         app_user_provider:
-            id: App\Security\CustomUserProvider
-
+            entity:
+                class: App\Entity\Utilisateur
+                property: email
     firewalls:
         dev:
             pattern: ^/(_(profiler|wdt)|css|images|js)/
             security: false
-
         main:
             lazy: true
             provider: app_user_provider
+            custom_authenticator:
+                - App\Security\GoogleAuthenticator
+                - App\Security\LoginFormAuthenticator
             form_login:
                 login_path: app_login
                 check_path: app_login
-                default_target_path: app_welcome
+                enable_csrf: true
                 username_parameter: email
                 password_parameter: password
+                success_handler: App\Security\LoginSuccessHandler
+                failure_handler: App\Security\LoginFailureHandler
             logout:
                 path: app_logout
                 target: app_login
 
+    role_hierarchy:
+        ROLE_USER: []
+        ROLE_CLIENT: ROLE_USER
+        ROLE_ARTISAN: ROLE_USER
+        ROLE_CONSTRUCTEUR: ROLE_USER
+        ROLE_ADMIN: [ROLE_CLIENT, ROLE_CONSTRUCTEUR, ROLE_ARTISAN]
+
     access_control:
         - { path: ^/register, roles: PUBLIC_ACCESS }
         - { path: ^/login, roles: PUBLIC_ACCESS }
-        - { path: ^/welcome, roles: [ROLE_USER] }
+
+        - { path: ^/welcome, roles: ROLE_USER }
+        - { path: ^/tache, roles: ROLE_CONSTRUCTEUR }
+        - { path: ^/plannification, roles: ROLE_USER }
+
+        - { path: ^/welcome, roles: ROLE_USER }  # All roles inherit ROLE_USER
+        - { path: ^/tache, roles: ROLE_CONSTRUCTEUR }  # You can add more if needed
+        - { path: ^/plannification, roles: ROLE_USER }  # Since ARTISAN, CONSTRUCTEUR, CLIENT inherit ROLE_USER
+        - { path: ^/plannification/\d+/save, roles: ROLE_USER }
+        - { path: ^/plannification/\d+/unsave, roles: ROLE_USER }
+        - { path: ^/notifications, roles: ROLE_USER }
+
+        - { path: ^/projet, roles: [ROLE_CLIENT, ROLE_ARTISAN, ROLE_CONSTRUCTEUR, ROLE_ADMIN]  }
+        - { path: ^/terrain, roles: [ROLE_CLIENT,ROLE_ARTISAN, ROLE_CONSTRUCTEUR, ROLE_ADMIN]  }
+        - { path: ^/etapeprojet, roles: [ROLE_CLIENT,ROLE_ARTISAN, ROLE_CONSTRUCTEUR, ROLE_ADMIN]  }
+
+
         # Reponse routes - Allow full CRUD without login
         - { path: ^/reponse, roles: PUBLIC_ACCESS }
         # Reclamation routes - Allow Read, Update, Delete without login, but not Create
@@ -37,3 +63,6 @@ security:
         - { path: ^/reclamation, roles: PUBLIC_ACCESS }
 
 
+        - {path: ^/contrat/generate-pdf, roles: ROLE_USER }
+
+        - { path: ^/chat, roles: ROLE_USER }

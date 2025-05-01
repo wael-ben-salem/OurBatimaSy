@@ -3,6 +3,7 @@
 namespace App\Entity;
 
 use Doctrine\ORM\Mapping as ORM;
+use Symfony\Component\Validator\Constraints as Assert;
 
 /**
  * Article
@@ -26,6 +27,11 @@ class Article
      * @var string
      */
     #[ORM\Column(name: 'nom', type: 'string', length: 255, nullable: false)]
+    #[Assert\NotBlank(message: 'Le nom est obligatoire.')]
+    #[Assert\Length(
+        min: 2,
+        minMessage: 'Le nom doit contenir au moins {{ limit }} caractères.'
+    )]
     private $nom;
 
     /**
@@ -38,6 +44,10 @@ class Article
      * @var string|null
      */
     #[ORM\Column(name: 'prix_unitaire', type: 'string', length: 50, nullable: true)]
+    #[Assert\Type(
+        type: 'numeric',
+        message: 'Le prix unitaire doit être un nombre.'
+    )]
     private $prixUnitaire;
 
     /**
@@ -49,21 +59,21 @@ class Article
     /**
      * @var \Etapeprojet
      */
-    #[ORM\JoinColumn(name: 'etapeprojet_id', referencedColumnName: 'Id_etapeProjet')]
+    #[ORM\JoinColumn(name: 'etapeprojet_id', referencedColumnName: 'Id_etapeProjet', nullable: true)] // Made nullable
     #[ORM\ManyToOne(targetEntity: \Etapeprojet::class)]
     private $etapeprojet;
 
     /**
      * @var \Stock
      */
-    #[ORM\JoinColumn(name: 'stock_id', referencedColumnName: 'id')]
+    #[ORM\JoinColumn(name: 'stock_id', referencedColumnName: 'id', nullable: true)] // Made nullable
     #[ORM\ManyToOne(targetEntity: \Stock::class)]
     private $stock;
 
     /**
      * @var \Fournisseur
      */
-    #[ORM\JoinColumn(name: 'fournisseur_id', referencedColumnName: 'fournisseur_id')]
+    #[ORM\JoinColumn(name: 'fournisseur_id', referencedColumnName: 'fournisseur_id', nullable: true)] // Made nullable
     #[ORM\ManyToOne(targetEntity: \Fournisseur::class)]
     private $fournisseur;
 

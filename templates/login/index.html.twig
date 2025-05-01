@@ -3,75 +3,312 @@
 {% block title %}Connexion{% endblock %}
 
 {% block stylesheets %}
-  {{ parent() }}
-  <style>
-    .login-card {
-      border-radius: 12px;
-      box-shadow: 0 4px 20px 0 rgba(0, 0, 0, 0.14), 
-                  0 7px 10px -5px rgba(0, 0, 0, 0.4);
-      overflow: hidden;
-    }
-    .form-control:focus {
-      border-color: #344767;
-      box-shadow: 0 0 0 0.2rem rgba(52, 71, 103, 0.25);
-    }
-    .form-label {
-      font-weight: 600;
-      color: #344767;
-      font-size: 0.875rem;
-    }
-  </style>
+    <link rel="stylesheet" href="https://cdn.jsdelivr.net/npm/bootstrap-icons@1.11.3/font/bootstrap-icons.min.css">
+    <link rel="stylesheet" href="https://cdn.jsdelivr.net/npm/sweetalert2@11/dist/sweetalert2.min.css">
+
+    <style>
+        .background-overlay {
+            position: fixed;
+            top: 0;
+            left: 0;
+            height: 100vh;
+            width: 100vw;
+            background: url('{{ asset("img/ksks.png") }}') no-repeat center center fixed;
+            background-size: cover;
+            opacity: 0.3;
+            z-index: 0;
+        }
+
+        .container {
+            position: relative;
+            z-index: 2;
+        }
+
+        .card {
+            background: rgba(255, 255, 255, 0.96);
+            border-radius: 20px;
+            box-shadow: 0 12px 40px rgba(0,0,0,0.2);
+            overflow: hidden;
+            backdrop-filter: blur(8px);
+            border: 1px solid rgba(255,255,255,0.3);
+        }
+
+        .card::before {
+            content: '';
+            position: absolute;
+            top: 0; left: 0; right: 0; bottom: 0;
+            background: url('{{ asset("img/left-pattern.png") }}') no-repeat center/contain;
+            opacity: 0.08;
+            pointer-events: none;
+        }
+
+        .form-control {
+            border-radius: 12px;
+            padding: 1rem;
+            border: 2px solid #e9ecef;
+            transition: all 0.3s ease;
+        }
+
+        .form-control:focus {
+            border-color: #86b7fe;
+            box-shadow: 0 0 0 4px rgba(13, 110, 253, 0.25);
+        }
+
+        .form-control.is-invalid {
+            border-color: #dc3545;
+            background-image: url("data:image/svg+xml,%3csvg xmlns='http://www.w3.org/2000/svg' viewBox='0 0 12 12' width='12' height='12' fill='none' stroke='%23dc3545'%3e%3ccircle cx='6' cy='6' r='4.5'/%3e%3cpath stroke-linejoin='round' d='M5.8 3.6h.4L6 6.5z'/%3e%3ccircle cx='6' cy='8.2' r='.6' fill='%23dc3545' stroke='none'/%3e%3c/svg%3e");
+            background-repeat: no-repeat;
+            background-position: right calc(0.375em + 0.1875rem) center;
+            background-size: calc(0.75em + 0.375rem) calc(0.75em + 0.375rem);
+        }
+
+        .invalid-feedback {
+            display: none;
+            color: #dc3545;
+            font-size: 0.875em;
+        }
+
+        .is-invalid ~ .invalid-feedback {
+            display: block;
+        }
+
+        .btn-primary {
+            position: relative;
+            overflow: hidden;
+            background-color: #0d6efd;
+            border-color: #0d6efd;
+            padding: 1rem;
+        }
+
+        .btn-loading .btn-content {
+            visibility: hidden;
+        }
+
+        .btn-loading::after {
+            content: "";
+            position: absolute;
+            width: 24px;
+            height: 24px;
+            top: 50%;
+            left: 50%;
+            transform: translate(-50%, -50%);
+            border: 3px solid transparent;
+            border-top-color: #fff;
+            border-radius: 50%;
+            animation: btn-spinner 0.8s linear infinite;
+        }
+
+        @keyframes btn-spinner {
+            from { transform: translate(-50%, -50%) rotate(0turn); }
+            to { transform: translate(-50%, -50%) rotate(1turn); }
+        }
+         .password-toggle {
+            position: absolute;
+            right: 15px;
+            top: 50%;
+            transform: translateY(-50%);
+            cursor: pointer;
+            z-index: 5;
+        }
+        
+        .password-input-group {
+            position: relative;
+        }
+    </style>
 {% endblock %}
 
 {% block body %}
-<div class="container mt-5">
-  <div class="row justify-content-center">
-    <div class="col-md-6">
-      <div class="login-card">
-        <div class="card-header p-0 position-relative mt-n4 mx-3 z-index-2">
-          <div class="bg-gradient-dark shadow-dark border-radius-lg pt-4 pb-3 text-center">
-            <h4 class="text-white font-weight-bolder text-capitalize">Connexion</h4>
-          </div>
-        </div>
-        
-        <div class="card-body p-4">
-          {% if error %}
-            <div class="alert alert-danger">{{ error.messageKey|trans(error.messageData, 'security') }}</div>
-          {% endif %}
-          
-          <form method="post">
-            <div class="form-group mb-3">
-              <label for="inputEmail" class="form-label">Email</label>
-              <div class="input-group input-group-outline">
-                <input type="email" value="{{ last_username }}" name="email" id="inputEmail" class="form-control" required autofocus>
-              </div>
-            </div>
-            
-            <div class="form-group mb-4">
-              <label for="inputPassword" class="form-label">Mot de passe</label>
-              <div class="input-group input-group-outline">
-                <input type="password" name="password" id="inputPassword" class="form-control" required>
-              </div>
+<div class="background-overlay"></div>
+
+<div class="container d-flex justify-content-center align-items-center min-vh-100">
+    <div class="col-xl-6 col-lg-8 col-md-10">
+        <div class="card p-4 p-lg-5">
+            <div class="text-center mb-5">
+                <img src="{{ asset('img/logoOur.png') }}" alt="Logo" class="mb-4" style="height: 60px;">
+                <h2 class="mb-3 fw-bold">Connectez-vous</h2>
+                <p class="text-muted">Accédez à votre espace personnel</p>
             </div>
 
-            <input type="hidden" name="_csrf_token" value="{{ csrf_token('authenticate') }}">
-            
-            <div class="text-center">
-              <button class="btn btn-outline-dark w-100" type="submit">
-                <i class="material-symbols-rounded me-1">login</i>
-                Se connecter
-              </button>
-            </div>
-            
-            <div class="mt-3 text-center">
-              <a href="{{ path('app_register') }}" class="text-sm text-secondary">
-                Pas encore de compte ? S'inscrire
-              </a>
-            </div>
-          </form>
-        </div>
-      </div>
-    </div>
-  </div>
+            <form method="post" action="{{ path('app_login') }}" id="loginForm" novalidate>
+                <input type="hidden" name="_csrf_token" value="{{ csrf_token('authenticate') }}">
+
+                <div class="mb-4">
+                    <label class="form-label">Adresse email</label>
+                    <input type="email" 
+                           name="email" 
+                           class="form-control"
+                           required
+                           pattern="[a-z0-9._%+-]+@[a-z0-9.-]+\.[a-z]{2,}$"
+                           value="{{ last_username }}"
+                           placeholder="ex: jean.dupont@email.com">
+                    <div class="invalid-feedback">
+                        <i class="bi bi-x-circle-fill"></i> Format d'email invalide
+                    </div>
+                </div>
+
+                <div class="mb-4 password-input-group">
+                    <label class="form-label">Mot de passe</label>
+                    <input type="password" 
+                           name="password" 
+                           class="form-control"
+                           required
+                           minlength="6"
+                           id="passwordInput"
+                           placeholder="••••••••">
+                    <div class="invalid-feedback">
+                        <i class="bi bi-x-circle-fill"></i> Minimum 6 caractères
+                    </div>
+                </div>
+
+                <div class="form-check mb-4">
+                    <input class="form-check-input" type="checkbox" id="rememberMe" name="_remember_me">
+                    <label class="form-check-label" for="rememberMe">
+                        Se souvenir de moi
+                    </label>
+                </div>
+<div class="d-grid gap-2 mb-4">
+    <a href="{{ path('app_google_login') }}" class="btn btn-danger btn-lg">
+        <i class="bi bi-google me-2"></i>
+        Continuer avec Google
+    </a>
 </div>
+<div class="d-grid gap-2 mb-4">
+    <a href="{{ path('app_face_login') }}" class="btn btn-info btn-lg">
+        <i class="bi bi-person-bounding-box me-2"></i>
+        Connexion Faciale
+    </a>
+</div>
+
+                <div class="d-grid gap-2 mb-4">
+                    <button type="submit" class="btn btn-primary btn-lg" id="submitBtn">
+                        <span class="btn-content">
+                            <i class="bi bi-box-arrow-in-right me-2"></i>
+                            Se connecter
+                        </span>
+                    </button>
+                </div>
+                <div class="text-center mt-3">
+    <a href="{{ path('app_reset_password_page') }}" class="text-decoration-none">Mot de passe oublié ?</a>
+</div>
+
+                <div class="text-center pt-3 border-top">
+                    <p class="text-muted mb-0">Pas encore de compte ?
+                        <a href="{{ path('app_register') }}" class="text-decoration-none fw-semibold">S'inscrire</a>
+                    </p>
+                </div>
+            </form>
+        </div>
+    </div>
+</div>
+{% endblock %}
+
+{% block javascripts %}
+    {{ parent() }}
+    <script src="https://cdn.jsdelivr.net/npm/sweetalert2@11"></script>
+
+    <script>
+        document.addEventListener('DOMContentLoaded', () => {
+            const form = document.getElementById('loginForm');
+            const submitBtn = document.getElementById('submitBtn');
+            const passwordInput = document.getElementById('passwordInput');
+
+           
+
+            // Validation en temps réel
+            const inputs = form.querySelectorAll('input[required]');
+            inputs.forEach(input => {
+                input.addEventListener('input', () => validateField(input));
+                input.addEventListener('blur', () => validateField(input));
+            });
+
+            // Soumission du formulaire
+            // Dans le bloc <script>
+form.addEventListener('submit', async (e) => {
+    e.preventDefault();
+    
+    if (!form.checkValidity()) {
+        e.stopPropagation();
+        form.classList.add('was-validated');
+        return;
+    }
+
+    submitBtn.disabled = true;
+    submitBtn.classList.add('btn-loading');
+
+    try {
+        const formData = new FormData(form);
+        const response = await fetch(form.action, {
+            method: 'POST',
+            body: formData,
+            headers: {
+                'X-Requested-With': 'XMLHttpRequest',
+                'Accept': 'application/json'
+            }
+        });
+
+        const contentType = response.headers.get('content-type');
+        let data = {};
+        
+        if (contentType && contentType.includes('application/json')) {
+            data = await response.json();
+        } else {
+            throw new Error('Réponse serveur invalide');
+        }
+
+        if (response.ok && data && data.redirect) {
+
+            await Swal.fire({
+                icon: 'success',
+                title: 'Connexion réussie !',
+                showConfirmButton: false,
+                timer: 1500
+            });
+            window.location.href = data.redirect;
+        } else {
+            throw new Error(data.error || 'Identifiants incorrects');
+        }
+    } catch (error) {
+        Swal.fire({
+            icon: 'error',
+            title: 'Erreur',
+            html: `<div class="text-danger">
+                    <i class="bi bi-x-circle-fill h4"></i>
+                    <p class="mt-2">${error.message}</p>
+                   </div>`,
+            showConfirmButton: false,
+            timer: 3000
+        });
+        window.location.reload(); // Rechargement après erreur
+    } finally {
+        submitBtn.disabled = false;
+        submitBtn.classList.remove('btn-loading');
+    }
+});
+            function validateField(input) {
+                if (input.checkValidity()) {
+                    input.classList.add('is-valid');
+                    input.classList.remove('is-invalid');
+                    return true;
+                } else {
+                    input.classList.add('is-invalid');
+                    input.classList.remove('is-valid');
+                    return false;
+                }
+            }
+
+            // Gestion des erreurs initiales
+            {% if error %}
+                Swal.fire({
+                    icon: 'error',
+                    title: 'Erreur de connexion',
+                    html: `<div class="text-danger">
+                            <i class="bi bi-x-circle-fill h4"></i>
+                            <p class="mt-2">{{ error.messageKey|trans(error.messageData, 'security') }}</p>
+                           </div>`,
+                    confirmButtonColor: '#0d6efd',
+                    background: 'rgba(255, 255, 255, 0.97)'
+                });
+            {% endif %}
+        });
+    </script>
 {% endblock %}

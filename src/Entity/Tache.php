@@ -4,6 +4,7 @@ namespace App\Entity;
 
 use Doctrine\DBAL\Types\Types;
 use Doctrine\ORM\Mapping as ORM;
+use Symfony\Component\Validator\Constraints as Assert;
 
 /**
  * Tache
@@ -33,12 +34,19 @@ class Tache
      * @var \DateTime
      */
     #[ORM\Column(name: 'date_debut', type: 'date', nullable: false)]
+    #[Assert\NotBlank(message: "La date de début est obligatoire")]
+    #[Assert\Type("\DateTimeInterface", message: "La date doit être au format valide")]
     private $dateDebut;
 
     /**
      * @var \DateTime|null
      */
     #[ORM\Column(name: 'date_fin', type: 'date', nullable: true)]
+    #[Assert\Type("\DateTimeInterface", message: "La date doit être au format valide")]
+    #[Assert\GreaterThanOrEqual(
+        propertyPath: "dateDebut",
+        message: "La date de fin doit être postérieure ou égale à la date de début"
+    )]
     private $dateFin;
 
     /**
@@ -157,5 +165,14 @@ class Tache
         return $this;
     }
 
-
+    // In Tache entity (keep existing but add status)
+    public function __toString(): string
+    {
+        $status = $this->etat ?? 'No status';
+        return sprintf('Task#%d: %s [%s]',
+            $this->idTache,
+            $this->description ?? 'Unnamed',
+            $status
+        );
+    }
 }

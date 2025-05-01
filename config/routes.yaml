@@ -24,3 +24,22 @@ app_welcome:
 app_home:
     path: /
     controller: App\Controller\HomeController::index
+
+app_face_upload:
+    path: /face-upload/{id}
+    controller: App\Controller\RegistrationController::faceUpload
+    requirements:
+        id: \d+
+
+app_save_face:
+    path: /save-face/{id}
+    controller: App\Controller\RegistrationController::saveFace
+    methods: POST
+    requirements:
+        id: \d+    
+        
+        
+jitsi_join_notification:
+    path: /jitsi/join-notification
+    controller: App\Controller\JitsiController::sendJoinNotification
+    methods: POST        
