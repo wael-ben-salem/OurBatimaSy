@@ -1,3 +1,57 @@
+<!-- Top Bar Start -->
+<div class="top-bar">
+    <div class="container-fluid">
+        <div class="row align-items-center">
+            <div class="col-lg-4 col-md-12">
+                <div class="logo">
+                    <a href="{{ path('app_welcomeFront') }}">
+                        <h1>OurBatima</h1>
+                        <!-- <img src="{{ asset('img/logo.jpg') }}" alt="Logo"> -->
+                    </a>
+                </div>
+            </div>
+            <div class="col-lg-8 col-md-7 d-none d-lg-block">
+                <div class="row">
+                    <div class="col-4">
+                        <div class="top-bar-item">
+                            <div class="top-bar-icon">
+                                <i class="flaticon-calendar"></i>
+                            </div>
+                            <div class="top-bar-text">
+                                <h3>Heures d'ouverture</h3>
+                                <p>Lun - Ven, 8:00 - 17:00</p>
+                            </div>
+                        </div>
+                    </div>
+                    <div class="col-4">
+                        <div class="top-bar-item">
+                            <div class="top-bar-icon">
+                                <i class="flaticon-call"></i>
+                            </div>
+                            <div class="top-bar-text">
+                                <h3>Appelez-nous</h3>
+                                <p>+216 12 345 678</p>
+                            </div>
+                        </div>
+                    </div>
+                    <div class="col-4">
+                        <div class="top-bar-item">
+                            <div class="top-bar-icon">
+                                <i class="flaticon-send-mail"></i>
+                            </div>
+                            <div class="top-bar-text">
+                                <h3>Email</h3>
+                                <p>contact@ourbatima.com</p>
+                            </div>
+                        </div>
+                    </div>
+                </div>
+            </div>
+        </div>
+    </div>
+</div>
+<!-- Top Bar End -->
+
 <!-- Nav Bar Start -->
 <div class="nav-bar" id="mainNav">
     <div class="container-fluid">
@@ -9,21 +63,15 @@
 
             <div class="collapse navbar-collapse justify-content-between" id="navbarCollapse">
                 <div class="navbar-nav mr-auto">
-                    <a href="{{ path('app_welcomeFront') }}" class="nav-item nav-link {% if app.request.attributes.get('_route') == 'app_welcomeFront' %}active{% endif %}">Acceuil</a>
-                    <a href="{{ path('service') }}" class="nav-item nav-link {% if app.request.attributes.get('_route') == 'service' %}active{% endif %}">Service</a>
+                    <a href="{{ path('app_welcomeFront') }}" class="nav-item nav-link {% if app.request.attributes.get('_route') == 'app_welcomeFront' %}active{% endif %}">Accueil</a>
+                    <a href="{{ path('services') }}" class="nav-item nav-link {% if app.request.attributes.get('_route') == 'service' %}active{% endif %}">Services</a>
                     <a href="{{ path('app_projet_front_index') }}" class="nav-item nav-link {% if app.request.attributes.get('_route') == 'app_projet_front_index' %}active{% endif %}">Projets</a>
-
-                    <a href="{{ path('contact') }}" class="nav-item nav-link {% if app.request.attributes.get('_route') == 'contact' %}active{% endif %}">Contact</a>
-
                     <a href="{{ path('app_equipe_client') }}" class="nav-item nav-link {% if app.request.attributes.get('_route') == 'app_equipe_client' %}active{% endif %}">Équipe</a>
-
-
-<a href="{{ path('app_abonnement') }}" class="nav-item nav-link">Abonnements</a>
-
+                    <a href="{{ path('app_abonnement') }}" class="nav-item nav-link {% if app.request.attributes.get('_route') == 'app_abonnement' %}active{% endif %}">Abonnements</a>
                 </div>
                 
                 <div class="ml-auto">
-                    <a href="{{ path('app_login') }}" class="nav-item nav-link">Login</a>
+                    <a href="{{ path('app_login') }}" class="nav-item nav-link">Connexion</a>
                 </div>
             </div>
         </nav>
