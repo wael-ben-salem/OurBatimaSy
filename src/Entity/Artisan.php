@@ -48,6 +48,10 @@ class Artisan
     {
         $this->equipe = new \Doctrine\Common\Collections\ArrayCollection();
     }
+    public function getId(): ?int
+    {
+        return $this->artisan?->getId(); 
+    }
 
     public function getSpecialite(): ?string
     {

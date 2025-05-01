@@ -1,0 +1,83 @@
+{# templates/team_room/navbar_messagerie.html.twig #}
+<li class="nav-item dropdown position-relative">
+    <a class="nav-link position-relative" href="#" id="navbarRooms" role="button" data-bs-toggle="dropdown" aria-expanded="false">
+        <i class="material-symbols-rounded">forum</i>
+        <span class="position-absolute top-0 start-100 translate-middle badge rounded-pill bg-danger" id="roomUnreadCount">
+            {{ render(controller('App\\Controller\\TeamRoomController::unreadCount')) }}
+        </span>
+    </a>
+    <div class="dropdown-menu dropdown-menu-end p-2 dropdown-menu-rooms" aria-labelledby="navbarRooms" style="width: 550px;">
+        <div class="d-flex justify-content-between align-items-center px-3 py-2 border-bottom">
+            <h6 class="mb-0 fw-bold">Mes salons d'équipe</h6>
+            <a href="{{ path('app_team_room_list') }}" class="small text-primary">Voir tout</a>
+        </div>
+        
+        <div class="rooms-list" style="max-height: 400px; overflow-y: auto;">
+            {% set recentRooms = render(controller('App\\Controller\\TeamRoomController::recentRooms')) %}
+            {% if recentRooms is empty %}
+                <div class="text-center py-4">
+                    <i class="material-symbols-rounded text-muted mb-2" style="font-size: 2rem;">forum</i>
+                    <p class="text-muted mb-0">Aucun salon disponible</p>
+                </div>
+            {% else %}
+                {{ recentRooms|raw }}
+            {% endif %}
+        </div>
+    </div>
+</li>
+
+<script>
+document.addEventListener('DOMContentLoaded', function() {
+    const updateRoomUnreadCount = () => {
+        fetch('{{ path('app_team_room_unread_count') }}')
+            .then(response => {
+                if (!response.ok) throw new Error('Network error');
+                return response.text();
+            })
+            .then(count => {
+                const badge = document.getElementById('roomUnreadCount');
+                if (badge) {
+                    badge.textContent = count;
+                    badge.style.display = count === '0' ? 'none' : 'block';
+                    
+                    // Mettre à jour tous les badges dans la liste déroulante
+                    document.querySelectorAll('.rooms-list .badge').forEach(item => {
+                        const roomId = item.closest('[data-room-id]').dataset.roomId;
+                        // Vous pourriez ici faire une requête spécifique par salon si nécessaire
+                    });
+                }
+            })
+            .catch(error => console.error('Error updating count:', error));
+    };
+
+    // Mettre à jour immédiatement et toutes les 30 secondes
+    updateRoomUnreadCount();
+    setInterval(updateRoomUnreadCount, 30000);
+
+    // Gestion du marquage comme lu
+    document.addEventListener('click', async function(e) {
+        if (e.target.closest('.mark-as-read')) {
+            e.preventDefault();
+            const link = e.target.closest('.mark-as-read');
+            
+            try {
+                const response = await fetch(link.href, {
+                    method: 'POST',
+                    headers: {
+                        'X-Requested-With': 'XMLHttpRequest'
+                    }
+                });
+                
+                if (response.ok) {
+                    updateRoomUnreadCount();
+                    if (link.dataset.redirect === 'true') {
+                        window.location.href = link.dataset.redirectUrl;
+                    }
+                }
+            } catch (error) {
+                console.error('Error:', error);
+            }
+        }
+    });
+});
+</script>

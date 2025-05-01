@@ -1,0 +1,23 @@
+{# templates/notification/_recent_items.html.twig #}
+{% if notifications is not empty %}
+    {% for notification in notifications %}
+        <li class="notification-item {% if notification.plannification is not null %}notification-planification{% else %}notification-team{% endif %}">
+            <div class="d-flex justify-content-between align-items-center">
+                <div class="notification-content">
+                    {{ notification.message }}
+                    <small class="text-muted d-block">{{ notification.createdAt|date('Y-m-d H:i') }}</small>
+                    {% if notification.plannification is not null %}
+                        <span class="badge bg-primary mt-1">Planification</span>
+                    {% else %}
+                        <span class="badge bg-secondary mt-1">Équipe</span>
+                    {% endif %}
+                </div>
+                <a href="{{ path('mark_notification_read', {'id': notification.id}) }}" 
+                   class="mark-as-read" 
+                   title="Marquer comme lu">
+                    <i class="material-symbols-rounded">done</i>
+                </a>
+            </div>
+        </li>
+    {% endfor %}
+{% endif %}

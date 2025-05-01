@@ -39,3 +39,7 @@ app_save_face:
         id: \d+    
         
         
+jitsi_join_notification:
+    path: /jitsi/join-notification
+    controller: App\Controller\JitsiController::sendJoinNotification
+    methods: POST        

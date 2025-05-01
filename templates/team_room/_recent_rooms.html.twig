@@ -1,0 +1,80 @@
+{% for room in rooms %}
+    {% set unreadCount = message_repo.countUnreadMessages(room, app.user) %}
+    <div class="dropdown-item d-flex align-items-center py-2 notification-item {% if unreadCount > 0 %}unread{% endif %}" 
+         data-room-id="{{ room.id }}">
+        <div class="icon-container me-3">
+            <i class="material-symbols-rounded {% if room.isGeneral %}text-primary{% else %}text-info{% endif %}">
+                {% if room.isGeneral %}forum{% else %}groups{% endif %}
+            </i>
+        </div>
+        <div class="flex-grow-1">
+            <div class="d-flex justify-content-between align-items-center">
+                <h6 class="mb-0">{{ room.name }}</h6>
+                {% if unreadCount > 0 %}
+                    <span class="badge bg-danger ms-2">{{ unreadCount }}</span>
+                {% endif %}
+            </div>
+            <small class="text-muted d-block">{{ room.equipe.nom }}</small>
+         {% if room.lastMessage is not null %}
+    <div class="message-preview mt-1">
+        {% if not room.isGeneral %}
+            <strong class="sender-name">{{ room.lastMessage.sender.firstName }}:</strong>
+        {% endif %}
+        <span class="message-content">{{ room.lastMessage.content }}</span>
+        <small class="message-time">{{ room.lastMessage.sentAt|date('H:i') }}</small>
+    </div>
+{% endif %}
+        </div>
+        {% if unreadCount > 0 %}
+            <a href="{{ path('mark_room_messages_read', {'id': room.id}) }}" 
+               class="mark-as-read ms-2" 
+               title="Marquer comme lu"
+               data-notification-id="{{ room.id }}"
+               data-redirect="true"
+               data-redirect-url="{{ path('app_team_room_show', {'id': room.id}) }}">
+                <i class="material-symbols-rounded text-muted">done_all</i>
+            </a>
+        {% endif %}
+    </div>
+{% endfor %}
+
+<style>
+.notification-item {
+    transition: all 0.2s;
+    border-left: 3px solid transparent;
+}
+.notification-item.unread {
+    border-left-color: #0d6efd;
+    background-color: rgba(13, 110, 253, 0.05);
+}
+.notification-item:hover {
+    background-color: #f8f9fa;
+}
+.icon-container {
+    width: 36px;
+    height: 36px;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+}
+.message-preview {
+    display: flex;
+    align-items: center;
+    gap: 5px;
+    font-size: 0.85rem;
+}
+.sender-name {
+    color: #495057;
+    font-weight: 500;
+}
+.message-content {
+    flex: 1;
+    color: #6c757d;
+    white-space: nowrap;
+    overflow: hidden;
+    text-overflow: ellipsis;
+}
+.message-time {
+    color: #adb5bd;
+}
+</style>
