@@ -97,6 +97,11 @@ class ReclamationController extends AbstractController
     #[Route('/new', name: 'app_reclamation_new', methods: ['GET', 'POST'])]
     public function new(Request $request, EntityManagerInterface $entityManager): Response
     {
+        // Check if the user is logged in
+        if (!$this->getUser()) {
+            return $this->redirectToRoute('app_login');
+        }
+
         // Check if the user is an admin
         if ($this->isGranted('ROLE_ADMIN')) {
             throw $this->createAccessDeniedException('Admins cannot create reclamations');
@@ -260,7 +265,6 @@ class ReclamationController extends AbstractController
     }
 
     #[Route('/{id}/edit', name: 'app_reclamation_edit', methods: ['GET', 'POST'])]
-    #[IsGranted('ROLE_USER')]
     public function edit(Request $request, EntityManagerInterface $entityManager, int $id): Response
     {
         // Use a custom query to fetch a single reclamation
@@ -378,7 +382,6 @@ class ReclamationController extends AbstractController
     }
 
     #[Route('/{id}', name: 'app_reclamation_delete', methods: ['POST'])]
-    #[IsGranted('ROLE_USER')]
     public function delete(Request $request, EntityManagerInterface $entityManager, int $id): Response
     {
         if ($this->isCsrfTokenValid('delete'.$id, $request->getPayload()->getString('_token'))) {

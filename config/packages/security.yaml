@@ -30,9 +30,10 @@ security:
         - { path: ^/register, roles: PUBLIC_ACCESS }
         - { path: ^/login, roles: PUBLIC_ACCESS }
         - { path: ^/welcome, roles: [ROLE_USER] }
-        - { path: ^/reponse/new, roles: [ROLE_ADMIN] }
-        - { path: ^/reponse/[0-9]+/edit, roles: [ROLE_ADMIN] }
-        - { path: ^/reponse/[0-9]+/delete, roles: [ROLE_ADMIN] }
+        # Reponse routes - Allow full CRUD without login
         - { path: ^/reponse, roles: PUBLIC_ACCESS }
+        # Reclamation routes - Allow Read, Update, Delete without login, but not Create
+        - { path: ^/reclamation/new, roles: [ROLE_USER] }
+        - { path: ^/reclamation, roles: PUBLIC_ACCESS }
 
 
