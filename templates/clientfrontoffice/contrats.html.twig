@@ -1,0 +1,178 @@
+{% extends 'base.html.twig' %}
+
+{% block title %}Mes Contrats{% endblock %}
+
+{% block stylesheets %}
+    <style>
+        .contracts-container {
+            padding: 2rem;
+            max-width: 1200px;
+            margin: 0 auto;
+        }
+        
+        .page-title {
+            text-align: center;
+            margin-bottom: 2rem;
+            color: #2c3e50;
+            font-size: 2.5rem;
+            font-weight: 600;
+        }
+        
+        .contracts-grid {
+            display: grid;
+            grid-template-columns: repeat(auto-fill, minmax(350px, 1fr));
+            gap: 2rem;
+        }
+        
+        .contract-card {
+            background: white;
+            border-radius: 10px;
+            box-shadow: 0 4px 15px rgba(0, 0, 0, 0.1);
+            overflow: hidden;
+            transition: transform 0.3s ease, box-shadow 0.3s ease;
+        }
+        
+        .contract-card:hover {
+            transform: translateY(-5px);
+            box-shadow: 0 10px 20px rgba(0, 0, 0, 0.15);
+        }
+        
+        .card-header {
+            background: #3498db;
+            color: white;
+            padding: 1.5rem;
+            text-align: center;
+        }
+        
+        .card-title {
+            margin: 0;
+            font-size: 1.5rem;
+            font-weight: 600;
+        }
+        
+        .card-body {
+            padding: 1.5rem;
+        }
+        
+        .contract-detail {
+            margin-bottom: 1rem;
+            display: flex;
+            justify-content: space-between;
+        }
+        
+        .detail-label {
+            font-weight: 600;
+            color: #7f8c8d;
+        }
+        
+        .detail-value {
+            color: #2c3e50;
+            text-align: right;
+        }
+        
+        .status-badge {
+            display: inline-block;
+            padding: 0.35rem 0.75rem;
+            border-radius: 20px;
+            font-size: 0.85rem;
+            font-weight: 600;
+        }
+        
+        .status-active {
+            background: #2ecc71;
+            color: white;
+        }
+        
+        .status-pending {
+            background: #f39c12;
+            color: white;
+        }
+        
+        .status-expired {
+            background: #e74c3c;
+            color: white;
+        }
+        
+        .no-contracts {
+            text-align: center;
+            padding: 2rem;
+            color: #7f8c8d;
+            font-size: 1.2rem;
+            grid-column: 1 / -1;
+        }
+        
+        @media (max-width: 768px) {
+            .contracts-grid {
+                grid-template-columns: 1fr;
+            }
+            
+            .contracts-container {
+                padding: 1rem;
+            }
+        }
+    </style>
+{% endblock %}
+
+{% block body %}
+    <div class="contracts-container">
+        <h1 class="page-title">Mes Contrats</h1>
+        
+        {% if contrats is empty %}
+            <div class="no-contracts">
+                <p>Aucun contrat trouvé pour votre compte.</p>
+            </div>
+        {% else %}
+            <div class="contracts-grid">
+                {% for contrat in contrats %}
+                    <div class="contract-card">
+                        <div class="card-header">
+                            <h2 class="card-title">Contrat #{{ contrat.idContrat }}</h2>
+                        </div>
+                        
+                        <div class="card-body">
+                            <div class="contract-detail">
+                                <span class="detail-label">Projet:</span>
+                                <span class="detail-value">{{ contrat.idProjet.nomprojet }}</span>
+                            </div>
+                            
+                            <div class="contract-detail">
+                                <span class="detail-label">Date de début:</span>
+                                <span class="detail-value">{{ contrat.dateDebut|date('d/m/Y') }}</span>
+                            </div>
+                            
+                            <div class="contract-detail">
+                                <span class="detail-label">Date de fin:</span>
+                                <span class="detail-value">{{ contrat.dateFin|date('d/m/Y') }}</span>
+                            </div>
+                            
+                            <div class="contract-detail">
+                                <span class="detail-label">Montant:</span>
+                                <span class="detail-value">{{ contrat.montantTotal }} DT</span>
+                            </div>
+                            
+                            <div class="contract-detail">
+                                <span class="detail-label">Statut:</span>
+                                <span class="detail-value">
+                                    {% set now = date() %}
+                                    {% if now < contrat.dateDebut %}
+                                        <span class="status-badge status-pending">En attente</span>
+                                    {% elseif now >= contrat.dateDebut and now <= contrat.dateFin %}
+                                        <span class="status-badge status-active">Actif</span>
+                                    {% else %}
+                                        <span class="status-badge status-expired">Expiré</span>
+                                    {% endif %}
+                                </span>
+
+                                   
+          
+
+                            </div>
+                               <a class="btn btn-outline-secondary" href="{{ path('app_contrat_Client', {'idContrat': contrat.idContrat}) }}">
+                                                    Plus detaille                                </a>
+                        </div>
+                    </div>
+                {% endfor %}
+            </div>
+        {% endif %}
+    </div>
+{% endblock %}

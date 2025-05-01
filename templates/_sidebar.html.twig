@@ -80,6 +80,24 @@
         </a>
       </li>
       <li class="nav-item">
+
+
+ 
+      
+      <li class="nav-item">
+    <a class="nav-link {{ current_route starts with  'admin_stats' ? 'active bg-gradient-dark text-white' : 'text-dark' }}" 
+       href="{{ path('admin_stats') }}">
+        <i class="material-symbols-rounded opacity-5">list_alt</i>
+        <span class="nav-link-text ms-1">Abonnements Stats</span>
+    </a>
+</li>
+      
+      <li class="nav-item">
+
+
+
+
+
         <a class="nav-link {{ current_route starts with 'app_contrat_' ? 'active bg-gradient-dark text-white' : 'text-dark' }}" href="{{path('app_contrat_index') }}">
           <i class="material-symbols-rounded opacity-5">list_alt</i>
           <span class="nav-link-text ms-1">Contrats</span>

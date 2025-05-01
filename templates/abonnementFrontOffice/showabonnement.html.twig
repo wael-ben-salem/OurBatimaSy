@@ -63,8 +63,12 @@
                                 </li>
                                 
                             </ul>
-                            <a href="#" class="u-active-palette-3-light-3 u-btn u-button-style u-custom-item u-hover-palette-3-light-3 u-palette-3-base u-text-body-alt-color u-text-hover-black u-btn-1">Choisir cet abonnement</a>
-                        </div>
+<form action="{{ path('create_user_abonnement') }}" method="POST">
+<input type="hidden" name="abonnement_id" value="{{ abonnement.idAbonnement }}">
+    <button type="submit" class="u-active-palette-3-light-3 u-btn u-button-style u-custom-item u-hover-palette-3-light-3 u-palette-3-base u-text-body-alt-color u-text-hover-black u-btn-1">
+        Choisir cet abonnement
+    </button>
+</form>                        </div>
                     </div>
                     {% endfor %}
                 </div>
