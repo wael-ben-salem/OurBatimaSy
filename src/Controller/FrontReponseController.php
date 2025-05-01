@@ -10,6 +10,7 @@ use Symfony\Component\Routing\Attribute\Route;
 use Symfony\Contracts\Translation\TranslatorInterface;
 use Symfony\Component\Translation\Translator;
 use Symfony\Component\Translation\Loader\ArrayLoader;
+use Symfony\Contracts\HttpClient\HttpClientInterface;
 
 #[Route('/front/reponse')]
 class FrontReponseController extends AbstractController
@@ -33,7 +34,7 @@ class FrontReponseController extends AbstractController
     }
 
     #[Route('/{id}', name: 'front_reponse_show', methods: ['GET'])]
-    public function show(Request $request, EntityManagerInterface $entityManager, TranslatorInterface $translator, int $id): Response
+    public function show(Request $request, EntityManagerInterface $entityManager, HttpClientInterface $httpClient, int $id): Response
     {
         // Use a custom query to fetch a single response with its associated reclamation
         $conn = $entityManager->getConnection();
@@ -55,37 +56,99 @@ class FrontReponseController extends AbstractController
         // Store the original description
         $originalDescription = $reponse['description'];
         $translatedDescription = null;
+        $translationError = null;
 
         // If a translation is requested
         if ($targetLang !== 'original' && in_array($targetLang, ['en', 'ar'])) {
-            // Here we would normally use a translation API like Google Translate, DeepL, etc.
-            // For demonstration purposes, we'll use a simple mapping
-            $translations = [
-                'en' => [
-                    // Sample translations for demonstration
-                    'Ceci est une réponse.' => 'This is a response.',
-                    'Nous avons bien reçu votre réclamation.' => 'We have received your claim.',
-                    'Votre problème sera résolu sous peu.' => 'Your issue will be resolved shortly.',
-                    'Merci pour votre patience.' => 'Thank you for your patience.',
-                    'Nous sommes désolés pour le désagrément.' => 'We are sorry for the inconvenience.',
-                ],
-                'ar' => [
-                    // Sample translations for demonstration
-                    'Ceci est une réponse.' => 'هذا هو الرد.',
-                    'Nous avons bien reçu votre réclamation.' => 'لقد تلقينا شكواك.',
-                    'Votre problème sera résolu sous peu.' => 'سيتم حل مشكلتك قريبًا.',
-                    'Merci pour votre patience.' => 'شكرا لصبرك.',
-                    'Nous sommes désolés pour le désagrément.' => 'نأسف للإزعاج.',
-                ]
-            ];
+            try {
+                // Use MyMemory Translation API (free for limited usage)
+                // Map our language codes to MyMemory format
+                $sourceLang = 'fr'; // French
+                $targetLanguage = $targetLang;
+                $langPair = $sourceLang . '|' . $targetLanguage;
 
-            // Check if we have a direct translation for this text
-            if (isset($translations[$targetLang][$originalDescription])) {
-                $translatedDescription = $translations[$targetLang][$originalDescription];
-            } else {
-                // Fallback: In a real application, you would call a translation API here
-                // For now, we'll just add a prefix to indicate it's a translation
-                $translatedDescription = "[" . strtoupper($targetLang) . " TRANSLATION] " . $originalDescription;
+                // Prepare the API URL with query parameters
+                $apiUrl = 'https://api.mymemory.translated.net/get';
+                $queryParams = [
+                    'q' => $originalDescription,
+                    'langpair' => $langPair,
+                    'de' => 'anonymous@user.com', // Generic email for API usage
+                ];
+
+                // Make the API request
+                $response = $httpClient->request('GET', $apiUrl, [
+                    'query' => $queryParams,
+                    'timeout' => 10, // 10 seconds timeout
+                ]);
+
+                // Get the response data
+                $statusCode = $response->getStatusCode();
+                if ($statusCode === 200) {
+                    $data = $response->toArray();
+
+                    if (isset($data['responseData']) && isset($data['responseData']['translatedText'])) {
+                        $translatedDescription = $data['responseData']['translatedText'];
+
+                        // Check if there's a match quality indicator
+                        if (isset($data['responseData']['match']) && $data['responseData']['match'] < 0.5) {
+                            // If match quality is low, add a note
+                            $translatedDescription .= "\n\n(Note: Cette traduction peut ne pas être précise à 100%)";
+                        }
+                    } else {
+                        $translationError = 'La traduction n\'a pas pu être récupérée.';
+                    }
+                } else {
+                    $translationError = 'Erreur lors de la traduction (Code: ' . $statusCode . ')';
+                }
+            } catch (\Exception $e) {
+                // Log the error
+                $errorMessage = $e->getMessage();
+
+                // Fallback to a simple dictionary-based translation if the API fails
+                $fallbackTranslations = [
+                    'en' => [
+                        'Bonjour' => 'Hello',
+                        'Merci' => 'Thank you',
+                        'Problème' => 'Problem',
+                        'Réclamation' => 'Claim',
+                        'Réponse' => 'Response',
+                        'Nous avons bien reçu votre réclamation' => 'We have received your claim',
+                        'Nous sommes désolés pour le désagrément' => 'We are sorry for the inconvenience',
+                        'Votre problème sera résolu sous peu' => 'Your issue will be resolved shortly',
+                        'Merci pour votre patience' => 'Thank you for your patience',
+                        'Cordialement' => 'Best regards',
+                    ],
+                    'ar' => [
+                        'Bonjour' => 'مرحبا',
+                        'Merci' => 'شكرا',
+                        'Problème' => 'مشكلة',
+                        'Réclamation' => 'شكوى',
+                        'Réponse' => 'رد',
+                        'Nous avons bien reçu votre réclamation' => 'لقد تلقينا شكواك',
+                        'Nous sommes désolés pour le désagrément' => 'نأسف للإزعاج',
+                        'Votre problème sera résolu sous peu' => 'سيتم حل مشكلتك قريبًا',
+                        'Merci pour votre patience' => 'شكرا لصبرك',
+                        'Cordialement' => 'مع أطيب التحيات',
+                    ]
+                ];
+
+                // Try to do a simple word-by-word translation
+                if (isset($fallbackTranslations[$targetLang])) {
+                    $text = $originalDescription;
+                    foreach ($fallbackTranslations[$targetLang] as $fr => $trans) {
+                        $text = str_ireplace($fr, $trans, $text);
+                    }
+
+                    // If we made at least some replacements, use this as a fallback
+                    if ($text !== $originalDescription) {
+                        $translatedDescription = $text;
+                        $translationError = 'Note: La traduction automatique a échoué. Ceci est une traduction partielle basée sur un dictionnaire simple.';
+                    } else {
+                        $translationError = 'Erreur lors de la traduction: ' . $errorMessage . '. Aucune traduction de secours disponible.';
+                    }
+                } else {
+                    $translationError = 'Erreur lors de la traduction: ' . $errorMessage;
+                }
             }
         }
 
@@ -93,6 +156,7 @@ class FrontReponseController extends AbstractController
             'reponse' => $reponse,
             'originalDescription' => $originalDescription,
             'translatedDescription' => $translatedDescription,
+            'translationError' => $translationError,
             'targetLang' => $targetLang
         ]);
     }
