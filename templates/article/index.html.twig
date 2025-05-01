@@ -1,121 +1,331 @@
 {% extends 'base_backOffice.html.twig' %}
 
-{% block title %}Liste des Articles{% endblock %}
+{% block title %}{{ 'liste_des_articles'|trans }}{% endblock %}
 
 {% block stylesheets %}
-  {{ parent() }}
-  <style>
-    .card {
-      border-radius: 12px;
-      box-shadow: 0 4px 20px 0 rgba(0, 0, 0, 0.14), 
-                  0 7px 10px -5px rgba(0, 0, 0, 0.4);
-    }
-    .avatar-sm {
-      width: 36px;
-      height: 36px;
-      display: flex;
-      align-items: center;
-      justify-content: center;
-    }
-    .badge-sm {
-      font-size: 0.65rem;
-      padding: 0.35em 0.65em;
-    }
-    .text-truncate {
-      white-space: nowrap;
-      overflow: hidden;
-      text-overflow: ellipsis;
-      max-width: 150px;
-      display: inline-block;
-    }
-  </style>
+    {{ parent() }}
+    <style>
+        .card {
+            border-radius: 12px;
+            box-shadow: 0 4px 20px 0 rgba(0, 0, 0, 0.14),
+                        0 7px 10px -5px rgba(0, 0, 0, 0.4);
+        }
+        .avatar-sm {
+            width: 36px;
+            height: 36px;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+        }
+        .badge-sm {
+            font-size: 0.65rem;z
+            padding: 0.35em 0.65em;
+        }
+        .text-truncate {
+            white-space: nowrap;
+            overflow: hidden;
+            text-overflow: ellipsis;
+            max-width: 150px;
+            display: inline-block;
+        }
+        .chart-container {
+            max-width: 300px;
+            margin: 0 auto;
+            padding: 20px;
+        }
+        .total-articles {
+            font-size: 1.5rem;
+            font-weight: bold;
+            color: #343a40;
+            text-align: center;
+            margin-bottom: 20px;
+        }
+        .statistics-section {
+            margin-top: 40px;
+        }
+        .pagination {
+            justify-content: center;
+            margin-top: 20px;
+        }
+        .pagination li {
+            margin: 0 5px;
+        }
+        .pagination .page-item.active .page-link {
+            background-color: #343a40;
+            border-color: #343a40;
+            color: #fff;
+        }
+        .pagination .page-link {
+            color: #343a40;
+        }
+    </style>
 {% endblock %}
 
 {% block body %}
 <div class="row">
-  <div class="col-12">
-    <div class="card my-4">
-      <div class="card-header p-0 position-relative mt-n4 mx-3 z-index-2">
-        <div class="bg-gradient-dark shadow-dark border-radius-lg pt-4 pb-3 d-flex justify-content-between align-items-center">
-          <h6 class="text-white text-capitalize ps-3">Liste des Articles</h6>
-          <a href="{{ path('app_article_new') }}" class="btn btn-sm btn-light me-3">
-            <i class="material-symbols-rounded me-1">add</i>
-            Nouvel Article
-          </a>
-        </div>
-      </div>
-      <div class="card-body px-0 pb-2">
-        <div class="table-responsive p-0">
-          <table class="table align-items-center justify-content-center mb-0">
-            <thead>
-              <tr>
-                <th class="text-uppercase text-secondary text-xxs font-weight-bolder opacity-7">Nom</th>
-                <th class="text-uppercase text-secondary text-xxs font-weight-bolder opacity-7">Description</th>
-                <th class="text-uppercase text-secondary text-xxs font-weight-bolder opacity-7">Prix Unitaire</th>
-                <th class="text-uppercase text-secondary text-xxs font-weight-bolder opacity-7">Photo</th>
-                <th class="text-uppercase text-secondary text-xxs font-weight-bolder opacity-7">Étape de Projet</th>
-                <th class="text-uppercase text-secondary text-xxs font-weight-bolder opacity-7">Stock</th>
-                <th class="text-uppercase text-secondary text-xxs font-weight-bolder opacity-7">Fournisseur</th>
-                <th class="text-uppercase text-secondary text-xxs font-weight-bolder opacity-7 text-center">Actions</th>
-              </tr>
-            </thead>
-            <tbody>
-              {% for article in articles %}
-              <tr>
-                <td>
-                  <div class="d-flex px-2">
+    <div class="col-12">
+        <div class="card my-4">
+            <div class="card-header p-0 position-relative mt-n4 mx-3 z-index-2">
+                <div class="bg-gradient-dark shadow-dark border-radius-lg pt-4 pb-3 d-flex justify-content-between align-items-center">
+                    <h6 class="text-white text-capitalize ps-3">{{ 'liste_des_articles'|trans }}</h6>
                     <div>
-                      <div class="avatar avatar-sm rounded-circle bg-gradient-dark me-2">
-                        <i class="material-symbols-rounded text-white">article</i>
-                      </div>
+                        <a href="{{ path('app_article_new') }}" class="btn btn-sm btn-light me-3">
+                            <i class="material-symbols-rounded me-1">add</i>
+                            {{ 'nouvel_article'|trans }}
+                        </a>
                     </div>
-                    <div class="my-auto">
-                      <h6 class="mb-0 text-sm">{{ article.nom }}</h6>
+                </div>
+            </div>
+            <div class="card-body px-0 pb-2">
+                <div class="table-responsive p-0">
+                    <table class="table align-items-center justify-content-center mb-0">
+                        <thead>
+                            <tr>
+                                <th class="text-uppercase text-secondary text-xxs font-weight-bolder opacity-7">{{ 'nom'|trans }}</th>
+                                <th class="text-uppercase text-secondary text-xxs font-weight-bolder opacity-7">{{ 'description'|trans }}</th>
+                                <th class="text-uppercase text-secondary text-xxs font-weight-bolder opacity-7">{{ 'prix_unitaire'|trans }}</th>
+                                <th class="text-uppercase text-secondary text-xxs font-weight-bolder opacity-7">{{ 'photo'|trans }}</th>
+                                <th class="text-uppercase text-secondary text-xxs font-weight-bolder opacity-7">{{ 'etape_de_projet'|trans }}</th>
+                                <th class="text-uppercase text-secondary text-xxs font-weight-bolder opacity-7">{{ 'stock'|trans }}</th>
+                                <th class="text-uppercase text-secondary text-xxs font-weight-bolder opacity-7">{{ 'fournisseur'|trans }}</th>
+                                <th class="text-uppercase text-secondary text-xxs font-weight-bolder opacity-7">{{ 'prix_en_euro'|trans }}</th>
+                                <th class="text-uppercase text-secondary text-xxs font-weight-bolder opacity-7 text-center">{{ 'actions'|trans }}</th>
+                            </tr>
+                        </thead>
+                        <tbody>
+                            {% for article in articles %}
+                            <tr>
+                                <td>
+                                    <div class="d-flex px-2">
+                                        <div>
+                                            <div class="avatar avatar-sm rounded-circle bg-gradient-dark me-2">
+                                                <i class="material-symbols-rounded text-white">article</i>
+                                            </div>
+                                        </div>
+                                        <div class="my-auto">
+                                            <h6 class="mb-0 text-sm">{{ article.nom }}</h6>
+                                        </div>
+                                    </div>
+                                </td>
+                                <td>
+                                    <p class="text-sm font-weight-bold mb-0 text-truncate">{{ article.description }}</p>
+                                </td>
+                                <td>
+                                    <p class="text-sm font-weight-bold mb-0">{{ article.prixUnitaire }}</p>
+                                </td>
+                                <td>
+                                    {% if article.photo %}
+                                        <img src="{{ article.photo }}" alt="{{ 'photo'|trans }} de l'article" style="max-width: 100px; max-height: 100px; border-radius: 8px;">
+                                    {% else %}
+                                        <p class="text-sm font-weight-bold mb-0">{{ 'aucune_photo'|trans({'aucune_photo': 'No photo'}) }}</p>
+                                    {% endif %}
+                                </td>
+                                <td>
+                                    <p class="text-sm font-weight-bold mb-0">{{ article.etapeprojet ? article.etapeprojet.nometape : 'Non défini' }}</p>
+                                </td>
+                                <td>
+                                    <p class="text-sm font-weight-bold mb-0">{{ article.stock ? article.stock.nom : 'Non défini' }}</p>
+                                </td>
+                                <td>
+                                    <p class="text-sm font-weight-bold mb-0">{{ article.fournisseur ? article.fournisseur.nom : 'Non défini' }}</p>
+                                </td>
+                                <td>
+                                    <p class="text-sm font-weight-bold mb-0">{{ (article.prixUnitaire * exchangeRate)|number_format(2, '.', ',') }} €</p>
+                                </td>
+                                <td class="text-center align-middle">
+                                    <a href="{{ path('app_article_show', {'id': article.id}) }}" class="text-secondary font-weight-bold text-xs" data-toggle="tooltip" title="{{ 'voir_details'|trans({'voir_details': 'View details'}) }}">
+                                        <i class="material-symbols-rounded">visibility</i>
+                                    </a>
+                                    <a href="{{ path('app_article_edit', {'id': article.id}) }}" class="text-secondary font-weight-bold text-xs ms-2" data-toggle="tooltip" title="{{ 'modifier'|trans({'modifier': 'Edit'}) }}">
+                                        <i class="material-symbols-rounded">edit</i>
+                                    </a>
+                                    {{ include('article/_delete_form.html.twig', {'id': article.id}) }}
+                                </td>
+                            </tr>
+                            {% else %}
+                            <tr>
+                                <td colspan="9" class="text-center">{{ 'aucun_article_trouve'|trans }}</td>
+                            </tr>
+                            {% endfor %}
+                        </tbody>
+                    </table>
+                </div>
+
+                <!-- Pagination Controls -->
+                <div class="pagination">
+                    {{ knp_pagination_render(articles) }}
+                </div>
+
+                <!-- Statistics Section -->
+                <div class="statistics-section px-3">
+                    <div class="total-articles">
+                        {{ 'total_des_articles'|trans({'%count%': totalArticles}) }}
                     </div>
-                  </div>
-                </td>
-                <td>
-                  <p class="text-sm font-weight-bold mb-0 text-truncate">{{ article.description }}</p>
-                </td>
-                <td>
-                  <p class="text-sm font-weight-bold mb-0">{{ article.prixUnitaire }}</p>
-                </td>
-                <td>
-                  {% if article.photo %}
-                    <img src="{{ article.photo }}" alt="Photo de l'article" style="max-width: 100px; max-height: 100px; border-radius: 8px;">
-                  {% else %}
-                    <p class="text-sm font-weight-bold mb-0">Aucune photo</p>
-                  {% endif %}
-                </td>
-                <td>
-                  <p class="text-sm font-weight-bold mb-0">{{ article.etapeprojet ? article.etapeprojet.nometape : 'Non défini' }}</p>
-                </td>
-                <td>
-                  <p class="text-sm font-weight-bold mb-0">{{ article.stock ? article.stock.nom : 'Non défini' }}</p>
-                </td>
-                <td>
-                  <p class="text-sm font-weight-bold mb-0">{{ article.fournisseur ? article.fournisseur.nom : 'Non défini' }}</p>
-                </td>
-                <td class="text-center align-middle">
-                  <a href="{{ path('app_article_show', {'id': article.id}) }}" class="text-secondary font-weight-bold text-xs" data-toggle="tooltip" title="Voir détails">
-                    <i class="material-symbols-rounded">visibility</i>
-                  </a>
-                  <a href="{{ path('app_article_edit', {'id': article.id}) }}" class="text-secondary font-weight-bold text-xs ms-2" data-toggle="tooltip" title="Modifier">
-                    <i class="material-symbols-rounded">edit</i>
-                  </a>
-                  {{ include('article/_delete_form.html.twig', {'id': article.id}) }}
-                </td>
-              </tr>
-              {% else %}
-              <tr>
-                <td colspan="8" class="text-center">Aucun article trouvé</td>
-              </tr>
-              {% endfor %}
-            </tbody>
-          </table>
+                    <div class="row">
+                        <!-- Distribution by Etape de Projet -->
+                        <div class="col-lg-4 col-md-6">
+                            <div class="chart-container">
+                                <h6 class="text-center">{{ 'par_etape_de_projet'|trans }}</h6>
+                                <canvas id="etapeChart"></canvas>
+                            </div>
+                        </div>
+                        <!-- Distribution by Stock -->
+                        <div class="col-lg-4 col-md-6">
+                            <div class="chart-container">
+                                <h6 class="text-center">{{ 'par_stock'|trans }}</h6>
+                                <canvas id="stockChart"></canvas>
+                            </div>
+                        </div>
+                        <!-- Distribution by Fournisseur -->
+                        <div class="col-lg-4 col-md-6">
+                            <div class="chart-container">
+                                <h6 class="text-center">{{ 'par_fournisseur'|trans }}</h6>
+                                <canvas id="fournisseurChart"></canvas>
+                            </div>
+                        </div>
+                    </div>
+                </div>
+            </div>
         </div>
-      </div>
     </div>
-  </div>
+
+    <!-- Article History Section -->
+    <div class="col-12 mt-5">
+        <div class="card">
+            <div class="card-header bg-gradient-dark text-white">
+                <h6 class="mb-0">{{ 'historique_des_articles'|trans }}</h6>
+            </div>
+            <div class="card-body">
+                <div class="table-responsive">
+                    <table class="table">
+                        <thead>
+                            <tr>
+                                <th>{{ 'action'|trans }}</th>
+                                <th>{{ 'article_id'|trans }}</th>
+                                <th>{{ 'article_name'|trans }}</th>
+                                <th>{{ 'timestamp'|trans }}</th>
+                            </tr>
+                        </thead>
+                        <tbody>
+                            {% if articleHistory is not empty %}
+                                {% for entry in articleHistory %}
+                                    <tr>
+                                        <td>{{ entry.action }}</td>
+                                        <td>{{ entry.article_id }}</td>
+                                        <td>{{ entry.article_name }}</td>
+                                        <td>{{ entry.timestamp }}</td>
+                                    </tr>
+                                {% endfor %}
+                            {% else %}
+                                <tr>
+                                    <td colspan="4" class="text-center">{{ 'aucun_historique_disponible'|trans }}</td>
+                                </tr>
+                            {% endif %}
+                        </tbody>
+                    </table>
+                </div>
+            </div>
+        </div>
+    </div>
 </div>
+
+{% block javascripts %}
+    {{ parent() }}
+    <script src="https://cdn.jsdelivr.net/npm/chart.js@4.4.0/dist/chart.umd.min.js"></script>
+    <script>
+        // Function to run the script via the Node.js server
+        function runScript() {
+            fetch('http://localhost:8000/run')
+                .then(response => response.text())
+                .then(data => {
+                    document.getElementById('output').innerText = data;
+                })
+                .catch(error => {
+                    document.getElementById('output').innerText = 'Error: ' + error;
+                });
+        }
+
+        // Data preparation
+        const etapeData = [
+            {% for item in distributionByEtapeProjet %}
+                { label: "{{ item.etapeName|default('Non défini') }}", count: {{ item.count }} },
+            {% endfor %}
+        ];
+        const stockData = [
+            {% for item in distributionByStock %}
+                { label: "{{ item.stockName|default('Non défini') }}", count: {{ item.count }} },
+            {% endfor %}
+        ];
+        const fournisseurData = [
+            {% for item in distributionByFournisseur %}
+                { label: "{{ item.fournisseurName|default('Non défini') }}", count: {{ item.count }} },
+            {% endfor %}
+        ];
+
+        // Calculate percentages
+        const totalArticles = {{ totalArticles }};
+        const calculatePercentages = (data) => {
+            return data.map(item => ({
+                label: item.label,
+                percentage: totalArticles > 0 ? ((item.count / totalArticles) * 100).toFixed(1) : 0,
+                count: item.count
+            }));
+        };
+
+        const etapePercentages = calculatePercentages(etapeData);
+        const stockPercentages = calculatePercentages(stockData);
+        const fournisseurPercentages = calculatePercentages(fournisseurData);
+
+        // Chart.js configuration
+        const createPieChart = (ctx, data, title) => {
+            new Chart(ctx, {
+                type: 'pie',
+                data: {
+                    labels: data.map(item => `${item.label} (${item.percentage}%)`),
+                    datasets: [{
+                        data: data.map(item => item.count),
+                        backgroundColor: [
+                            '#FF6384', '#36A2EB', '#FFCE56', '#4BC0C0', '#9966FF',
+                            '#FF9F40', '#E7E9ED', '#C9CBCF', '#ADFF2F', '#DC143C'
+                        ],
+                        borderColor: '#fff',
+                        borderWidth: 1
+                    }]
+                },
+                options: {
+                    responsive: true,
+                    plugins: {
+                        legend: {
+                            position: 'bottom',
+                            labels: {
+                                font: {
+                                    size: 12
+                                }
+                            }
+                        },
+                        tooltip: {
+                            callbacks: {
+                                label: function(context) {
+                                    const label = context.label || '';
+                                    const value = context.raw;
+                                    const percentage = data[context.dataIndex].percentage;
+                                    return `${label}: ${value} articles (${percentage}%)`;
+                                }
+                            }
+                        }
+                    }
+                }
+            });
+        };
+
+        // Initialize charts
+        const etapeCtx = document.getElementById('etapeChart').getContext('2d');
+        const stockCtx = document.getElementById('stockChart').getContext('2d');
+        const fournisseurCtx = document.getElementById('fournisseurChart').getContext('2d');
+
+        createPieChart(etapeCtx, etapePercentages, '{{ 'par_etape_de_projet'|trans }}');
+        createPieChart(stockCtx, stockPercentages, '{{ 'par_stock'|trans }}');
+        createPieChart(fournisseurCtx, fournisseurPercentages, '{{ 'par_fournisseur'|trans }}');
+    </script>
+{% endblock %}
 {% endblock %}
