@@ -1,8 +1,44 @@
 {% extends 'base_frontOffice.html.twig' %}
 
-{% block title %}Détails de la Réponse{% endblock %}
+{% block title %}Détails de la Réponse #{{ reponse.id }}{% endblock %}
 
-{% block header_title %}Détails de la Réponse{% endblock %}
+{% block stylesheets %}
+<style>
+    .dropdown-menu-right {
+        right: 0;
+        left: auto;
+    }
+
+    .lang-flag {
+        width: 20px;
+        height: 15px;
+        margin-right: 8px;
+    }
+
+    .translation-box {
+        background-color: #f8f9fa;
+        border-left: 4px solid #007bff;
+        padding: 15px;
+        margin-top: 15px;
+        border-radius: 4px;
+    }
+
+    .translation-box.ar {
+        text-align: right;
+        direction: rtl;
+        border-left: none;
+        border-right: 4px solid #007bff;
+    }
+
+    .translation-title {
+        font-weight: bold;
+        margin-bottom: 10px;
+        color: #007bff;
+    }
+</style>
+{% endblock %}
+
+{% block header_title %}Détails de la Réponse #{{ reponse.id }}{% endblock %}
 
 {% block body %}
     <div class="section-title">
@@ -12,14 +48,44 @@
     <div class="row">
         <div class="col-lg-8 mx-auto">
             <div class="card">
-                <div class="card-header">
+                <div class="card-header d-flex justify-content-between align-items-center">
                     <h5 class="mb-0">Informations</h5>
+                    <div class="dropdown">
+                        <button class="btn btn-outline-primary dropdown-toggle" type="button" id="translationDropdown" data-toggle="dropdown" aria-haspopup="true" aria-expanded="false">
+                            <i class="fa fa-language"></i> Traduire la description
+                        </button>
+                        <div class="dropdown-menu dropdown-menu-right" aria-labelledby="translationDropdown">
+                            <a class="dropdown-item {% if targetLang == 'original' %}active{% endif %}" href="{{ path('front_reponse_translate', {'id': reponse.id, 'lang': 'original'}) }}">
+                                <img src="{{ asset('img/flags/fr.png') }}" alt="French" class="lang-flag"> Original (Français)
+                            </a>
+                            <a class="dropdown-item {% if targetLang == 'en' %}active{% endif %}" href="{{ path('front_reponse_translate', {'id': reponse.id, 'lang': 'en'}) }}">
+                                <img src="{{ asset('img/flags/en.png') }}" alt="English" class="lang-flag"> Anglais
+                            </a>
+                            <a class="dropdown-item {% if targetLang == 'ar' %}active{% endif %}" href="{{ path('front_reponse_translate', {'id': reponse.id, 'lang': 'ar'}) }}">
+                                <img src="{{ asset('img/flags/ar.png') }}" alt="Arabic" class="lang-flag"> Arabe
+                            </a>
+                        </div>
+                    </div>
                 </div>
                 <div class="card-body">
                     <div class="mb-4">
                         <h6 class="font-weight-bold">Contenu:</h6>
-                        <p>{{ reponse.description }}</p>
+                        <p>{{ originalDescription }}</p>
+
+                        {% if translatedDescription is not null %}
+                            <div class="translation-box {% if targetLang == 'ar' %}ar{% endif %}">
+                                <div class="translation-title">
+                                    {% if targetLang == 'en' %}
+                                        <img src="{{ asset('img/flags/en.png') }}" alt="English" class="lang-flag"> Traduction en anglais
+                                    {% elseif targetLang == 'ar' %}
+                                        <img src="{{ asset('img/flags/ar.png') }}" alt="Arabic" class="lang-flag"> Traduction en arabe
+                                    {% endif %}
+                                </div>
+                                <p>{{ translatedDescription }}</p>
+                            </div>
+                        {% endif %}
                     </div>
+
                     <div class="mb-4">
                         <h6 class="font-weight-bold">Date:</h6>
                         <p>{{ reponse.date|date('d/m/Y') }}</p>
