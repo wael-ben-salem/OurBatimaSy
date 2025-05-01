@@ -4,6 +4,11 @@
 
 {% block header_title %}Détails de la Réclamation #{{ reclamation.id }}{% endblock %}
 
+{% block stylesheets %}
+    {{ parent() }}
+    <link rel="stylesheet" href="{{ asset('css/grammar-checker.css') }}">
+{% endblock %}
+
 {% block body %}
     {# Display flash messages #}
     {% for label, messages in app.flashes %}
@@ -31,7 +36,19 @@
                     <div class="card-body">
                         <div class="mb-3">
                             <h6 class="font-weight-bold">Description:</h6>
-                            <p>{{ reclamation.description }}</p>
+                            <div class="description-container">
+                                <p id="description-text">{{ reclamation.description }}</p>
+                                <button id="check-grammar-btn" class="btn btn-sm btn-outline-info grammar-check-btn">
+                                    <i class="fa fa-check-circle"></i> Vérifier la grammaire
+                                </button>
+
+                                <div id="grammar-loading" class="grammar-loading">
+                                    <div class="grammar-spinner"></div>
+                                    <span class="ml-2">Vérification en cours...</span>
+                                </div>
+
+                                <div id="grammar-results" class="grammar-results"></div>
+                            </div>
                         </div>
                         <div class="mb-3">
                             <h6 class="font-weight-bold">Statut:</h6>
@@ -113,4 +130,58 @@
             </div>
         </div>
     </div>
+{% endblock %}
+
+{% block javascripts %}
+    {{ parent() }}
+    <script src="{{ asset('js/grammar-checker.js') }}"></script>
+    <script>
+        document.addEventListener('DOMContentLoaded', function() {
+            const checkGrammarBtn = document.getElementById('check-grammar-btn');
+            const descriptionText = document.getElementById('description-text');
+            const grammarResults = document.getElementById('grammar-results');
+            const grammarLoading = document.getElementById('grammar-loading');
+
+            checkGrammarBtn.addEventListener('click', function() {
+                const text = descriptionText.textContent.trim();
+
+                if (!text) {
+                    alert('Aucun texte à vérifier.');
+                    return;
+                }
+
+                // Show loading indicator
+                grammarLoading.style.display = 'flex';
+                grammarResults.style.display = 'none';
+
+                // Simulate a small delay for better UX
+                setTimeout(function() {
+                    // Check grammar
+                    const results = checkFrenchGrammar(text);
+
+                    // Hide loading indicator
+                    grammarLoading.style.display = 'none';
+
+                    // Show results
+                    grammarResults.innerHTML = createGrammarCorrectionUI(results);
+                    grammarResults.style.display = 'block';
+
+                    // Add click event to grammar mistakes
+                    document.querySelectorAll('.grammar-mistake').forEach(function(element) {
+                        element.addEventListener('click', function() {
+                            const original = this.getAttribute('data-original');
+                            const replacement = this.getAttribute('data-replacement');
+
+                            // Replace the text with the correction
+                            this.innerHTML = replacement;
+                            this.classList.remove('grammar-mistake');
+                            this.removeAttribute('data-original');
+                            this.removeAttribute('data-replacement');
+                            this.removeAttribute('title');
+                        });
+                    });
+                }, 500);
+            });
+        });
+    </script>
 {% endblock %}

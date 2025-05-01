@@ -5,6 +5,7 @@ namespace App\Controller;
 use Symfony\Bundle\FrameworkBundle\Controller\AbstractController;
 use Symfony\Component\HttpFoundation\Request;
 use Symfony\Component\HttpFoundation\Response;
+use Symfony\Component\HttpFoundation\JsonResponse;
 use Symfony\Component\Routing\Attribute\Route;
 use Doctrine\ORM\EntityManagerInterface;
 use Symfony\Component\Form\Extension\Core\Type\TextareaType;
@@ -17,6 +18,7 @@ use Symfony\Component\Form\FormError;
 use Dompdf\Dompdf;
 use Dompdf\Options;
 use Knp\Component\Pager\PaginatorInterface;
+use Symfony\Contracts\HttpClient\HttpClientInterface;
 
 #[Route('/front/reclamation')]
 class FrontReclamationController extends AbstractController
@@ -41,6 +43,356 @@ class FrontReclamationController extends AbstractController
         return $this->render('front_reclamation/index.html.twig', [
             'pagination' => $pagination,
         ]);
+    }
+
+    #[Route('/check-grammar', name: 'front_reclamation_check_grammar', methods: ['POST'])]
+    public function checkGrammar(Request $request, HttpClientInterface $httpClient): JsonResponse
+    {
+        // Get the text to check from the request
+        $text = $request->request->get('text');
+
+        if (empty($text)) {
+            return new JsonResponse([
+                'success' => false,
+                'message' => 'Aucun texte fourni'
+            ]);
+        }
+
+        try {
+            // Use RapidAPI Grammar Checker API
+            $apiUrl = 'https://ai-grammar-checker-i-gpt.p.rapidapi.com/api/v1/correctAndRephrase';
+
+            // Make the API request with RapidAPI headers
+            $response = $httpClient->request('GET', $apiUrl, [
+                'query' => [
+                    'text' => $text
+                ],
+                'headers' => [
+                    'X-RapidAPI-Key' => '785640fb0emsh4c5ac04753793dp1c7232jsnf8323dfb6bbd',
+                    'X-RapidAPI-Host' => 'ai-grammar-checker-i-gpt.p.rapidapi.com'
+                ],
+                'timeout' => 15 // 15 seconds timeout
+            ]);
+
+            // Get the response data
+            $statusCode = $response->getStatusCode();
+
+            // Log the raw response for debugging
+            $rawResponse = $response->getContent();
+            file_put_contents(__DIR__ . '/../../var/log/rapidapi_response.log', date('Y-m-d H:i:s') . " - Raw response: " . $rawResponse . PHP_EOL, FILE_APPEND);
+
+            if ($statusCode === 200) {
+                $data = $response->toArray();
+
+                // Log the parsed data
+                file_put_contents(__DIR__ . '/../../var/log/rapidapi_parsed.log', date('Y-m-d H:i:s') . " - Parsed data: " . json_encode($data, JSON_PRETTY_PRINT) . PHP_EOL, FILE_APPEND);
+
+                // Check if the API returned a corrected text
+                if (isset($data['correctedText'])) {
+                    $correctedText = $data['correctedText'];
+
+                    // If the text was changed, create details about the changes
+                    if ($correctedText !== $text) {
+                        // Create a simple diff to show what changed
+                        $details = [];
+
+                        // Compare original and corrected text to find differences
+                        similar_text($text, $correctedText, $similarity);
+
+                        // Add a general correction entry
+                        $details[] = [
+                            'id' => 'rapidapi_correction',
+                            'offset' => 0,
+                            'length' => strlen($text),
+                            'description' => 'Correction grammaticale et reformulation',
+                            'bad' => $text,
+                            'better' => [$correctedText]
+                        ];
+
+                        return new JsonResponse([
+                            'success' => true,
+                            'original' => $text,
+                            'corrected' => $correctedText,
+                            'errors' => 1, // We don't get specific error count from this API
+                            'details' => $details,
+                            'similarity' => round($similarity, 2) . '%'
+                        ]);
+                    } else {
+                        // No changes needed
+                        return new JsonResponse([
+                            'success' => true,
+                            'original' => $text,
+                            'corrected' => $text,
+                            'errors' => 0,
+                            'details' => []
+                        ]);
+                    }
+                } else {
+                    // API returned unexpected format
+                    return new JsonResponse([
+                        'success' => false,
+                        'message' => "Format de réponse inattendu de l'API"
+                    ]);
+                }
+            } else {
+                return new JsonResponse([
+                    'success' => false,
+                    'message' => "Erreur lors de la vérification (Code: $statusCode)"
+                ]);
+            }
+        } catch (\Exception $e) {
+            // Log the error
+            $errorMessage = $e->getMessage();
+
+            // Use our improved fallback grammar checker
+            $correctedText = $this->fallbackGrammarCheck($text);
+
+            // If the fallback made changes
+            if ($correctedText !== $text) {
+                // Create a structured response with details
+                $details = [];
+
+                // Compare the original and corrected text to identify changes
+                $originalWords = preg_split('/\s+/', $text);
+                $correctedWords = preg_split('/\s+/', $correctedText);
+
+                // Find differences between original and corrected text
+                similar_text($text, $correctedText, $similarity);
+
+                if (count($originalWords) === count($correctedWords)) {
+                    // Word by word comparison
+                    foreach ($originalWords as $i => $word) {
+                        if (isset($correctedWords[$i]) && $word !== $correctedWords[$i]) {
+                            $details[] = [
+                                'id' => 'fallback_' . $i,
+                                'offset' => strpos($text, $word),
+                                'length' => strlen($word),
+                                'description' => 'Correction automatique (mode hors ligne)',
+                                'bad' => $word,
+                                'better' => [$correctedWords[$i]]
+                            ];
+                        }
+                    }
+                }
+
+                // If no specific details were found, provide a general correction
+                if (empty($details)) {
+                    $details[] = [
+                        'id' => 'fallback_general',
+                        'offset' => 0,
+                        'length' => strlen($text),
+                        'description' => 'Correction automatique (mode hors ligne)',
+                        'bad' => $text,
+                        'better' => [$correctedText]
+                    ];
+                }
+
+                return new JsonResponse([
+                    'success' => true,
+                    'original' => $text,
+                    'corrected' => $correctedText,
+                    'errors' => count($details),
+                    'details' => $details,
+                    'fallback' => true,
+                    'message' => 'API indisponible. Utilisation du correcteur hors ligne. Similarité: ' . round($similarity) . '%'
+                ]);
+            } else {
+                return new JsonResponse([
+                    'success' => false,
+                    'message' => "Erreur lors de la vérification: $errorMessage. Le correcteur hors ligne n'a pas trouvé d'erreurs."
+                ]);
+            }
+        }
+    }
+
+    /**
+     * Fallback grammar and spelling checker
+     * This is a simple implementation that corrects common French mistakes
+     */
+    private function fallbackGrammarCheck(string $text): string
+    {
+        // If text is empty, return as is
+        if (empty(trim($text))) {
+            return $text;
+        }
+
+        // Create a copy of the original text
+        $correctedText = $text;
+        $details = [];
+
+        // Function to apply a correction and track the change
+        $applyCorrection = function($pattern, $replacement, $subject, $isRegex = false) use (&$details) {
+            $original = $subject;
+
+            if ($isRegex) {
+                $result = preg_replace($pattern, $replacement, $subject);
+            } else {
+                $result = str_ireplace($pattern, $replacement, $subject);
+            }
+
+            if ($result !== $original) {
+                $details[] = [
+                    'pattern' => $pattern,
+                    'replacement' => $replacement,
+                    'before' => $original,
+                    'after' => $result
+                ];
+            }
+
+            return $result;
+        };
+
+        // 1. Fix common accent issues
+
+        // Prepositions: a -> à
+        $prepositions = [
+            'a la' => 'à la',
+            'a l\'' => 'à l\'',
+            'a cause' => 'à cause',
+            'a propos' => 'à propos',
+            'a cote' => 'à côté',
+            'a partir' => 'à partir',
+            'a travers' => 'à travers',
+        ];
+
+        foreach ($prepositions as $mistake => $correction) {
+            // Match the preposition with word boundaries
+            $pattern = '/\b' . preg_quote($mistake, '/') . '\b/i';
+            $correctedText = $applyCorrection($pattern, $correction, $correctedText, true);
+        }
+
+        // Adverbs: ou -> où when it means "where"
+        $adverbs = [
+            'ou est' => 'où est',
+            'ou sont' => 'où sont',
+            'ou se trouve' => 'où se trouve',
+            'ou vas-tu' => 'où vas-tu',
+            'ou allez-vous' => 'où allez-vous',
+        ];
+
+        foreach ($adverbs as $mistake => $correction) {
+            $pattern = '/\b' . preg_quote($mistake, '/') . '\b/i';
+            $correctedText = $applyCorrection($pattern, $correction, $correctedText, true);
+        }
+
+        // 2. Common spelling mistakes with accents
+        $accentedWords = [
+            'probleme' => 'problème',
+            'reclamation' => 'réclamation',
+            'reponse' => 'réponse',
+            'tres' => 'très',
+            'apres' => 'après',
+            'etre' => 'être',
+            'meme' => 'même',
+            'deja' => 'déjà',
+            'telephone' => 'téléphone',
+            'numero' => 'numéro',
+            'qualite' => 'qualité',
+            'securite' => 'sécurité',
+            'different' => 'différent',
+            'experience' => 'expérience',
+            'desole' => 'désolé',
+            'interesse' => 'intéressé',
+        ];
+
+        // First, do a direct string replacement for the most common issues
+        foreach ($accentedWords as $mistake => $correction) {
+            // Simple string replacement first (more reliable for exact matches)
+            $correctedText = $applyCorrection($mistake, $correction, $correctedText, false);
+
+            // Also try with capitalized first letter
+            $capitalMistake = ucfirst($mistake);
+            $capitalCorrection = ucfirst($correction);
+            $correctedText = $applyCorrection($capitalMistake, $capitalCorrection, $correctedText, false);
+        }
+
+        // Then try with word boundaries for any remaining issues
+        foreach ($accentedWords as $mistake => $correction) {
+            $pattern = '/\b' . preg_quote($mistake, '/') . '\b/i';
+            $correctedText = $applyCorrection($pattern, $correction, $correctedText, true);
+        }
+
+        // Special handling for "different" -> "différent" which might be missed
+        if (stripos($correctedText, 'different') !== false) {
+            $originalText = $correctedText;
+            $correctedText = str_ireplace('different', 'différent', $correctedText);
+
+            // Add to details if a change was made
+            if ($originalText !== $correctedText) {
+                $details[] = [
+                    'pattern' => 'different',
+                    'replacement' => 'différent',
+                    'before' => $originalText,
+                    'after' => $correctedText
+                ];
+            }
+        }
+
+        // Also check for "Different" with capital D
+        if (stripos($correctedText, 'Different') !== false) {
+            $originalText = $correctedText;
+            $correctedText = str_ireplace('Different', 'Différent', $correctedText);
+
+            // Add to details if a change was made
+            if ($originalText !== $correctedText) {
+                $details[] = [
+                    'pattern' => 'Different',
+                    'replacement' => 'Différent',
+                    'before' => $originalText,
+                    'after' => $correctedText
+                ];
+            }
+        }
+
+        // 3. Grammar patterns
+        $grammarPatterns = [
+            // Negation
+            '/\b(je|tu|il|elle|on|nous|vous|ils|elles) (suis|es|est|sommes|êtes|sont|ai|as|a|avons|avez|ont|vais|vas|va|allons|allez|vont|peux|peut|pouvons|pouvez|peuvent|fais|fait|faisons|faites|font|dois|doit|devons|devez|doivent|sais|sait|savons|savez|savent|veux|veut|voulons|voulez|veulent) pas\b/i' =>
+            '$1 ne $2 pas',
+
+            // Common verb conjugation errors
+            '/\bje peut\b/i' => 'je peux',
+            '/\btu peut\b/i' => 'tu peux',
+            '/\bje va\b/i' => 'je vais',
+            '/\btu va\b/i' => 'tu vas',
+            '/\bje fait\b/i' => 'je fais',
+            '/\btu fait\b/i' => 'tu fais',
+            '/\bje est\b/i' => 'je suis',
+            '/\btu est\b/i' => 'tu es',
+
+            // Common expressions
+            '/\bc\'est pas\b/i' => 'ce n\'est pas',
+            '/\by\'a pas\b/i' => 'il n\'y a pas',
+            '/\by a pas\b/i' => 'il n\'y a pas',
+        ];
+
+        foreach ($grammarPatterns as $pattern => $replacement) {
+            $correctedText = $applyCorrection($pattern, $replacement, $correctedText, true);
+        }
+
+        // 4. Punctuation
+        $punctuationPatterns = [
+            '/ +,/' => ',',
+            '/ +\\./' => '.',
+            '/ +!/' => '!',
+            '/ +\\?/' => '?',
+            '/\\( +/' => '(',
+            '/ +\\)/' => ')',
+            '/ +;/' => ';',
+            '/ +:/' => ':',
+            '/,(?! )/' => ', ', // Add space after comma if missing
+            '\\.(?! |$)/' => '. ', // Add space after period if missing
+        ];
+
+        foreach ($punctuationPatterns as $pattern => $replacement) {
+            $correctedText = $applyCorrection('/' . $pattern . '/', $replacement, $correctedText, true);
+        }
+
+        // 5. Capitalization at the beginning of sentences
+        $correctedText = $applyCorrection('/^([a-zàáâäæçèéêëìíîïòóôöùúûüÿ])/', strtoupper('$1'), $correctedText, true);
+        $correctedText = $applyCorrection('/\\. ([a-zàáâäæçèéêëìíîïòóôöùúûüÿ])/', '. ' . strtoupper('$1'), $correctedText, true);
+
+        return $correctedText;
     }
 
     #[Route('/new', name: 'front_reclamation_new', methods: ['GET', 'POST'])]
