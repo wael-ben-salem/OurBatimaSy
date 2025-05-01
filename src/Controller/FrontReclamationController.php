@@ -6,7 +6,6 @@ use Symfony\Bundle\FrameworkBundle\Controller\AbstractController;
 use Symfony\Component\HttpFoundation\Request;
 use Symfony\Component\HttpFoundation\Response;
 use Symfony\Component\Routing\Attribute\Route;
-use Symfony\Component\Security\Http\Attribute\IsGranted;
 use Doctrine\ORM\EntityManagerInterface;
 use Symfony\Component\Form\Extension\Core\Type\TextareaType;
 use Symfony\Component\Form\Extension\Core\Type\ChoiceType;
@@ -16,97 +15,27 @@ use Symfony\Component\Validator\Constraints\Length;
 use Symfony\Component\Validator\Constraints\NotNull;
 use Symfony\Component\Form\FormError;
 
-#[Route('/reclamation')]
-class ReclamationController extends AbstractController
+#[Route('/front/reclamation')]
+class FrontReclamationController extends AbstractController
 {
-    #[Route('/', name: 'app_reclamation_index', methods: ['GET'])]
+    #[Route('/', name: 'front_reclamation_index', methods: ['GET'])]
     public function index(EntityManagerInterface $entityManager): Response
     {
         // Use a custom query to fetch all reclamations
         $conn = $entityManager->getConnection();
-        $sql = 'SELECT * FROM reclamation';
+        $sql = 'SELECT * FROM reclamation ORDER BY date DESC';
         $stmt = $conn->prepare($sql);
         $resultSet = $stmt->executeQuery();
         $reclamations = $resultSet->fetchAllAssociative();
 
-        return $this->render('reclamation/index.html.twig', [
+        return $this->render('front_reclamation/index.html.twig', [
             'reclamations' => $reclamations,
         ]);
     }
 
-    #[Route('/test-search', name: 'app_reclamation_test_search')]
-    public function testSearch(EntityManagerInterface $entityManager): Response
-    {
-        // Simple test endpoint to verify search functionality
-        $conn = $entityManager->getConnection();
-        $sql = 'SELECT * FROM reclamation LIMIT 5';
-        $stmt = $conn->prepare($sql);
-        $resultSet = $stmt->executeQuery();
-        $reclamations = $resultSet->fetchAllAssociative();
-
-        return $this->json([
-            'reclamations' => $reclamations,
-            'count' => count($reclamations),
-            'success' => true
-        ]);
-    }
-
-    #[Route('/search', name: 'app_reclamation_search', methods: ['GET'])]
-    public function search(Request $request, EntityManagerInterface $entityManager): Response
-    {
-        $searchTerm = $request->query->get('q', '');
-
-        // Use a custom query to search reclamations by description
-        $conn = $entityManager->getConnection();
-
-        try {
-            // If search term is empty, return all reclamations
-            if (empty($searchTerm)) {
-                $sql = 'SELECT * FROM reclamation ORDER BY date DESC';
-                $stmt = $conn->prepare($sql);
-                $resultSet = $stmt->executeQuery();
-            } else {
-                // Search by description
-                $searchPattern = '%' . $searchTerm . '%';
-                $sql = 'SELECT * FROM reclamation WHERE description LIKE ? ORDER BY date DESC';
-                $stmt = $conn->prepare($sql);
-                $resultSet = $stmt->executeQuery([$searchPattern]);
-            }
-
-            $reclamations = $resultSet->fetchAllAssociative();
-
-            // Return JSON response for AJAX
-            return $this->json([
-                'reclamations' => $reclamations,
-                'count' => count($reclamations),
-                'searchTerm' => $searchTerm,
-                'success' => true
-            ]);
-        } catch (\Exception $e) {
-            // Return error response
-            return $this->json([
-                'reclamations' => [],
-                'count' => 0,
-                'searchTerm' => $searchTerm,
-                'success' => false,
-                'error' => $e->getMessage()
-            ]);
-        }
-    }
-
-    #[Route('/new', name: 'app_reclamation_new', methods: ['GET', 'POST'])]
+    #[Route('/new', name: 'front_reclamation_new', methods: ['GET', 'POST'])]
     public function new(Request $request, EntityManagerInterface $entityManager): Response
     {
-        // Check if the user is logged in
-        if (!$this->getUser()) {
-            return $this->redirectToRoute('app_login');
-        }
-
-        // Check if the user is an admin
-        if ($this->isGranted('ROLE_ADMIN')) {
-            throw $this->createAccessDeniedException('Admins cannot create reclamations');
-        }
-
         // Get users for the dropdown without using Doctrine entities
         $conn = $entityManager->getConnection();
         $sql = 'SELECT id, nom, prenom FROM utilisateur';
@@ -228,7 +157,7 @@ class ReclamationController extends AbstractController
                 'Utilisateur_id' => $data['Utilisateur_id']
             ]);
 
-            return $this->redirectToRoute('app_reclamation_index', [], Response::HTTP_SEE_OTHER);
+            return $this->redirectToRoute('front_reclamation_index', [], Response::HTTP_SEE_OTHER);
         }
 
         // Create an empty reclamation array for the template
@@ -239,13 +168,13 @@ class ReclamationController extends AbstractController
             'date' => ''
         ];
 
-        return $this->render('reclamation/new.html.twig', [
+        return $this->render('front_reclamation/new.html.twig', [
             'reclamation' => $reclamation,
             'form' => $form,
         ]);
     }
 
-    #[Route('/{id}', name: 'app_reclamation_show', methods: ['GET'])]
+    #[Route('/{id}', name: 'front_reclamation_show', methods: ['GET'])]
     public function show(EntityManagerInterface $entityManager, int $id): Response
     {
         // Use a custom query to fetch a single reclamation
@@ -256,15 +185,22 @@ class ReclamationController extends AbstractController
         $reclamation = $resultSet->fetchAssociative();
 
         if (!$reclamation) {
-            throw $this->createNotFoundException('Reclamation not found');
+            throw $this->createNotFoundException('Réclamation non trouvée');
         }
 
-        return $this->render('reclamation/show.html.twig', [
+        // Get responses for this reclamation
+        $sql = 'SELECT * FROM reponse WHERE id_Reclamation = :id ORDER BY date DESC';
+        $stmt = $conn->prepare($sql);
+        $resultSet = $stmt->executeQuery(['id' => $id]);
+        $reponses = $resultSet->fetchAllAssociative();
+
+        return $this->render('front_reclamation/show.html.twig', [
             'reclamation' => $reclamation,
+            'reponses' => $reponses,
         ]);
     }
 
-    #[Route('/{id}/edit', name: 'app_reclamation_edit', methods: ['GET', 'POST'])]
+    #[Route('/{id}/edit', name: 'front_reclamation_edit', methods: ['GET', 'POST'])]
     public function edit(Request $request, EntityManagerInterface $entityManager, int $id): Response
     {
         // Use a custom query to fetch a single reclamation
@@ -275,7 +211,7 @@ class ReclamationController extends AbstractController
         $reclamation = $resultSet->fetchAssociative();
 
         if (!$reclamation) {
-            throw $this->createNotFoundException('Reclamation not found');
+            throw $this->createNotFoundException('Réclamation non trouvée');
         }
 
         // Create a form without binding to an entity
@@ -357,31 +293,47 @@ class ReclamationController extends AbstractController
         }
 
         if ($form->isSubmitted() && $form->isValid()) {
-            $data = $form->getData();
+            try {
+                $data = $form->getData();
 
-            // Update the reclamation using a direct SQL query
-            $sql = 'UPDATE reclamation SET description = :description, statut = :statut, date = :date WHERE id = :id';
-            $stmt = $conn->prepare($sql);
-            // Format the date as a string
-            $formattedDate = $data['date'] instanceof \DateTime ? $data['date']->format('Y-m-d') : $data['date'];
+                // Start a transaction
+                $conn->beginTransaction();
 
-            $stmt->executeStatement([
-                'id' => $id,
-                'description' => $data['description'],
-                'statut' => $data['statut'],
-                'date' => $formattedDate,
-            ]);
+                // Update the reclamation using a direct SQL query
+                $sql = 'UPDATE reclamation SET description = :description, statut = :statut, date = :date WHERE id = :id';
+                $stmt = $conn->prepare($sql);
+                // Format the date as a string
+                $formattedDate = $data['date'] instanceof \DateTime ? $data['date']->format('Y-m-d') : $data['date'];
 
-            return $this->redirectToRoute('app_reclamation_index', [], Response::HTTP_SEE_OTHER);
+                $stmt->executeStatement([
+                    'id' => $id,
+                    'description' => $data['description'],
+                    'statut' => $data['statut'],
+                    'date' => $formattedDate,
+                ]);
+
+                // Commit the transaction
+                $conn->commit();
+
+                $this->addFlash('success', 'La réclamation a été mise à jour avec succès.');
+                return $this->redirectToRoute('front_reclamation_show', ['id' => $id], Response::HTTP_SEE_OTHER);
+            } catch (\Exception $e) {
+                // Rollback the transaction in case of error
+                if ($conn->isTransactionActive()) {
+                    $conn->rollBack();
+                }
+
+                $this->addFlash('error', 'Une erreur est survenue lors de la mise à jour: ' . $e->getMessage());
+            }
         }
 
-        return $this->render('reclamation/edit.html.twig', [
+        return $this->render('front_reclamation/edit.html.twig', [
             'reclamation' => $reclamation,
             'form' => $form,
         ]);
     }
 
-    #[Route('/{id}', name: 'app_reclamation_delete', methods: ['POST'])]
+    #[Route('/{id}/delete', name: 'front_reclamation_delete', methods: ['POST'])]
     public function delete(Request $request, EntityManagerInterface $entityManager, int $id): Response
     {
         if ($this->isCsrfTokenValid('delete'.$id, $request->getPayload()->getString('_token'))) {
@@ -416,6 +368,6 @@ class ReclamationController extends AbstractController
             }
         }
 
-        return $this->redirectToRoute('app_reclamation_index', [], Response::HTTP_SEE_OTHER);
+        return $this->redirectToRoute('front_reclamation_index', [], Response::HTTP_SEE_OTHER);
     }
 }

@@ -1,35 +1,47 @@
-{# templates/front_reponse/show.html.twig #}
-{% extends 'base.html.twig' %}
+{% extends 'base_frontOffice.html.twig' %}
 
-{% block title %}Response #{{ response.id }}{% endblock %}
+{% block title %}Détails de la Réponse{% endblock %}
+
+{% block header_title %}Détails de la Réponse{% endblock %}
 
 {% block body %}
-    <h1>Response #{{ response.id }}</h1>
+    <div class="section-title">
+        <h2>Réponse #{{ reponse.id }}</h2>
+    </div>
 
-    <table class="table">
-        <tbody>
-            <tr>
-                <th>Id</th>
-                <td>{{ response.id }}</td>
-            </tr>
-            <tr>
-                <th>Description</th>
-                <td>{{ response.description }}</td>
-            </tr>
-            <tr>
-                <th>Status</th>
-                <td>{{ response.statut }}</td>
-            </tr>
-            <tr>
-                <th>Date</th>
-                <td>{{ response.date }}</td>
-            </tr>
-            <tr>
-                <th>Reclamation ID</th>
-                <td>N/A</td>
-            </tr>
-        </tbody>
-    </table>
+    <div class="row">
+        <div class="col-lg-8 mx-auto">
+            <div class="card">
+                <div class="card-header">
+                    <h5 class="mb-0">Informations</h5>
+                </div>
+                <div class="card-body">
+                    <div class="mb-4">
+                        <h6 class="font-weight-bold">Contenu:</h6>
+                        <p>{{ reponse.description }}</p>
+                    </div>
+                    <div class="mb-4">
+                        <h6 class="font-weight-bold">Date:</h6>
+                        <p>{{ reponse.date|date('d/m/Y') }}</p>
+                    </div>
 
-    <a href="{{ path('front_reponses_index') }}">Back to list</a>
+                    {% if reponse.reclamation_id %}
+                        <div class="alert alert-info">
+                            <h6 class="font-weight-bold">Réclamation associée:</h6>
+                            <p>{{ reponse.reclamation_description }}</p>
+                            <a href="{{ path('front_reclamation_show', {'id': reponse.reclamation_id}) }}" class="btn btn-sm btn-info mt-2">
+                                <i class="fa fa-link"></i> Voir la réclamation complète
+                            </a>
+                        </div>
+                    {% endif %}
+
+                    <div class="d-flex justify-content-between mt-4">
+                        <a href="{{ path('front_reponse_index') }}" class="btn btn-secondary">
+                            <i class="fa fa-arrow-left"></i> Retour à la liste
+                        </a>
+                    </div>
+                </div>
+            </div>
+        </div>
+    </div>
 {% endblock %}
