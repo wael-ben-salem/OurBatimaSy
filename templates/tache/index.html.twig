@@ -28,6 +28,7 @@
             border: 1px solid #dee2e6;
             background: white;
             white-space: nowrap;
+            flex-shrink: 0;
         }
 
         .filter-btn.active {
@@ -51,6 +52,13 @@
 {% endblock %}
 
 {% block body %}
+    {# Add user data container #}
+    <div id="user-data"
+         data-role="{{ userRole }}"
+         data-id="{{ userId }}"
+         style="display: none;">
+    </div>
+
     <div class="row">
         <div class="col-12">
             <div class="card my-4">
@@ -63,7 +71,11 @@
                         </a>
                     </div>
                 </div>
-
+                <div class="card-body px-0 pb-2">
+                    <div class="horizontal-filter">
+                        <button class="filter-btn active" data-status="all">Toutes</button>
+                        <button class="filter-btn" data-status="mine">Miennes</button>
+                    </div>
 
                     <table class="table align-items-center mb-0">
                         <thead>
@@ -78,7 +90,9 @@
                         </thead>
                         <tbody id="task-table-body">
                         {% for tache in taches %}
-                            <tr data-status="{{ tache.etat }}">
+                            <tr data-status="{{ tache.etat }}"
+                                data-constructeur-id="{{ tache.constructeur ? tache.constructeur.constructeur.id }}"
+                                data-artisan-id="{{ tache.artisan ? tache.artisan.artisan.id }}">
                                 <td>{{ tache.description|slice(0, 30) }}...</td>
                                 <td>
                                         <span class="badge badge-sm bg-gradient-dark">
@@ -125,33 +139,43 @@
         document.addEventListener('DOMContentLoaded', function() {
             const filterBtns = document.querySelectorAll('.filter-btn');
             const tableBody = document.getElementById('task-table-body');
+            const userData = document.getElementById('user-data');
+            const userRole = userData.dataset.role;
+            const userId = userData.dataset.id;
 
             function filterTasks(status) {
                 const rows = tableBody.querySelectorAll('tr');
                 rows.forEach(row => {
-                    if(status === 'all' || row.dataset.status === status) {
-                        row.style.display = 'table-row';
-                    } else {
-                        row.style.display = 'none';
+                    let shouldShow = false;
+
+                    if (status === 'all') {
+                        shouldShow = true;
                     }
+                    else if (status === 'mine') {
+                        if (userRole === 'constructeur') {
+                            shouldShow = row.dataset.constructeurId === userId;
+                        }
+                        else if (userRole === 'artisan') {
+                            shouldShow = row.dataset.artisanId === userId;
+                        }
+                    }
+                    else {
+                        shouldShow = row.dataset.status === status;
+                    }
+
+                    row.style.display = shouldShow ? 'table-row' : 'none';
                 });
             }
 
             filterBtns.forEach(btn => {
                 btn.addEventListener('click', function() {
-                    // Remove active class from all buttons
                     filterBtns.forEach(b => b.classList.remove('active'));
-
-                    // Add active class to clicked button
                     this.classList.add('active');
-
-                    // Get filter status
-                    const status = this.dataset.status;
-                    filterTasks(status === 'all' ? 'all' : status);
+                    filterTasks(this.dataset.status);
                 });
             });
 
-            // Initial filter
+            // Initialize filter
             filterTasks('all');
         });
     </script>
