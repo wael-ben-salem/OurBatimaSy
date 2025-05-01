@@ -299,34 +299,5 @@ class Utilisateur implements UserInterface, PasswordAuthenticatedUserInterface
         // Si tu stockes des données sensibles temporairement, efface-les ici
     }
 
-    /**
-     * @return Collection<int, Reclamation>
-     */
-    public function getReclamations(): Collection
-    {
-        return $this->reclamations;
-    }
-
-    public function addReclamation(Reclamation $reclamation): static
-    {
-        if (!$this->reclamations->contains($reclamation)) {
-            $this->reclamations->add($reclamation);
-            $reclamation->setIdUtilisateur($this);
-        }
-
-        return $this;
-    }
-
-    public function removeReclamation(Reclamation $reclamation): static
-    {
-        if ($this->reclamations->removeElement($reclamation)) {
-            // set the owning side to null (unless already changed)
-            if ($reclamation->getIdUtilisateur() === $this) {
-                $reclamation->setIdUtilisateur(null);
-            }
-        }
-
-        return $this;
-    }
-
+   
 }

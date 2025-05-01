@@ -2,7 +2,7 @@
 
 {% block title %}Détails de la Réclamation{% endblock %}
 
-{% block header_title %}Détails de la Réclamation{% endblock %}
+{% block header_title %}Détails de la Réclamation #{{ reclamation.id }}{% endblock %}
 
 {% block body %}
     {# Display flash messages #}
@@ -21,44 +21,47 @@
         <h2>Réclamation #{{ reclamation.id }}</h2>
     </div>
 
-    <div class="row">
-        <div class="col-lg-8 mx-auto">
-            <div class="card">
-                <div class="card-header d-flex justify-content-between align-items-center">
-                    <h5 class="mb-0">Informations</h5>
-                    <span class="badge badge-{% if reclamation.statut == 'New' %}primary{% elseif reclamation.statut == 'In Progress' %}warning{% elseif reclamation.statut == 'Waiting for Response' %}info{% else %}success{% endif %}">
-                        {{ reclamation.statut }}
-                    </span>
-                </div>
-                <div class="card-body">
-                    <div class="mb-4">
-                        <h6 class="font-weight-bold">Description:</h6>
-                        <p>{{ reclamation.description }}</p>
+    <div class="container">
+        <div class="row">
+            <div class="col-lg-8 mx-auto">
+                <div class="card mb-4">
+                    <div class="card-header bg-primary text-white">
+                        <h5 class="mb-0">Informations de la réclamation</h5>
                     </div>
-                    <div class="mb-4">
-                        <h6 class="font-weight-bold">Date:</h6>
-                        <p>{{ reclamation.date|date('d/m/Y') }}</p>
-                    </div>
-
-                    <div class="d-flex justify-content-between mt-4">
-                        <a href="{{ path('front_reclamation_index') }}" class="btn btn-secondary">
-                            <i class="fa fa-arrow-left"></i> Retour à la liste
-                        </a>
-                        <div>
-                            <a href="{{ path('front_reclamation_edit', {'id': reclamation.id}) }}" class="btn btn-primary">
-                                <i class="fa fa-edit"></i> Modifier
+                    <div class="card-body">
+                        <div class="mb-3">
+                            <h6 class="font-weight-bold">Description:</h6>
+                            <p>{{ reclamation.description }}</p>
+                        </div>
+                        <div class="mb-3">
+                            <h6 class="font-weight-bold">Statut:</h6>
+                            <span class="badge badge-{{ reclamation.statut == 'New' ? 'primary' : (reclamation.statut == 'In Progress' ? 'warning' : 'success') }}">
+                                {{ reclamation.statut }}
+                            </span>
+                        </div>
+                        <div class="mb-3">
+                            <h6 class="font-weight-bold">Date:</h6>
+                            <p>{{ reclamation.date|date('d/m/Y') }}</p>
+                        </div>
+                        <div class="d-flex justify-content-between">
+                            <a href="{{ path('front_reclamation_index') }}" class="btn btn-secondary">
+                                <i class="fa fa-arrow-left"></i> Retour à la liste
                             </a>
-                            <button type="button" class="btn btn-danger" data-toggle="modal" data-target="#deleteModal">
-                                <i class="fa fa-trash"></i> Supprimer
-                            </button>
+                            <div>
+                                <a href="{{ path('front_reclamation_edit', {'id': reclamation.id}) }}" class="btn btn-primary">
+                                    <i class="fa fa-edit"></i> Modifier
+                                </a>
+                                <button type="button" class="btn btn-danger" data-toggle="modal" data-target="#deleteModal">
+                                    <i class="fa fa-trash"></i> Supprimer
+                                </button>
+                            </div>
                         </div>
                     </div>
                 </div>
-            </div>
 
-            {% if reponses is defined and reponses|length > 0 %}
-                <div class="card mt-4">
-                    <div class="card-header">
+                <!-- Réponses -->
+                <div class="card">
+                    <div class="card-header bg-success text-white">
                         <h5 class="mb-0">Réponses ({{ reponses|length }})</h5>
                     </div>
                     <div class="card-body">
@@ -75,14 +78,12 @@
                                     </div>
                                 </div>
                             </div>
+                        {% else %}
+                            <p class="text-center">Aucune réponse pour cette réclamation.</p>
                         {% endfor %}
                     </div>
                 </div>
-            {% else %}
-                <div class="alert alert-info mt-4">
-                    Aucune réponse n'a été fournie pour cette réclamation.
-                </div>
-            {% endif %}
+            </div>
         </div>
     </div>
 
