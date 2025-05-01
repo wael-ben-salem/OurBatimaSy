@@ -2,21 +2,81 @@
 <li class="nav-item dropdown">
     <a class="nav-link" href="#" id="navbarNotifications" role="button" data-bs-toggle="dropdown" aria-expanded="false">
         <i class="material-symbols-rounded">notifications</i>
-        <span class="badge bg-danger">{{ render(controller('App\\Controller\\NotificationController::unreadCount')) }}</span>
+        {% set unreadCount = render(controller('App\\Controller\\NotificationController::unreadCount')) %}
+        <span class="badge bg-danger">{{ unreadCount }}</span>
     </a>
-    <ul class="dropdown-menu dropdown-menu-end" aria-labelledby="navbarNotifications">
-        {% for notification in render(controller('App\\Controller\\NotificationController::recentNotifications')) %}
-            <li>
-                <a class="dropdown-item {% if not notification.isRead %}fw-bold{% endif %}"
-                   href="{{ path('mark_notification_read', {'id': notification.id}) }}">
-                    {{ notification.message }}
-                    <small class="text-muted">{{ notification.createdAt|date('Y-m-d H:i') }}</small>
-                </a>
-            </li>
+    <ul class="dropdown-menu dropdown-menu-end notification-dropdown" aria-labelledby="navbarNotifications">
+        {% set recentNotifications = render(controller('App\\Controller\\NotificationController::recentUnreadNotifications')) %}
+        {% if recentNotifications is empty %}
+            <li><span class="dropdown-item text-muted">No new notifications (count: {{ unreadCount }})</span></li>
         {% else %}
-            <li><span class="dropdown-item text-muted">No new notifications</span></li>
-        {% endfor %}
+            {{ recentNotifications|raw }}
+        {% endif %}
         <li><hr class="dropdown-divider"></li>
         <li><a class="dropdown-item text-center" href="{{ path('app_notifications') }}">View all notifications</a></li>
     </ul>
 </li>
+<style>
+.notification-dropdown {
+    width: 350px;
+    max-height: 500px;
+    overflow-y: auto;
+}
+.notification-item {
+    padding: 0.75rem 1.25rem;
+    border-bottom: 1px solid #eee;
+}
+.notification-item:last-child {
+    border-bottom: none;
+}
+.notification-planification {
+    border-left: 3px solid #0d6efd;
+}
+.notification-team {
+    border-left: 3px solid #6c757d;
+}
+.notification-content {
+    flex-grow: 1;
+    padding-right: 10px;
+}
+.mark-as-read {
+    color: #6c757d;
+    text-decoration: none;
+}
+.mark-as-read:hover {
+    color: #0d6efd;
+}
+</style>
+
+<script>
+document.addEventListener('DOMContentLoaded', function() {
+    document.querySelectorAll('.mark-as-read').forEach(link => {
+        link.addEventListener('click', async function(e) {
+            e.preventDefault();
+            const notificationItem = this.closest('.notification-item');
+            
+            try {
+                const response = await fetch(this.href);
+                if (response.ok) {
+                    notificationItem.style.opacity = '0';
+                    setTimeout(() => {
+                        notificationItem.remove();
+                        updateNotificationCount();
+                    }, 300);
+                }
+            } catch (error) {
+                window.location.href = this.href;
+            }
+        });
+    });
+
+    function updateNotificationCount() {
+        fetch('{{ path('notification_unread_count') }}')
+            .then(response => response.text())
+            .then(count => {
+                const badge = document.querySelector('#navbarNotifications .badge');
+                badge.textContent = count;
+            });
+    }
+});
+</script>

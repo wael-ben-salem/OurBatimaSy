@@ -47,15 +47,17 @@ class Equipe
      * @var \Constructeur
      */
     
-    #[ORM\JoinColumn(name: 'constructeur_id', referencedColumnName: 'constructeur_id')]
-    #[ORM\ManyToOne(targetEntity: \Constructeur::class)]
+#[ORM\JoinColumn(name: 'constructeur_id', referencedColumnName: 'constructeur_id')]
+#[ORM\ManyToOne(targetEntity: \Constructeur::class , cascade: ["persist"])]
+
+
     private $constructeur;
 
     /**
      * @var \Gestionnairestock
      */
     #[ORM\JoinColumn(name: 'gestionnairestock_id', referencedColumnName: 'gestionnairestock_id')]
-    #[ORM\ManyToOne(targetEntity: \Gestionnairestock::class)]
+    #[ORM\ManyToOne(targetEntity: \Gestionnairestock::class , cascade: ["persist"])]
     private $gestionnairestock;
 
     /**
@@ -64,7 +66,7 @@ class Equipe
     #[ORM\JoinTable(name: 'equipe_artisan')]
     #[ORM\JoinColumn(name: 'equipe_id', referencedColumnName: 'id')]
     #[ORM\InverseJoinColumn(name: 'artisan_id', referencedColumnName: 'artisan_id')]
-    #[ORM\ManyToMany(targetEntity: \Artisan::class, inversedBy: 'equipe')]
+    #[ORM\ManyToMany(targetEntity: \Artisan::class, inversedBy: 'equipe', cascade: ["persist"])]
     private $artisan = array();
 
     /**
@@ -72,6 +74,8 @@ class Equipe
      */
     public function __construct()
     {
+        $this->teamRooms = new ArrayCollection();
+
         $this->artisan = new \Doctrine\Common\Collections\ArrayCollection();
         $this->projets = new \Doctrine\Common\Collections\ArrayCollection(); // Ajoutez cette ligne
 
@@ -204,4 +208,15 @@ public function removeProjet(Projet $projet): self
 
     return $this;
 }
+#[ORM\OneToMany(targetEntity: TeamRoom::class, mappedBy: 'equipe')]
+private $teamRooms;
+public function getTeamRooms(): Collection
+{
+    return $this->teamRooms;
 }
+
+
+
+}
+
+
