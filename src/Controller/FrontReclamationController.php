@@ -14,6 +14,8 @@ use Symfony\Component\Validator\Constraints\NotBlank;
 use Symfony\Component\Validator\Constraints\Length;
 use Symfony\Component\Validator\Constraints\NotNull;
 use Symfony\Component\Form\FormError;
+use Dompdf\Dompdf;
+use Dompdf\Options;
 
 #[Route('/front/reclamation')]
 class FrontReclamationController extends AbstractController
@@ -331,6 +333,64 @@ class FrontReclamationController extends AbstractController
             'reclamation' => $reclamation,
             'form' => $form,
         ]);
+    }
+
+    #[Route('/{id}/pdf', name: 'front_reclamation_pdf', methods: ['GET'])]
+    public function generatePdf(EntityManagerInterface $entityManager, int $id): Response
+    {
+        // Use a custom query to fetch a single reclamation
+        $conn = $entityManager->getConnection();
+        $sql = 'SELECT * FROM reclamation WHERE id = :id';
+        $stmt = $conn->prepare($sql);
+        $resultSet = $stmt->executeQuery(['id' => $id]);
+        $reclamation = $resultSet->fetchAssociative();
+
+        if (!$reclamation) {
+            throw $this->createNotFoundException('Réclamation non trouvée');
+        }
+
+        // Get responses for this reclamation
+        $sql = 'SELECT * FROM reponse WHERE id_Reclamation = :id ORDER BY date DESC';
+        $stmt = $conn->prepare($sql);
+        $resultSet = $stmt->executeQuery(['id' => $id]);
+        $reponses = $resultSet->fetchAllAssociative();
+
+        // Configure Dompdf
+        $options = new Options();
+        $options->set('isHtml5ParserEnabled', true);
+        $options->set('isRemoteEnabled', true);
+        $options->set('defaultFont', 'Arial');
+
+        // Instantiate Dompdf
+        $dompdf = new Dompdf($options);
+
+        // Render the template to HTML
+        $html = $this->renderView('front_reclamation/pdf.html.twig', [
+            'reclamation' => $reclamation,
+            'reponses' => $reponses,
+        ]);
+
+        // Load HTML to Dompdf
+        $dompdf->loadHtml($html);
+
+        // Set paper size and orientation
+        $dompdf->setPaper('A4', 'portrait');
+
+        // Render the PDF
+        $dompdf->render();
+
+        // Generate a filename
+        $filename = 'reclamation_' . $id . '_' . date('Y-m-d') . '.pdf';
+
+        // Return the PDF as a response
+        return new Response(
+            $dompdf->output(),
+            Response::HTTP_OK,
+            [
+                'Content-Type' => 'application/pdf',
+                'Content-Disposition' => 'inline; filename="' . $filename . '"'
+            ]
+        );
     }
 
     #[Route('/{id}/delete', name: 'front_reclamation_delete', methods: ['POST'])]
