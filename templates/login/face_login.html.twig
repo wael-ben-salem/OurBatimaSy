@@ -35,24 +35,14 @@
         pointer-events: none;
     }
     
-    .pose-guide {
-        position: absolute;
-        bottom: 20px;
-        left: 0;
-        right: 0;
-        background: rgba(0,0,0,0.7);
-        color: white;
-        padding: 10px;
-        border-radius: 8px;
-        text-align: center;
-        margin: 0 auto;
-        max-width: 80%;
-    }
-    
     .auth-options {
         margin-top: 2rem;
         border-top: 1px solid #eee;
         padding-top: 1.5rem;
+    }
+    
+    #statusMessage {
+        min-height: 50px;
     }
 </style>
 {% endblock %}
@@ -69,7 +59,6 @@
         <div class="camera-feed">
             <video id="videoFeed" autoplay playsinline class="h-100 w-100"></video>
             <div class="camera-overlay"></div>
-            <div class="pose-guide">Veuillez regarder directement la caméra</div>
         </div>
         
         <div class="text-center">
@@ -85,14 +74,10 @@
             <a href="{{ path('app_login') }}" class="btn btn-outline-primary me-2">
                 <i class="bi bi-box-arrow-in-right me-2"></i>Email/Mot de passe
             </a>
-            <a href="{{ path('app_google_login') }}" class="btn btn-outline-danger">
-                <i class="bi bi-google me-2"></i>Google
-            </a>
         </div>
     </div>
 </div>
 
-<!-- Modal pour la sélection d'utilisateur -->
 <div class="modal fade" id="userSelectModal" tabindex="-1" aria-hidden="true">
     <div class="modal-dialog">
         <div class="modal-content">
@@ -138,6 +123,25 @@ document.addEventListener('DOMContentLoaded', function() {
         }
     }
 
+    // Vérifier si l'image contient un visage
+    function isFaceValid(imageData) {
+        let sum = 0, count = 0;
+        for (let i = 0; i < imageData.data.length; i += 4) {
+            sum += imageData.data[i] + imageData.data[i+1] + imageData.data[i+2];
+            count += 3;
+        }
+        const avg = sum / count;
+        
+        let variance = 0;
+        for (let i = 0; i < imageData.data.length; i += 4) {
+            const diff = (imageData.data[i] + imageData.data[i+1] + imageData.data[i+2]) / 3 - avg;
+            variance += diff * diff;
+        }
+        variance = variance / (imageData.data.length / 4);
+        
+        return variance > 100;
+    }
+
     // Capturer l'image et envoyer au serveur
     captureBtn.addEventListener('click', async function() {
         if (!stream) {
@@ -145,13 +149,19 @@ document.addEventListener('DOMContentLoaded', function() {
             return;
         }
 
-        // Capturer l'image
         canvas.width = video.videoWidth;
         canvas.height = video.videoHeight;
         ctx.drawImage(video, 0, 0, canvas.width, canvas.height);
-        const faceData = canvas.toDataURL('image/jpeg', 0.8);
+        
+        // Vérification de la qualité de l'image
+        const imageData = ctx.getImageData(0, 0, canvas.width, canvas.height);
+        if (!isFaceValid(imageData)) {
+            showError("Aucun visage détecté. Veuillez vous positionner correctement.");
+            return;
+        }
 
-        // Afficher le statut
+        const faceData = canvas.toDataURL('image/jpeg', 0.8);
+        
         captureBtn.disabled = true;
         statusMessage.innerHTML = `
             <div class="spinner-border spinner-border-sm text-primary me-2" role="status">
@@ -175,10 +185,8 @@ document.addEventListener('DOMContentLoaded', function() {
 
             if (data.success) {
                 if (data.multiple) {
-                    // Afficher la modal de sélection
                     showUserSelection(data.users);
                 } else {
-                    // Redirection automatique
                     window.location.href = data.redirect;
                 }
             } else {

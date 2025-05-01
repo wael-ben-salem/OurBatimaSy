@@ -1,0 +1,66 @@
+{# templates/emails/registration_confirmation.html.twig #}
+<!DOCTYPE html>
+<html lang="fr">
+<head>
+    <meta charset="UTF-8">
+    <title>Confirmation d'inscription - Our Batima</title>
+    <style>
+        body {
+            font-family: 'Roboto', sans-serif;
+            background-color: #f4f6f8;
+            margin: 0;
+            padding: 0;
+        }
+        .email-container {
+            max-width: 600px;
+            margin: 30px auto;
+            background: #ffffff;
+            padding: 30px;
+            border-radius: 8px;
+            box-shadow: 0 4px 12px rgba(0, 0, 0, 0.1);
+            text-align: center;
+        }
+        .logo {
+            width: 120px;
+            margin-bottom: 20px;
+        }
+        .button {
+            display: inline-block;
+            margin-top: 25px;
+            padding: 12px 25px;
+            background: linear-gradient(135deg, #667eea, #764ba2);
+            color: #ffffff;
+            text-decoration: none;
+            border-radius: 5px;
+            font-weight: bold;
+        }
+        .signature {
+            margin-top: 40px;
+            font-style: italic;
+            color: #888;
+        }
+    </style>
+</head>
+<body>
+
+    <div class="email-container">
+        <img src="cid:logo" alt="Our Batima Logo" class="logo">
+        
+        <h1>Bienvenue, {{ username }} !</h1>
+
+        <p>Merci de vous être inscrit sur <strong>Our Batima</strong>, votre partenaire en construction et architecture.</p>
+
+        <p>Votre compte a été créé avec succès ! Vous pouvez dès maintenant accéder à votre espace personnel :</p>
+
+        <a href="http://127.0.0.1:8000/login" class="button">Accéder à mon compte</a>
+
+        <div class="signature">
+            <img src="cid:signature" alt="Signature Our Batima" style="max-width: 150px; margin-top: 20px;">
+
+           
+        </div>
+         — L'équipe Our Batima
+    </div>
+
+</body>
+</html>
