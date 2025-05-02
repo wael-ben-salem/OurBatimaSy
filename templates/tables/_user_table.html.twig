@@ -45,7 +45,7 @@
             <td>
               {% for artisan in artisanInfos %}
                 {% if artisan.artisan == user %}
-                  <span class="text-xs font-weight-bold">{{ artisan.salaireHeure }} €</span>
+                  <span class="text-xs font-weight-bold">{{ artisan.salaireHeure }} DT</span>
                 {% endif %}
               {% endfor %}
             </td>
@@ -60,25 +60,27 @@
             <td>
               {% for constructeur in constructeurInfos %}
                 {% if constructeur.constructeur == user %}
-                  <span class="text-xs font-weight-bold">{{ constructeur.salaireHeure }} €</span>
+                  <span class="text-xs font-weight-bold">{{ constructeur.salaireHeure }} DT</span>
                 {% endif %}
               {% endfor %}
             </td>
           {% endif %}
           <td class="text-center align-middle"></td>
-          <td class="text-center align-middle">
-            <button class="btn btn-link text-secondary font-weight-bold text-xs"
-                    data-action="view"
-                    data-user-id="{{ user.id }}"
-                    data-toggle="tooltip" title="View">
-              <i class="material-symbols-rounded">visibility</i>
-            </button>
-            <a href="{{ path('app_user_edit', {'id': user.id}) }}" class="text-secondary font-weight-bold text-xs ms-2" data-toggle="tooltip" title="Edit">
-              <i class="material-symbols-rounded">edit</i>
-            </a>
-   
+        <td class="text-center align-middle">
+    <button class="btn btn-link text-secondary font-weight-bold text-xs"
+            data-action="view"
+            data-user-id="{{ user.id }}"
+            data-toggle="tooltip" title="View">
+        <i class="material-symbols-rounded">visibility</i>
+    </button>
 
-          </td>
+    {% if is_granted('ROLE_ADMIN') %}
+        <a href="{{ path('app_user_edit', {'id': user.id}) }}" class="text-secondary font-weight-bold text-xs ms-2" data-toggle="tooltip" title="Edit">
+            <i class="material-symbols-rounded">edit</i>
+        </a>
+    {% endif %}
+</td>
+
         </tr>
       {% else %}
         <tr>

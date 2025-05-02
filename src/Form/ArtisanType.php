@@ -25,7 +25,7 @@ class ArtisanType extends AbstractType
                 'label' => 'Spécialité'
             ])
             ->add('salaireHeure', NumberType::class, [
-                'label' => 'Salaire horaire (€)',
+                'label' => 'Salaire horaire (DT)',
                 'scale' => 2
             ]);
     }

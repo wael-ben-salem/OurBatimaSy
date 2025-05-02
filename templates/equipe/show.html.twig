@@ -748,7 +748,7 @@
                                     <i class="bi bi-calendar"></i> {{ projet.datecreation|date('d/m/Y') }}
                                 </span>
                                 <span class="meta-badge">
-                                    <i class="bi bi-cash-stack"></i> {{ projet.budget }} €
+                                    <i class="bi bi-cash-stack"></i> {{ projet.budget }} DT
                                 </span>
                                 <span class="meta-badge">
                                     <i class="bi bi-tag"></i> {{ projet.type }}
@@ -825,7 +825,7 @@
                             {% if materiel.prixUnitaire %}
                                 <div class="material-stock mt-2">
                                     <i class="bi bi-cash-coin"></i>
-                                    <span>Prix unitaire: {{ materiel.prixUnitaire }} €</span>
+                                    <span>Prix unitaire: {{ materiel.prixUnitaire }} DT</span>
                                 </div>
                             {% endif %}
                         </div>
@@ -845,11 +845,14 @@
         <a href="{{ path('app_equipe_index') }}" class="btn btn-outline-secondary btn-outline-custom">
             <i class="bi bi-arrow-left"></i> Retour à la liste
         </a>
-        <div>
-            <a href="{{ path('app_equipe_edit', {'id': equipe.id}) }}" class="btn btn-primary btn-primary-custom">
-                <i class="bi bi-pencil"></i> Modifier l'équipe
-            </a>
-        </div>
+       {% if is_granted('ROLE_ADMIN') %}
+    <div>
+        <a href="{{ path('app_equipe_edit', {'id': equipe.id}) }}" class="btn btn-primary btn-primary-custom">
+            <i class="bi bi-pencil"></i> Modifier l'équipe
+        </a>
+    </div>
+{% endif %}
+
     </div>
 </div>
 {% endblock %}

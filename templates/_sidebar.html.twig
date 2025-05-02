@@ -18,15 +18,18 @@
         </a>
       </li>
 
-      {# Hide "Utilisateurs" for Artisan and Constructeur #}
-      {% if app.user and 'ROLE_ARTISAN' not in app.user.roles and 'ROLE_CONSTRUCTEUR' not in app.user.roles %}
         <li class="nav-item">
           <a class="nav-link {{ current_route starts with 'app_tables' ? 'active bg-gradient-dark text-white' : 'text-dark' }}" href="{{ path('app_tables') }}">
             <i class="material-symbols-rounded opacity-5">table_view</i>
             <span class="nav-link-text ms-1">Utilisateurs</span>
           </a>
         </li>
-      {% endif %}
+         <li class="nav-item">
+          <a class="nav-link {{ current_route starts with 'app_equipe_index' ? 'active bg-gradient-dark text-white' : 'text-dark' }}" href="{{ path('app_equipe_index') }}">
+            <i class="material-symbols-rounded opacity-5">table_view</i>
+            <span class="nav-link-text ms-1">Equipe</span>
+          </a>
+        </li>
 
       <li class="nav-item">
         <a class="nav-link {{ current_route starts with 'app_projet_' ? 'active bg-gradient-dark text-white' : 'text-dark' }}" href="{{ path('app_projet_index') }}">

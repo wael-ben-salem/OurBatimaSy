@@ -142,7 +142,7 @@ class UtilisateurCreateType extends AbstractType
             ->add('salaireHeureArtisan', NumberType::class, [
                 'required' => false,
                 'mapped' => false,
-                'label' => 'Salaire / heure (€)',
+                'label' => 'Salaire / heure (DT)',
                 'attr' => [
                     'class' => 'form-control',
                     'step' => '0.01'
@@ -157,7 +157,7 @@ class UtilisateurCreateType extends AbstractType
             ->add('salaireHeureConstructeur', NumberType::class, [
                 'required' => false,
                 'mapped' => false,
-                'label' => 'Salaire / heure (€)',
+                'label' => 'Salaire / heure (DT)',
                 'attr' => [
                     'class' => 'form-control',
                     'step' => '0.01'

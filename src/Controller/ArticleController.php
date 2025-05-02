@@ -31,7 +31,7 @@ final class ArticleController extends AbstractController
     private function logArticleHistory(string $action, Article $article): void
     {
         $filesystem = new Filesystem();
-        $historyFile = $this->getParameter('kernel.project_dir') . '/var/article_history.json';
+        $historyFile = $this->getParameter('kernel.project_dir') . '/src/Command/article_history.json';
 
         $history = [];
         if ($filesystem->exists($historyFile)) {
@@ -88,7 +88,7 @@ final class ArticleController extends AbstractController
             ->getQuery()
             ->getResult();
 
-        $historyFile = $this->getParameter('kernel.project_dir') . '/var/article_history.json';
+        $historyFile = $this->getParameter('kernel.project_dir') . '/src/Command/article_history.json';
         $history = json_decode(file_get_contents($historyFile), true) ?? [];
 
         // Fetch exchange rate from TND to EUR

@@ -5,6 +5,8 @@ namespace App\Controller;
 
 use App\Entity\Equipe;
 use App\Entity\TeamRoom;
+use App\Entity\TeamMember;
+
 use App\Entity\Constructeur;
 use App\Entity\Gestionnairestock;
 use App\Service\TeamNotificationService;
@@ -43,27 +45,30 @@ class EquipeController extends AbstractController
     {
         return $this->render('equipe/index.html.twig', [
             'equipes' => $equipeRepository->findAllWithDetails(),
+            'totalPages' => ceil(count($equipeRepository->findAll()) / 4)
         ]);
     }
     #[Route('/mesequipes', name: 'app_equipe_client')]
-    public function equipesParClient(EntityManagerInterface $entityManager, Security $security, EquipeRepository $equipeRepository): Response
-    {
-        // Récupérer l'utilisateur connecté
-        $user = $security->getUser();
-        
-        if (!$user || !in_array('ROLE_CLIENT', $user->getRoles())) {
-            throw $this->createAccessDeniedException('Accès réservé aux clients');
-        }
+public function equipesParClient(EntityManagerInterface $entityManager, Security $security, EquipeRepository $equipeRepository): Response
+{
+    // Récupérer l'utilisateur connecté
+    $user = $security->getUser();
     
-        // Récupérer le client associé
-        $client = $user->getClient();
-        if (!$client) {
-            throw $this->createNotFoundException('Profil client non trouvé');
-        }
+    if (!$user || !in_array('ROLE_CLIENT', $user->getRoles())) {
+        throw $this->createAccessDeniedException('Accès réservé aux clients');
+    }
+
+    // Récupérer le client associé via la relation inverse
+    $client = $entityManager->getRepository(Client::class)->findOneBy(['client' => $user]);
+    
+    if (!$client) {
+        throw $this->createNotFoundException('Profil client non trouvé');
+    }
 
     // Récupérer les projets du client avec les équipes jointes
     $projets = $entityManager->getRepository(Projet::class)->createQueryBuilder('p')
-        ->join('p.idEquipe', 'e')
+        ->leftJoin('p.idEquipe', 'e')
+        ->addSelect('e')
         ->where('p.idClient = :client')
         ->setParameter('client', $client)
         ->getQuery()
@@ -82,10 +87,9 @@ class EquipeController extends AbstractController
 
     return $this->render('equipe/client_equipes.html.twig', [
         'equipes' => $equipes,
-        'user' => $user  // On passe l'utilisateur directement
+        'user' => $user
     ]);
-}
-#[Route('/new', name: 'app_equipe_new', methods: ['GET', 'POST'])]
+}#[Route('/new', name: 'app_equipe_new', methods: ['GET', 'POST'])]
 public function new(
     Request $request, 
     EntityManagerInterface $em, 
@@ -150,6 +154,36 @@ public function new(
             // Premier flush pour générer les IDs
             $em->flush();
 
+            // Création des TeamMember pour tous les utilisateurs de l'équipe
+            $usersInTeam = [];
+            
+            // Ajout de l'utilisateur du constructeur
+            if ($constructeur->getConstructeur()) {
+                $usersInTeam[] = $constructeur->getConstructeur();
+            }
+            
+            // Ajout de l'utilisateur du gestionnaire
+            if ($gestionnaire->getGestionnairestock()) {
+                $usersInTeam[] = $gestionnaire->getGestionnairestock();
+            }
+            
+            // Ajout des utilisateurs des artisans
+            foreach ($equipe->getArtisans() as $artisan) {
+                if ($artisan->getArtisan()) {
+                    $usersInTeam[] = $artisan->getArtisan();
+                }
+            }
+
+            // Création des TeamMember pour chaque utilisateur
+            foreach ($usersInTeam as $user) {
+                $teamMember = new TeamMember();
+                $teamMember->setRoom($room)
+                    ->setUser($user)
+                    ->setJoinedAt(new \DateTime())
+                    ->setIsActive(true);
+                $em->persist($teamMember);
+            }
+
             // Envoi des notifications
             $notificationService->sendTeamCreationNotifications($equipe);
             $notificationService->sendRoomInvitation($equipe, $room);
@@ -183,6 +217,46 @@ public function new(
         'constructeurs' => $constructeurs,
         'gestionnaires' => $gestionnaires,
         'artisans' => $artisans,
+    ]);
+}
+#[Route('/table', name: 'app_equipe_table', methods: ['GET'])]
+public function getTeamTable(
+    Request $request, 
+    EquipeRepository $equipeRepository
+): Response
+{
+    // Paramètres de pagination
+    $page = $request->query->getInt('page', 1);
+    $limit = 4;
+    $searchTerm = $request->query->get('search', '');
+    
+    // Construction de la requête
+    $queryBuilder = $equipeRepository->createQueryBuilder('e')
+        ->leftJoin('e.constructeur', 'c')
+        ->leftJoin('e.gestionnairestock', 'g')
+        ->addSelect('c', 'g')
+        ->orderBy('e.id', 'DESC');
+
+    if ($searchTerm) {
+        $queryBuilder->andWhere('e.nom LIKE :search')
+            ->setParameter('search', '%'.$searchTerm.'%');
+    }
+
+    // Pagination
+    $paginator = new \Doctrine\ORM\Tools\Pagination\Paginator($queryBuilder);
+    $totalTeams = count($paginator);
+    $totalPages = ceil($totalTeams / $limit);
+
+    $equipes = $queryBuilder
+        ->setFirstResult(($page - 1) * $limit)
+        ->setMaxResults($limit)
+        ->getQuery()
+        ->getResult();
+
+    return $this->render('equipe/_team_table.html.twig', [
+        'equipes' => $equipes,
+        'currentPage' => $page,
+        'totalPages' => $totalPages,
     ]);
 }
 

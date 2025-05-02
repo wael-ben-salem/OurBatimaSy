@@ -47,39 +47,50 @@ class UtilisateurController extends AbstractController
         ]);
     }
     #[Route('/tables/role/{role}', name: 'app_users_by_role', methods: ['GET'])]
-public function getUsersByRole(
-    string $role,
-    Request $request,
-    UtilisateurRepository $userRepo,
-    ArtisanRepository $artisanRepo,
-    ConstructeurRepository $constructeurRepo
-): Response {
-    // Paramètres de pagination fixés à 4 éléments par page
-    $page = $request->query->getInt('page', 1);
-    $limit = 4; // Fixé à 4 éléments par page
-    $page = max(1, $page);
-    $offset = ($page - 1) * $limit;
-
-    $users = $userRepo->findBy(
-        ['role' => $role],
-        ['id' => 'DESC'],
-        $limit,
-        $offset
-    );
-
-    $totalUsers = $userRepo->count(['role' => $role]);
-    $totalPages = ceil($totalUsers / $limit);
-
-    return $this->render('tables/_user_table.html.twig', [
-        'users' => $users,
-        'role' => $role,
-        'artisanInfos' => $role === 'Artisan' ? $artisanRepo->findAll() : [],
-        'constructeurInfos' => $role === 'Constructeur' ? $constructeurRepo->findAll() : [],
-        'currentPage' => $page,
-        'totalPages' => $totalPages,
-        'limit' => $limit,
-    ]);
-}
+    public function getUsersByRole(
+        string $role,
+        Request $request,
+        UtilisateurRepository $userRepo,
+        ArtisanRepository $artisanRepo,
+        ConstructeurRepository $constructeurRepo
+    ): Response {
+        // Paramètres de pagination
+        $page = $request->query->getInt('page', 1);
+        $limit = 4; // Fixé à 4 éléments par page
+        $searchTerm = $request->query->get('search', '');
+        
+        // Construction de la requête avec possibilité de recherche
+        $queryBuilder = $userRepo->createQueryBuilder('u')
+            ->where('u.role = :role')
+            ->setParameter('role', $role)
+            ->orderBy('u.id', 'DESC');
+    
+        if ($searchTerm) {
+            $queryBuilder->andWhere('u.nom LIKE :search OR u.prenom LIKE :search OR u.email LIKE :search')
+                ->setParameter('search', '%'.$searchTerm.'%');
+        }
+    
+        // Pagination
+        $paginator = new \Doctrine\ORM\Tools\Pagination\Paginator($queryBuilder);
+        $totalUsers = count($paginator);
+        $totalPages = ceil($totalUsers / $limit);
+    
+        $users = $queryBuilder
+            ->setFirstResult(($page - 1) * $limit)
+            ->setMaxResults($limit)
+            ->getQuery()
+            ->getResult();
+    
+        return $this->render('tables/_user_table.html.twig', [
+            'users' => $users,
+            'role' => $role,
+            'artisanInfos' => $role === 'Artisan' ? $artisanRepo->findAll() : [],
+            'constructeurInfos' => $role === 'Constructeur' ? $constructeurRepo->findAll() : [],
+            'currentPage' => $page,
+            'totalPages' => $totalPages,
+            'limit' => $limit,
+        ]);
+    }
     #[Route('/users', name: 'app_users', methods: ['GET'])]
     public function index(UtilisateurRepository $userRepository): JsonResponse
     {

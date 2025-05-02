@@ -41,7 +41,7 @@
                             </div>
                             <div class="top-bar-text">
                                 <h3>Email</h3>
-                                <p>contact@ourbatima.com</p>
+                                <p>Ourbatima@gmail.com</p>
                             </div>
                         </div>
                     </div>
@@ -62,31 +62,37 @@
             </button>
 
             <div class="collapse navbar-collapse justify-content-between" id="navbarCollapse">
-                <div class="navbar-nav mr-auto">
-                    <a href="{{ path('app_welcomeFront') }}" class="nav-item nav-link {% if app.request.attributes.get('_route') == 'app_welcomeFront' %}active{% endif %}">Accueil</a>
+    <div class="navbar-nav mr-auto">
+<a href="{{ app.user ? path('app_welcomeFront') : path('home') }}"
+   class="nav-item nav-link {% if app.request.attributes.get('_route') == (app.user ? 'app_welcomeFront' : 'home') %}active{% endif %}">
+   Accueil
+</a>
+                      {% if app.user %}
+        <a href="{{ path('app_abonnement') }}" class="nav-item nav-link">Abonnements</a>
+        <a href="{{ path('contrat_client') }}" class="nav-item nav-link">Contrats</a>
+
+        <a href="{{ path('app_equipe_client') }}" class="nav-item nav-link {% if app.request.attributes.get('_route') == 'app_equipe_client' %}active{% endif %}">Équipes</a>
+        {% endif %}
+
+        {% if app.user %}
+            <a href="{{ path('app_projet_front_index') }}" class="nav-item nav-link {% if app.request.attributes.get('_route') == 'app_projet_front_index' %}active{% endif %}">Projets</a>
+          
+        {% endif %}
                     <a href="{{ path('services') }}" class="nav-item nav-link {% if app.request.attributes.get('_route') == 'service' %}active{% endif %}">Services</a>
-                    <a href="{{ path('app_projet_front_index') }}" class="nav-item nav-link {% if app.request.attributes.get('_route') == 'app_projet_front_index' %}active{% endif %}">Projets</a>
+            <a href="{{ path('contact') }}" class="nav-item nav-link {% if app.request.attributes.get('_route') == 'contact' %}active{% endif %}">Contact</a>
 
-                    <a href="{{ path('contact') }}" class="nav-item nav-link {% if app.request.attributes.get('_route') == 'contact' %}active{% endif %}">Contact</a>
+    </div>
+</div>
 
-                    <a href="{{ path('app_equipe_client') }}" class="nav-item nav-link {% if app.request.attributes.get('_route') == 'app_equipe_client' %}active{% endif %}">Equipe</a>
-
-
-<a href="{{ path('app_abonnement') }}" class="nav-item nav-link">Abonnements</a>
-<a href="{{ path('contrat_client') }}" class="nav-item nav-link">vous contrats</a>
-
-
-
-
-
-                    <a href="{{ path('app_equipe_client') }}" class="nav-item nav-link {% if app.request.attributes.get('_route') == 'app_equipe_client' %}active{% endif %}">Équipe</a>
-                    <a href="{{ path('app_abonnement') }}" class="nav-item nav-link {% if app.request.attributes.get('_route') == 'app_abonnement' %}active{% endif %}">Abonnements</a>
-
-                </div>
                 
                 <div class="ml-auto">
-                    <a href="{{ path('app_login') }}" class="nav-item nav-link">Connexion</a>
-                </div>
+    {% if app.user %}
+        <a href="{{ path('app_logout') }}" class="nav-item nav-link">Déconnexion</a>
+    {% else %}
+        <a href="{{ path('app_login') }}" class="nav-item nav-link">Connexion</a>
+    {% endif %}
+</div>
+
             </div>
         </nav>
     </div>

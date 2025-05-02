@@ -23,10 +23,10 @@
             </p>
             {% if user.artisan %}
               <p><strong>Spécialité :</strong> {{ user.artisan.specialite }}</p>
-              <p><strong>Salaire/h :</strong> {{ user.artisan.salaireHeure }} €</p>
+              <p><strong>Salaire/h :</strong> {{ user.artisan.salaireHeure }} DT</p>
             {% elseif user.constructeur %}
               <p><strong>Spécialité :</strong> {{ user.constructeur.specialite }}</p>
-              <p><strong>Salaire/h :</strong> {{ user.constructeur.salaireHeure }} €</p>
+              <p><strong>Salaire/h :</strong> {{ user.constructeur.salaireHeure }} DT</p>
             {% endif %}
           </div>
         </div>

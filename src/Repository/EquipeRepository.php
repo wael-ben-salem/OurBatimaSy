@@ -57,4 +57,21 @@ public function findWithDetails(int $id): ?Equipe
         ->getQuery()
         ->getOneOrNullResult();
 }
+public function findAllPaginated(int $page = 1, int $limit = 4): array
+{
+    $query = $this->createQueryBuilder('e')
+        ->leftJoin('e.constructeur', 'c')
+        ->leftJoin('e.gestionnairestock', 'g')
+        ->leftJoin('e.artisan', 'a')
+        ->addSelect('c', 'g', 'a')
+        ->orderBy('e.id', 'DESC')
+        ->getQuery();
+
+    $paginator = new \Doctrine\ORM\Tools\Pagination\Paginator($query);
+    $paginator->getQuery()
+        ->setFirstResult(($page - 1) * $limit)
+        ->setMaxResults($limit);
+
+    return iterator_to_array($paginator);
+}
 }

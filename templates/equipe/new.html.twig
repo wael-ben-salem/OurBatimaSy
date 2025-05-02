@@ -116,7 +116,7 @@
         }
         
         .drop-zone.empty::after {
-            content: 'Drag and drop members here';
+            content: 'Glissez et déposez les membres ici';
             position: absolute;
             top: 50%;
             left: 50%;
@@ -337,23 +337,22 @@
         .user-card:nth-child(5) { animation-delay: 0.5s; }
     </style>
 {% endblock %}
-
 {% block body %}
 <div class="team-creation-container animate__animated animate__fadeIn">
     <div class="page-header">
-        <h1 class="page-title">Create New Team</h1>
+        <h1 class="page-title">Créer une nouvelle équipe</h1>
         <button id="createTeamBtn" class="btn btn-primary create-btn">
-            <i class="bi bi-save me-2"></i>Create Team
+            <i class="bi bi-save me-2"></i>Créer l'équipe
         </button>
     </div>
     
     <div class="section-card mb-4">
         <div class="section-body">
             <div class="mb-4">
-                <label for="teamName" class="form-label fw-bold">Team Name</label>
+                <label for="teamName" class="form-label fw-bold">Nom de l'équipe</label>
                 <input type="text" class="form-control team-name-input" id="teamName" required 
-                       placeholder="Enter a creative team name">
-                <div class="form-text">Choose a name that reflects your team's purpose and identity</div>
+                       placeholder="Entrez un nom d'équipe créatif">
+                <div class="form-text">Choisissez un nom qui reflète l’objectif et l’identité de votre équipe</div>
             </div>
         </div>
     </div>
@@ -361,17 +360,17 @@
     <div class="section-card">
         <div class="section-header">
             <i class="bi bi-person-gear section-icon"></i>
-            <h2 class="section-title">Select Constructor</h2>
+            <h2 class="section-title">Sélectionner un constructeur</h2>
         </div>
         <div class="section-body">
             <div class="drag-container">
                 <div class="user-list-container">
-                    <h5 class="fw-bold mb-3">Available Constructors</h5>
+                    <h5 class="fw-bold mb-3">Constructeurs disponibles</h5>
                     <div class="user-list" id="constructeurList">
                         {% if constructeurs is empty %}
                             <div class="empty-state">
                                 <i class="bi bi-person-x"></i>
-                                <p>No constructors available</p>
+                                <p>Aucun constructeur disponible</p>
                             </div>
                         {% else %}
                             {% for constructeur in constructeurs %}
@@ -381,7 +380,7 @@
                                     </div>
                                     <div class="user-info">
                                         <div class="user-name">{{ constructeur.constructeur.nom }} {{ constructeur.constructeur.prenom }}</div>
-                                        <div class="user-specialty">Constructor</div>
+                                        <div class="user-specialty">Constructeur</div>
                                     </div>
                                 </div>
                             {% endfor %}
@@ -389,7 +388,7 @@
                     </div>
                 </div>
                 <div class="user-list-container">
-                    <h5 class="fw-bold mb-3">Selected Constructor</h5>
+                    <h5 class="fw-bold mb-3">Constructeur sélectionné</h5>
                     <div class="drop-zone empty" id="selectedConstructor"></div>
                 </div>
             </div>
@@ -399,17 +398,17 @@
     <div class="section-card">
         <div class="section-header">
             <i class="bi bi-clipboard2-data section-icon"></i>
-            <h2 class="section-title">Select Stock Manager</h2>
+            <h2 class="section-title">Sélectionner un gestionnaire de stock</h2>
         </div>
         <div class="section-body">
             <div class="drag-container">
                 <div class="user-list-container">
-                    <h5 class="fw-bold mb-3">Available Stock Managers</h5>
+                    <h5 class="fw-bold mb-3">Gestionnaires de stock disponibles</h5>
                     <div class="user-list" id="gestionnaireList">
                         {% if gestionnaires is empty %}
                             <div class="empty-state">
                                 <i class="bi bi-person-x"></i>
-                                <p>No stock managers available</p>
+                                <p>Aucun gestionnaire de stock disponible</p>
                             </div>
                         {% else %}
                             {% for gestionnaire in gestionnaires %}
@@ -419,7 +418,7 @@
                                     </div>
                                     <div class="user-info">
                                         <div class="user-name">{{ gestionnaire.gestionnairestock.nom }} {{ gestionnaire.gestionnairestock.prenom }}</div>
-                                        <div class="user-specialty">Stock Manager</div>
+                                        <div class="user-specialty">Gestionnaire de stock</div>
                                     </div>
                                 </div>
                             {% endfor %}
@@ -427,7 +426,7 @@
                     </div>
                 </div>
                 <div class="user-list-container">
-                    <h5 class="fw-bold mb-3">Selected Stock Manager</h5>
+                    <h5 class="fw-bold mb-3">Gestionnaire de stock sélectionné</h5>
                     <div class="drop-zone empty" id="selectedGestionnaire"></div>
                 </div>
             </div>
@@ -437,17 +436,17 @@
     <div class="section-card">
         <div class="section-header">
             <i class="bi bi-tools section-icon"></i>
-            <h2 class="section-title">Select Artisans</h2>
+            <h2 class="section-title">Sélectionner les artisans</h2>
         </div>
         <div class="section-body">
             <div class="drag-container">
                 <div class="user-list-container">
-                    <h5 class="fw-bold mb-3">Available Artisans</h5>
+                    <h5 class="fw-bold mb-3">Artisans disponibles</h5>
                     <div class="user-list" id="artisanList">
                         {% if artisans is empty %}
                             <div class="empty-state">
                                 <i class="bi bi-person-x"></i>
-                                <p>No artisans available</p>
+                                <p>Aucun artisan disponible</p>
                             </div>
                         {% else %}
                             {% for artisan in artisans %}
@@ -472,6 +471,7 @@
     </div>
 </div>
 {% endblock %}
+
 
 {% block javascripts %}
 {{ parent() }}

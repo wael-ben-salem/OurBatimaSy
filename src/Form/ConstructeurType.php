@@ -16,7 +16,7 @@ class ConstructeurType extends AbstractType
         $builder
             ->add('specialite', TextType::class, ['label' => 'Spécialité'])
             ->add('salaireHeure', NumberType::class, [
-                'label' => 'Salaire horaire (€)',
+                'label' => 'Salaire horaire (DT)',
                 'scale' => 2
             ]);
     }

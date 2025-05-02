@@ -81,7 +81,7 @@
         }
         
         .drop-zone.empty::after {
-            content: 'Drag and drop members here';
+            content: 'Glissez et déposez les membres ici';
             position: absolute;
             top: 50%;
             left: 50%;
@@ -264,24 +264,23 @@
         }
     </style>
 {% endblock %}
-
 {% block body %}
 <div class="team-edit-container">
     <div class="team-header">
-        <h1 class="team-title">Edit Team: <span class="text-primary">{{ equipe.nom }}</span></h1>
+        <h1 class="team-title">Modifier l'équipe : <span class="text-primary">{{ equipe.nom }}</span></h1>
     </div>
     
     <div class="form-group">
-        <label for="teamName" class="form-label">Team Name</label>
+        <label for="teamName" class="form-label">Nom de l'équipe</label>
         <input type="text" class="form-control form-control-lg" id="teamName" 
-               value="{{ equipe.nom }}" required placeholder="Enter team name">
+               value="{{ equipe.nom }}" required placeholder="Entrez le nom de l'équipe">
     </div>
     
     <div class="section-container">
-        <h3 class="section-title"><i class="bi bi-person-gear"></i> Constructor</h3>
+        <h3 class="section-title"><i class="bi bi-person-gear"></i> Constructeur</h3>
         <div class="drag-container">
             <div class="selection-zone">
-                <div class="selection-title">Selected Constructor</div>
+                <div class="selection-title">Constructeur sélectionné</div>
                 <div class="drop-zone" id="selectedConstructor">
                     {% if equipe.constructeur %}
                         {% set constructor = equipe.constructeur %}
@@ -290,7 +289,7 @@
                                 <i class="bi bi-person-gear"></i>
                             </div>
                             <div class="user-info">
-                                <div class="user-role">Constructor</div>
+                                <div class="user-role">Constructeur</div>
                                 <div class="user-name">{{ constructor.constructeur.nom }} {{ constructor.constructeur.prenom }}</div>
                             </div>
                             <button class="remove-btn">
@@ -298,13 +297,13 @@
                             </button>
                         </div>
                     {% else %}
-                        <div class="empty"></div>
+                        <div class="empty">Glissez et déposez un constructeur ici</div>
                     {% endif %}
                 </div>
             </div>
             
             <div class="selection-zone">
-                <div class="selection-title">Available Constructors</div>
+                <div class="selection-title">Constructeurs disponibles</div>
                 <div class="user-list" id="constructeurList">
                     {% for constructeur in constructeurs %}
                         <div class="user-card {{ constructeur.id == selectedConstructor ? 'selected' : '' }}" 
@@ -313,7 +312,7 @@
                                 <i class="bi bi-person-gear"></i>
                             </div>
                             <div class="user-info">
-                                <div class="user-role">Constructor</div>
+                                <div class="user-role">Constructeur</div>
                                 <div class="user-name">{{ constructeur.constructeur.nom }} {{ constructeur.constructeur.prenom }}</div>
                             </div>
                         </div>
@@ -324,10 +323,10 @@
     </div>
 
     <div class="section-container">
-        <h3 class="section-title"><i class="bi bi-clipboard2-data"></i> Stock Manager</h3>
+        <h3 class="section-title"><i class="bi bi-clipboard2-data"></i> Gestionnaire de stock</h3>
         <div class="drag-container">
             <div class="selection-zone">
-                <div class="selection-title">Selected Manager</div>
+                <div class="selection-title">Gestionnaire sélectionné</div>
                 <div class="drop-zone" id="selectedGestionnaire">
                     {% if equipe.gestionnairestock %}
                         {% set manager = equipe.gestionnairestock %}
@@ -336,7 +335,7 @@
                                 <i class="bi bi-clipboard2-data"></i>
                             </div>
                             <div class="user-info">
-                                <div class="user-role">Stock Manager</div>
+                                <div class="user-role">Gestionnaire</div>
                                 <div class="user-name">{{ manager.gestionnairestock.nom }} {{ manager.gestionnairestock.prenom }}</div>
                             </div>
                             <button class="remove-btn">
@@ -344,13 +343,13 @@
                             </button>
                         </div>
                     {% else %}
-                        <div class="empty"></div>
+                        <div class="empty">Glissez et déposez un gestionnaire ici</div>
                     {% endif %}
                 </div>
             </div>
             
             <div class="selection-zone">
-                <div class="selection-title">Available Managers</div>
+                <div class="selection-title">Gestionnaires disponibles</div>
                 <div class="user-list" id="gestionnaireList">
                     {% for gestionnaire in gestionnaires %}
                         <div class="user-card {{ gestionnaire.id == selectedGestionnaire ? 'selected' : '' }}" 
@@ -359,7 +358,7 @@
                                 <i class="bi bi-clipboard2-data"></i>
                             </div>
                             <div class="user-info">
-                                <div class="user-role">Stock Manager</div>
+                                <div class="user-role">Gestionnaire</div>
                                 <div class="user-name">{{ gestionnaire.gestionnairestock.nom }} {{ gestionnaire.gestionnairestock.prenom }}</div>
                             </div>
                         </div>
@@ -373,7 +372,7 @@
         <h3 class="section-title"><i class="bi bi-tools"></i> Artisans</h3>
         <div class="drag-container">
             <div class="selection-zone">
-                <div class="selection-title">Selected Artisans ({{ equipe.artisan|length }})</div>
+                <div class="selection-title">Artisans sélectionnés ({{ equipe.artisan|length }})</div>
                 <div class="drop-zone" id="selectedArtisans">
                     {% if equipe.artisan|length > 0 %}
                         {% for artisan in equipe.artisan %}
@@ -393,13 +392,13 @@
                         {% endfor %}
                         <div class="selection-count">{{ equipe.artisan|length }}</div>
                     {% else %}
-                        <div class="empty"></div>
+                        <div class="empty">Glissez et déposez des artisans ici</div>
                     {% endif %}
                 </div>
             </div>
             
             <div class="selection-zone">
-                <div class="selection-title">Available Artisans</div>
+                <div class="selection-title">Artisans disponibles</div>
                 <div class="user-list" id="artisanList">
                     {% for artisan in artisans %}
                         <div class="user-card {{ artisan.id in selectedArtisans ? 'selected' : '' }}" 
@@ -421,14 +420,15 @@
 
     <div class="action-buttons">
         <a href="{{ path('app_equipe_index') }}" class="btn btn-outline-secondary btn-custom">
-            <i class="bi bi-arrow-left"></i>Back to list
+            <i class="bi bi-arrow-left"></i> Retour à la liste
         </a>
         <button id="updateTeamBtn" class="btn btn-primary btn-custom">
-            <i class="bi bi-save"></i>Update Team
+            <i class="bi bi-save"></i> Mettre à jour l'équipe
         </button>
     </div>
 </div>
 {% endblock %}
+
 
 {% block javascripts %}
 {{ parent() }}

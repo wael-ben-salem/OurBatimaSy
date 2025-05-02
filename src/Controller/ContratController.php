@@ -95,6 +95,7 @@ final class ContratController extends AbstractController
                         $this->addFlash('success', 'Contract created successfully!');
                         return $this->redirectToRoute('app_contrat_index');
                     } else {
+                        
                         $this->addFlash('error', 'Signatures do not match (Difference: '.$distance.')');
                         return $this->render('contrat/new.html.twig', [
                             'contrat' => $contrat,
@@ -102,6 +103,7 @@ final class ContratController extends AbstractController
                         ]);
                     }
                 } else {
+                    $entityManager->persist($contrat);
                     // First-time signature setup
                     $user->setSignature('/signatures/' . $filename);
                     $entityManager->persist($user);
@@ -165,7 +167,7 @@ final class ContratController extends AbstractController
                     $hash2 = $hasher->hash($file2);
                     $distance = $hasher->distance($hash1, $hash2);
                     
-                    if ($distance <= 5) {
+                    if ($distance <= 8) {
                         // Delete old signature file if exists
                         if ($oldSignature && file_exists($projectDir.'/public'.$oldSignature)) {
                             unlink($projectDir.'/public'.$oldSignature);
@@ -427,7 +429,7 @@ final class ContratController extends AbstractController
                 $hash2 = $hasher->hash($file2);
                 $distance = $hasher->distance($hash1, $hash2);
                 
-                if ($distance <= 5) {
+                if ($distance <= 8) {
                     $contrat->setSignatureClient('/signatures/' . $filename);
                     $contrat->setDateSignatureClient(new \DateTime());
                     $entityManager->persist($contrat);

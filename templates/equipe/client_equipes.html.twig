@@ -309,25 +309,28 @@
         </h1>
     </div>
     
-    <div class="client-info">
-        <div class="client-avatar">
-        {{ user.nom|first }}{{ user.prenom|first }}
-        </div>
-        <div class="client-details">
+  <div class="client-info">
+    <div class="client-avatar">
+        {{ user.prenom|first }}{{ user.nom|first }}
+    </div>
+    <div class="client-details">
         <h3>{{ user.prenom }} {{ user.nom }}</h3>
-            <div class="client-meta">
-                <span class="meta-item">
+        <div class="client-meta">
+            <span class="meta-item">
                 <i class="bi bi-envelope"></i> {{ user.email }}
-                </span>
-                <span class="meta-item">
+            </span>
+            <span class="meta-item">
                 <i class="bi bi-telephone"></i> {{ user.telephone }}
-                </span>
+            </span>
+            {% if user.adresse %}
                 <span class="meta-item">
-                <i class="bi bi-building"></i> {{ user.adresse }}
+                    <i class="bi bi-building"></i> {{ user.adresse }}
                 </span>
-            </div>
+            {% endif %}
         </div>
     </div>
+</div>
+
     
     {% if equipes|length > 0 %}
         <div class="equipes-grid">

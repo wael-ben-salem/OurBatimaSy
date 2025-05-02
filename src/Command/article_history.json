@@ -1,0 +1,20 @@
+[
+    {
+        "action": "created",
+        "article_id": 1,
+        "article_name": "tournivis",
+        "timestamp": "2025-05-02 01:33:22"
+    },
+    {
+        "action": "updated",
+        "article_id": 1,
+        "article_name": "tournivis",
+        "timestamp": "2025-05-02 01:34:29"
+    },
+    {
+        "action": "created",
+        "article_id": 1,
+        "article_name": "articel A",
+        "timestamp": "2025-05-02 12:55:36"
+    }
+]

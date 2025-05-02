@@ -1,12 +1,64 @@
 {% extends 'base_backOffice.html.twig' %}
 
-{% block title %}Teams{% endblock %}
-
-{% block breadcrumb %}Teams{% endblock %}
+{% block title %}Equipes{% endblock %}
+{% block breadcrumb %}Equipes{% endblock %}
 
 {% block stylesheets %}
   {{ parent() }}
-  {# Conserver les styles existants du tableau des projets #}
+  <style>
+    .card {
+      border-radius: 12px;
+      box-shadow: 0 4px 20px 0 rgba(0, 0, 0, 0.14), 
+                  0 7px 10px -5px rgba(0, 0, 0, 0.4);
+    }
+    .avatar-sm {
+      width: 36px;
+      height: 36px;
+      display: flex;
+      align-items: center;
+      justify-content: center;
+    }
+    .loading-spinner {
+      display: none;
+      text-align: center;
+      padding: 20px;
+    }
+    /* Styles pour la barre de recherche */
+    .input-group.input-group-outline {
+      background: #fff;
+      border-radius: 8px;
+      box-shadow: 0 2px 5px rgba(0,0,0,0.1);
+      transition: all 0.3s ease;
+    }
+    .input-group.input-group-outline:focus-within {
+      box-shadow: 0 4px 10px rgba(0,0,0,0.15);
+    }
+    #searchTeamInput {
+      border: none;
+      background: transparent;
+      padding: 10px 15px;
+      width: 300px;
+    }
+    #searchTeamInput:focus {
+      outline: none;
+      box-shadow: none;
+    }
+    #searchTeamButton {
+      border-top-left-radius: 0;
+      border-bottom-left-radius: 0;
+    }
+    .search-clear {
+      cursor: pointer;
+      position: absolute;
+      right: 50px;
+      top: 10px;
+      color: #6c757d;
+    }
+    .rating-badge {
+      min-width: 60px;
+      display: inline-block;
+    }
+  </style>
 {% endblock %}
 
 {% block body %}
@@ -15,119 +67,47 @@
       <div class="card my-4">
         <div class="card-header p-0 position-relative mt-n4 mx-3 z-index-2">
           <div class="bg-gradient-dark shadow-dark border-radius-lg pt-4 pb-3 d-flex justify-content-between align-items-center">
-            <h6 class="text-white text-capitalize ps-3">Teams table</h6>
-            <a href="{{ path('app_equipe_new') }}" class="btn btn-sm btn-light me-3">
-              <i class="material-symbols-rounded me-1">group_add</i>
-              New Team
-            </a>
+            <h6 class="text-white text-capitalize ps-3">Equipes</h6>
+           {% if is_granted('ROLE_ADMIN') %}
+    <a href="{{ path('app_equipe_new') }}" class="btn btn-sm btn-light me-3">
+        <i class="material-symbols-rounded me-1">group_add</i>
+    </a>
+{% endif %}
+  
           </div>
         </div>
-        <div class="card-body px-0 pb-2">
-          <div class="table-responsive p-0">
-            <table class="table align-items-center justify-content-center mb-0">
-              <thead>
-                <tr>
-                  <th class="text-uppercase text-secondary text-xxs font-weight-bolder opacity-7">Team</th>
-                  <th class="text-uppercase text-secondary text-xxs font-weight-bolder opacity-7 text-center">Constructor</th>
-                  <th class="text-uppercase text-secondary text-xxs font-weight-bolder opacity-7 text-center">Stock Manager</th>
-                  <th class="text-uppercase text-secondary text-xxs font-weight-bolder opacity-7 text-center">Members</th>
-                  <th class="text-uppercase text-secondary text-xxs font-weight-bolder opacity-7 text-center">Creation Date</th>
-                  <th class="text-uppercase text-secondary text-xxs font-weight-bolder opacity-7 text-center">Rating</th>
-                  <th class="text-uppercase text-secondary text-xxs font-weight-bolder opacity-7 text-center">Actions</th>
-                </tr>
-              </thead>
-              <tbody>
-                {% for equipe in equipes %}
-                  {% set ratingColor = equipe.rating >= 4.5 ? 'success' : 
-                                     equipe.rating >= 3.5 ? 'info' : 
-                                     equipe.rating >= 2.5 ? 'warning' : 'danger' %}
-                <tr>
-                  <td>
-                    <div class="d-flex px-2">
-                      <div class="avatar avatar-sm rounded-circle bg-gradient-dark me-2">
-                        <i class="material-symbols-rounded text-white">groups</i>
-                      </div>
-                      <div class="my-auto">
-                        <h6 class="mb-0 text-sm">{{ equipe.nom }}</h6>
-                        <p class="text-xs text-secondary mb-0">
-                          ID: {{ equipe.id }}
-                        </p>
-                      </div>
-                    </div>
-                  </td>
-                  <td class="text-center align-middle">
-  <p class="text-sm font-weight-bold mb-0">
-    {{ equipe.constructeur.constructeur.nom }} 
-    {{ equipe.constructeur.constructeur.prenom }}
-  </p>
-</td>
-                  <td class="text-center align-middle">
-  <p class="text-sm font-weight-bold mb-0">
-    {{ equipe.gestionnairestock.gestionnairestock.nom }} 
-    {{ equipe.gestionnairestock.gestionnairestock.prenom }}
-  </p>
-</td>
-                  <td class="text-center align-middle">
-                    {% if equipe.artisans|length > 0 %}
-                      <div class="dropdown">
-                        <button class="btn btn-sm btn-outline-primary dropdown-toggle" type="button" id="dropdownMembers{{ equipe.id }}" data-bs-toggle="dropdown">
-                          {{ equipe.artisans|length }} members
-                        </button>
-                        <ul class="dropdown-menu">
-{% for artisan in equipe.artisan %}
-                            <li>
-                              <div class="dropdown-item-text px-2 py-1">
-                                <div class="d-flex justify-content-between align-items-center">
-                                  <div>
-                                  
-                                    <strong>{{ artisan.artisan.nom }} {{ artisan.artisan.prenom }}</strong>
-                                            <span class="badge bg-primary">{{ artisan.specialite }}</span>
+        <div class="card-body px-4 pb-2">
+          <!-- Barre de recherche -->
+          <div class="row mb-3">
+            <div class="col-md-6 position-relative">
+              <div class="input-group input-group-outline">
+                <input type="text" id="searchTeamInput" class="form-control" 
+                       placeholder="Rechercher par nom d'équipe..."
+                       value="{{ app.request.query.get('search') }}">
+                <span class="search-clear" id="clearTeamSearch" style="display: none;">
+                  <i class="material-symbols-rounded">close</i>
+                </span>
+                <button class="btn btn-outline-primary" type="button" id="searchTeamButton">
+                  <i class="material-symbols-rounded">search</i>
+                </button>
+              </div>
+            </div>
+          </div>
 
-                                  </div>
-                                  <span class="badge bg-{{ artisan.artisan.statut == 'actif' ? 'success' : 'secondary' }}">
-    {{ artisan.artisan.statut|upper }}
-</span>
-                                </div>
-                                <div class="small mt-1">
-                                  <i class="material-symbols-rounded fs-6">paid</i>
-                                  TND {{ artisan.salaireHeure|number_format(2) }}/h
-                                </div>
-                              </div>
-                            </li>
-                            {% if not loop.last %}<li><hr class="dropdown-divider"></li>{% endif %}
-                          {% endfor %}
-                        </ul>
-                      </div>
-                    {% else %}
-                      <span class="badge bg-secondary">No members</span>
-                    {% endif %}
-                  </td>
-                  <td class="text-center align-middle">
-                    <p class="text-sm font-weight-bold mb-0">
-                      {{ equipe.dateCreation|date('d/m/Y') }}
-                    </p>
-                  </td>
-                  <td class="text-center align-middle">
-                    <span class="badge badge-sm bg-gradient-{{ ratingColor }}">
-                      {{ equipe.rating|number_format(1) }}/5
-                    </span>
-                  </td>
-                  <td class="text-center align-middle">
-                    <a href="{{ path('app_equipe_show', {'id': equipe.id}) }}" class="text-secondary font-weight-bold text-xs" title="View">
-                      <i class="material-symbols-rounded">visibility</i>
-                    </a>
-                    <a href="{{ path('app_equipe_edit', {'id': equipe.id}) }}" class="text-secondary font-weight-bold text-xs ms-2" title="Edit">
-                      <i class="material-symbols-rounded">edit</i>
-                    </a>
-                  </td>
-                </tr>
-                {% else %}
-                <tr>
-                  <td colspan="7" class="text-center">No teams found</td>
-                </tr>
-                {% endfor %}
-              </tbody>
-            </table>
+          <!-- Contenu dynamique -->
+          <div class="tab-content pt-3">
+            <div class="loading-spinner" id="teamSpinner">
+              <div class="spinner-border text-primary" role="status">
+                <span class="visually-hidden">Loading...</span>
+              </div>
+            </div>
+            <div id="teamDynamicContent">
+              {{ include('equipe/_team_table.html.twig', { 
+                'equipes': equipes,
+                'currentPage': app.request.query.get('page', 1),
+                'totalPages': totalPages
+              }) }}
+            </div>
           </div>
         </div>
       </div>
@@ -137,5 +117,92 @@
 
 {% block javascripts %}
   {{ parent() }}
-  {# Conserver les scripts existants #}
+  <script>
+    document.addEventListener('DOMContentLoaded', function() {
+      // Variables globales
+      let currentPage = 1;
+      let currentLimit = 4;
+      let searchTimeout;
+
+      // Initialisation
+      setupTeamSearch();
+
+      // Configuration de la recherche
+      function setupTeamSearch() {
+        const searchInput = document.getElementById('searchTeamInput');
+        const searchButton = document.getElementById('searchTeamButton');
+        const clearSearch = document.getElementById('clearTeamSearch');
+        
+        // Afficher/masquer le bouton de suppression
+        searchInput.addEventListener('input', function() {
+          clearSearch.style.display = this.value ? 'block' : 'none';
+        });
+        
+        // Effacer la recherche
+        clearSearch.addEventListener('click', function() {
+          searchInput.value = '';
+          this.style.display = 'none';
+          loadTeamTable(1);
+        });
+        
+        // Recherche au clic
+        searchButton.addEventListener('click', performTeamSearch);
+        
+        // Recherche en temps réel avec debounce
+        searchInput.addEventListener('input', function() {
+          clearTimeout(searchTimeout);
+          searchTimeout = setTimeout(performTeamSearch, 500);
+        });
+        
+        // Recherche avec Entrée
+        searchInput.addEventListener('keypress', function(e) {
+          if (e.key === 'Enter') performTeamSearch();
+        });
+        
+        function performTeamSearch() {
+          const searchTerm = searchInput.value.trim();
+          loadTeamTable(1, searchTerm);
+        }
+      }
+
+      // Chargement des équipes
+      async function loadTeamTable(page, searchTerm = '') {
+        const contentDiv = document.getElementById('teamDynamicContent');
+        const spinner = document.getElementById('teamSpinner');
+
+        contentDiv.style.display = 'none';
+        spinner.style.display = 'block';
+
+        try {
+          let url = `/equipe/table?page=${page}&limit=${currentLimit}`;
+          if (searchTerm) {
+            url += `&search=${encodeURIComponent(searchTerm)}`;
+          }
+          
+          const response = await fetch(url);
+          if(!response.ok) throw new Error('Erreur réseau');
+          
+          contentDiv.innerHTML = await response.text();
+          attachTeamPaginationHandlers();
+        } catch (error) {
+          contentDiv.innerHTML = '<div class="alert alert-danger">Erreur de chargement</div>';
+          console.error('Erreur:', error);
+        } finally {
+          spinner.style.display = 'none';
+          contentDiv.style.display = 'block';
+        }
+      }
+
+      // Gestion de la pagination
+      function attachTeamPaginationHandlers() {
+        document.querySelectorAll('.pagination a[data-page]').forEach(link => {
+          link.addEventListener('click', function(e) {
+            e.preventDefault();
+            currentPage = parseInt(this.dataset.page);
+            loadTeamTable(currentPage, document.getElementById('searchTeamInput').value.trim());
+          });
+        });
+      }
+    });
+  </script>
 {% endblock %}

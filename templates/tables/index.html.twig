@@ -66,14 +66,27 @@
       <div class="card my-4">
         <div class="card-header p-0 position-relative mt-n4 mx-3 z-index-2">
           <div class="bg-gradient-dark shadow-dark border-radius-lg pt-4 pb-3 d-flex justify-content-between align-items-center">
-            <h6 class="text-white text-capitalize ps-3">Gestion des utilisateurs</h6>
-            <a href="{{ path('app_user_add') }}" class="btn btn-sm btn-light me-3">
-              <i class="material-symbols-rounded me-1">add</i>
-              Nouvel Utilisateur
-            </a>
+            <h6 class="text-white text-capitalize ps-3">Utilisateurs</h6>
+            {% if is_granted('ROLE_ADMIN') %}
+    <a href="{{ path('app_user_add') }}" class="btn btn-sm btn-light me-3">
+        <i class="material-symbols-rounded me-1">add</i>
+    </a>
+{% endif %}
+
           </div>
         </div>
         <div class="card-body px-4 pb-2">
+
+        <div class="row mb-3">
+    <div class="col-md-6">
+      <div class="input-group input-group-outline">
+        <input type="text" id="searchInput" class="form-control" placeholder="Rechercher par nom, prénom ou email...">
+        <button class="btn btn-outline-primary" type="button" id="searchButton">
+          <i class="material-symbols-rounded">search</i>
+        </button>
+      </div>
+    </div>
+  </div>
           <!-- Onglets -->
           <ul class="nav nav-tabs" id="userTabs" role="tablist">
             <li class="nav-item"><button class="nav-link active" data-tab-role="Client" type="button">Clients</button></li>
@@ -118,6 +131,8 @@
 
       // Initialisation
       loadUserTable(currentRole, currentPage);
+        setupSearch(); // Ajoutez cette ligne
+
 
       // Gestion des onglets
       document.querySelectorAll('[data-tab-role]').forEach(tab => {
@@ -130,9 +145,33 @@
           loadUserTable(currentRole, currentPage);
         });
       });
-
+      
+let searchTimeout;
+function setupSearch() {
+  const searchInput = document.getElementById('searchInput');
+  const searchButton = document.getElementById('searchButton');
+  
+  const performSearch = () => {
+    const searchTerm = searchInput.value.trim();
+    loadUserTable(currentRole, 1, currentLimit, searchTerm);
+  };
+  
+  // Recherche au clic
+  searchButton.addEventListener('click', performSearch);
+  
+  // Recherche en temps réel avec debounce
+  searchInput.addEventListener('input', () => {
+    clearTimeout(searchTimeout);
+    searchTimeout = setTimeout(performSearch, 500);
+  });
+  
+  // Recherche avec Entrée
+  searchInput.addEventListener('keypress', (e) => {
+    if (e.key === 'Enter') performSearch();
+  });
+}
       // Chargement des utilisateurs
-      async function loadUserTable(role, page, limit = 4) {
+      async function loadUserTable(role, page, limit = 4, searchTerm = '') {
         const contentDiv = document.getElementById('dynamicContent');
         const spinner = document.querySelector('.loading-spinner');
 
@@ -140,7 +179,11 @@
         spinner.style.display = 'block';
 
         try {
-          const response = await fetch(`/tables/role/${role}?page=${page}&limit=${limit}`);
+          let url = `/tables/role/${role}?page=${page}&limit=${limit}`;
+         if (searchTerm) {
+         url += `&search=${encodeURIComponent(searchTerm)}`;
+          }
+          const response = await fetch(url);
           if(!response.ok) throw new Error('Erreur réseau');
           
           contentDiv.innerHTML = await response.text();

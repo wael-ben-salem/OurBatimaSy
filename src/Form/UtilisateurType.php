@@ -104,7 +104,7 @@ class UtilisateurType extends AbstractType
             ->add('salaireHeureArtisan', NumberType::class, [
                 'required' => false,
                 'mapped' => false,
-                'label' => 'Salaire / heure Artisan (€)',
+                'label' => 'Salaire / heure Artisan (DT)',
                 'data' => $artisanInfo ? $artisanInfo->getSalaireHeure() : null,
                 'attr' => [
                     'class' => 'form-control',
@@ -122,7 +122,7 @@ class UtilisateurType extends AbstractType
             ->add('salaireHeureConstructeur', NumberType::class, [
                 'required' => false,
                 'mapped' => false,
-                'label' => 'Salaire / heure Constructeur (€)',
+                'label' => 'Salaire / heure Constructeur (DT)',
                 'data' => $constructeurInfo ? $constructeurInfo->getSalaireHeure() : null,
                 'attr' => [
                     'class' => 'form-control',
@@ -157,7 +157,7 @@ class UtilisateurType extends AbstractType
             ->add('salaireHeureArtisan', NumberType::class, [
                 'required' => true,
                 'mapped' => false,
-                'label' => 'Salaire / heure (€)',
+                'label' => 'Salaire / heure (DT)',
                 'constraints' => [
                     new NotBlank(),
                     new Regex(['pattern' => '/^\d+(\.\d{1,2})?$/'])
@@ -185,7 +185,7 @@ class UtilisateurType extends AbstractType
             ->add('salaireHeureConstructeur', NumberType::class, [
                 'required' => true,
                 'mapped' => false,
-                'label' => 'Salaire / heure (€)',
+                'label' => 'Salaire / heure (DT)',
                 'constraints' => [
                     new NotBlank(),
                     new Regex(['pattern' => '/^\d+(\.\d{1,2})?$/'])

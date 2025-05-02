@@ -3,6 +3,8 @@
 namespace App\Controller;
 
 use App\Entity\Utilisateur;
+use App\Entity\Client;
+
 use App\Security\LoginSuccessHandler;
 use App\Service\EmailService;
 
@@ -43,6 +45,12 @@ class RegistrationController extends AbstractController
             );
 
             $entityManager->persist($user);
+              // Création automatique d'un Client si l'utilisateur a le rôle CLIENT
+        if (in_array('ROLE_CLIENT', $user->getRoles())) {
+            $client = new Client();
+            $client->setClient($user);
+            $entityManager->persist($client);
+        }
             $entityManager->flush();
             // Envoi de l'email de bienvenue
             if (!$emailService->sendConfirmationEmail(
