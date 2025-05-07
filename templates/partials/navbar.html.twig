@@ -91,6 +91,10 @@
     {% else %}
         <a href="{{ path('app_login') }}" class="nav-item nav-link">Connexion</a>
     {% endif %}
+      <div class="navbar-nav mr-auto">
+                    <a href="{{ path('front_reclamation_index') }}" class="nav-item nav-link {% if app.request.attributes.get('_route') starts with 'front_reclamation_' %}active{% endif %}">Réclamations</a>
+                    <a href="{{ path('front_reponse_index') }}" class="nav-item nav-link {% if app.request.attributes.get('_route') starts with 'front_reponse_' %}active{% endif %}">Réponses</a>
+                </div>
 </div>
 
             </div>
