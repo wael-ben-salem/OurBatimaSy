@@ -16,5 +16,35 @@
         "article_id": 1,
         "article_name": "articel A",
         "timestamp": "2025-05-02 12:55:36"
+    },
+    {
+        "action": "created",
+        "article_id": 2,
+        "article_name": "Article B",
+        "timestamp": "2025-05-09 11:25:53"
+    },
+    {
+        "action": "deleted",
+        "article_id": 2,
+        "article_name": "Article B",
+        "timestamp": "2025-05-09 11:26:15"
+    },
+    {
+        "action": "created",
+        "article_id": 3,
+        "article_name": "article 2",
+        "timestamp": "2025-05-09 11:27:58"
+    },
+    {
+        "action": "deleted",
+        "article_id": 3,
+        "article_name": "article 2",
+        "timestamp": "2025-05-09 11:28:27"
+    },
+    {
+        "action": "created",
+        "article_id": 4,
+        "article_name": "tournivis",
+        "timestamp": "2025-05-09 12:29:14"
     }
 ]

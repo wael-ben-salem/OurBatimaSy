@@ -76,11 +76,13 @@
 
         {% if app.user %}
             <a href="{{ path('app_projet_front_index') }}" class="nav-item nav-link {% if app.request.attributes.get('_route') == 'app_projet_front_index' %}active{% endif %}">Projets</a>
+            <a href="{{ path('front_reclamation_index') }}" class="nav-item nav-link {% if app.request.attributes.get('_route') starts with 'front_reclamation_' %}active{% endif %}">Réclamations</a>
+                    <a href="{{ path('front_reponse_index') }}" class="nav-item nav-link {% if app.request.attributes.get('_route') starts with 'front_reponse_' %}active{% endif %}">Réponses</a>
           
         {% endif %}
                     <a href="{{ path('services') }}" class="nav-item nav-link {% if app.request.attributes.get('_route') == 'service' %}active{% endif %}">Services</a>
             <a href="{{ path('contact') }}" class="nav-item nav-link {% if app.request.attributes.get('_route') == 'contact' %}active{% endif %}">Contact</a>
-
+                    
     </div>
 </div>
 
@@ -91,10 +93,7 @@
     {% else %}
         <a href="{{ path('app_login') }}" class="nav-item nav-link">Connexion</a>
     {% endif %}
-      <div class="navbar-nav mr-auto">
-                    <a href="{{ path('front_reclamation_index') }}" class="nav-item nav-link {% if app.request.attributes.get('_route') starts with 'front_reclamation_' %}active{% endif %}">Réclamations</a>
-                    <a href="{{ path('front_reponse_index') }}" class="nav-item nav-link {% if app.request.attributes.get('_route') starts with 'front_reponse_' %}active{% endif %}">Réponses</a>
-                </div>
+      
 </div>
 
             </div>
