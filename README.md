@@ -2,15 +2,14 @@
 <p align="center">
   <img src="public/img/logoOur.png" alt="OUR BATIMA Logo" width="200"/>
 </p>
+
+
+
+
 ## 🎥 Vidéo de Présentation
 
-<p align="center">
+👉 [Cliquez ici pour voir la vidéo de présentation du projet OUR BATIMA sur Vimeo](https://vimeo.com/manage/videos/1089055324/0db36b06d5)
 
-<strong>🎬 Cliquez sur l’image pour visionner la vidéo de présentation du projet</strong>
-👉 [](https://vimeo.com/manage/videos/1089055324/0db36b06d5)
-
-</p>
-# OUR BATIMA - Gestion Intelligente des Projets de Construction
 
 
 
