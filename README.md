@@ -5,6 +5,12 @@
 
 # OUR BATIMA - Gestion Intelligente des Projets de Construction
 
+<p align="center">
+  <a href="public/img/Obatimapi2.mov">
+    <img src="public/img/logoOur.png" alt="Vidéo de présentation" width="600"/>
+  </a>
+</p>
+
 ## Overview
 
 OUR BATIMA est une application web développée dans le cadre du projet PIDEV 3A à **Esprit School of Engineering** (Année universitaire 2024-2025).  
