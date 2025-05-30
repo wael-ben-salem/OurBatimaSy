@@ -8,7 +8,7 @@
 
 ## 🎥 Vidéo de Présentation
 
-👉 [Cliquez ici pour voir la vidéo de présentation du projet OUR BATIMA sur Vimeo](https://vimeo.com/manage/videos/1089055324/0db36b06d5)
+👉 [Cliquez ici pour voir la vidéo de présentation du projet OUR BATIMA ](https://vimeo.com/manage/videos/1089055324/0db36b06d5)
 
 
 
