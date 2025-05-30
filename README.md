@@ -7,7 +7,6 @@
 
 <p align="center">
   <a href="public/img/Obatimapi2.mov">
-    <img src="public/img/logoOur.png" alt="Vidéo de présentation" width="600"/>
   </a>
 </p>
 
