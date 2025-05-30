@@ -2,13 +2,20 @@
 <p align="center">
   <img src="public/img/logoOur.png" alt="OUR BATIMA Logo" width="200"/>
 </p>
-
-# OUR BATIMA - Gestion Intelligente des Projets de Construction
+## 🎥 Vidéo de Présentation
 
 <p align="center">
-  <a href="public/img/Obatimapi2.mov">
+  <a href="./public/img/Obatimapi2.mov">
+    <img src="src/main/resources/OurBatima/style/img/video-thumbnail.png" alt="Vidéo de présentation" width="600"/>
   </a>
 </p>
+
+<p align="center">
+  <strong>🎬 Cliquez sur l’image pour visionner la vidéo de présentation du projet</strong>
+</p>
+# OUR BATIMA - Gestion Intelligente des Projets de Construction
+
+
 
 ## Overview
 
