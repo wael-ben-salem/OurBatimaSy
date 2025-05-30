@@ -4,12 +4,11 @@
 </p>
 ## 🎥 Vidéo de Présentation
 
-
-👉 [Cliquez ici pour voir la vidéo de présentation du projet OUR BATIMA sur Vimeo](https://vimeo.com/manage/videos/1089055324/0db36b06d5)
-
-
 <p align="center">
-  <strong>🎬 Cliquez sur l’image pour visionner la vidéo de présentation du projet</strong>
+
+<strong>🎬 Cliquez sur l’image pour visionner la vidéo de présentation du projet</strong>
+👉 [](https://vimeo.com/manage/videos/1089055324/0db36b06d5)
+
 </p>
 # OUR BATIMA - Gestion Intelligente des Projets de Construction
 
