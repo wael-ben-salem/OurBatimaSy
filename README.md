@@ -4,11 +4,9 @@
 </p>
 ## 🎥 Vidéo de Présentation
 
-<p align="center">
-  <a href="./public/img/Obatimapi2.mov">
-    <img src="src/main/resources/OurBatima/style/img/video-thumbnail.png" alt="Vidéo de présentation" width="600"/>
-  </a>
-</p>
+
+👉 [Cliquez ici pour voir la vidéo de présentation du projet OUR BATIMA sur Vimeo](https://vimeo.com/manage/videos/1089055324/0db36b06d5)
+
 
 <p align="center">
   <strong>🎬 Cliquez sur l’image pour visionner la vidéo de présentation du projet</strong>
